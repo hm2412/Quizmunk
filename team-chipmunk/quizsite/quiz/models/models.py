@@ -34,3 +34,20 @@ class Question(models.Model):
 
     class Meta:
         abstract = True
+
+class IntegerInputQuestion(Question):
+    question_text = models.CharField(max_length=255)
+    mark = models.IntegerField()
+    correct_answer = models.IntegerField()
+
+    def __str__(self):
+        return f"IntegerInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
+    
+
+class TrueFalseQuestion(Question):
+    question_text = models.CharField(max_length=255)
+    is_correct = models.BooleanField() 
+    mark = models.IntegerField()
+
+    def __str__(self):
+        return f"TrueFalseQuestion: {self.question_text}, Correct: {self.is_correct}"   
