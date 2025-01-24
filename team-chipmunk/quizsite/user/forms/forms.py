@@ -5,14 +5,13 @@ from quizsite.user.models import User
 class SignUpForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ['email_address', 'role', 'password1', 'password2']
+        fields = ('email_address', 'role', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['email_address'].widget.attrs.update({'placeholder': 'Enter your email'})
-        self.fields['role'].widget.attrs.update({'placeholder': 'Select your role'})
-        self.fields['password1'].widget.attrs.update({'placeholder': 'Enter your password', 'class' : 'form-control'})
-        self.fields['password2'].widget.attrs.update({'placeholder': 'Confirm your password', 'class' : 'form-control'})
+        super(SignUpForm, self).__init__(*args, **kwargs)
+        for fieldname in ['email_address', 'role', 'password1', 'password2']:
+            self.fields[fieldname].widget.attrs.update({'class': 'form-control', 'placeholder': fieldname,})
+        
 
 class LoginForm(forms.Form):
     email_address = forms.EmailField(
