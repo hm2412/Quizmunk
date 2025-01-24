@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
-from forms.forms import SignUpForm, LoginForm
-from models.models import User, Student, Tutor
+from quizsite.user.forms.forms import SignUpForm, LoginForm
+from quizsite.user.models import User, Student, Tutor
 
 def sign_up(request):
     if request.method == 'POST':
