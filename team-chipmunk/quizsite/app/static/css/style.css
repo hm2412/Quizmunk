@@ -15,7 +15,7 @@ body {
 }
 
 header {
-    background-color: #6200ea;
+    background-color: #398AA2;
     color: white;
     padding: 10px 20px;
 }
@@ -57,14 +57,14 @@ section {
 .btn {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #6200ea;
+    background-color: #398AA2;
     color: white;
     text-decoration: none;
     border-radius: 5px;
 }
 
 .btn:hover {
-    background-color: #3700b3;
+    background-color: #1E7590;
     transition: 0.3s;
 }
 
@@ -93,7 +93,7 @@ footer {
 }
 
 .dropdown-btn {
-    background-color: #6200ea;
+    background-color: #398AA2;
     color: white;
     border: none;
     padding: 10px 15px;
@@ -103,7 +103,7 @@ footer {
 }
 
 .dropdown-btn:hover {
-    background-color: #3700b3;
+    background-color: #1E7590;
 }
 
 .dropdown-content {
