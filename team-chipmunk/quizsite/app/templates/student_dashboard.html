@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        {% include 'partials/navbar.html' %}
+        <div class="dashboard-header">
+            <h1>Welcome, Student!</h1>
+            <div class="profile-dropdown">
+                <button class="dropdown-btn">Profile &#x25BC;</button>
+                <div class="dropdown-content">
+                    <a href="#">Change Password</a>
+                    <a href="#">Sign Out</a>
+                </div>
+            </div>
+        </div>
+        <main>
+            <section>
+                <h2>Your Dashboard</h2>
+                <p>Access your quizzes, view results, and track progress here.</p>
+            </section>
+        </main>
+        {% include 'partials/footer.html' %}
+    </div>
+</body>
+</html>
