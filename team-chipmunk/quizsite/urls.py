@@ -23,7 +23,7 @@ from quizsite.app.views.login_view import login
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('home/', homepage, name='homepage'),
+    path('', homepage, name='homepage'),
     path('sign-up/', sign_up, name='sign_up'),
     path('login/', login, name='login'), 
     path('student-dashboard/', student_dashboard, name='student_dashboard'),

@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from quizsite.app.forms.forms import LoginForm
+from quizsite.app.forms import LoginForm
 
 def login(request):
     if request.method == 'POST':

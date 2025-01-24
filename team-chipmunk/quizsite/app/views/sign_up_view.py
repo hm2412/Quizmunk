@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
-from quizsite.app.forms.forms import SignUpForm
+from quizsite.app.forms import SignUpForm
 from quizsite.app.models import User, Student, Tutor
 
 def sign_up(request):

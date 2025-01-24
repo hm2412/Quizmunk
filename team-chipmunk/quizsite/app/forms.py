@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from quizsite.app.models.models import User
+from quizsite.app.models import User
 
 class SignUpForm(UserCreationForm):
     class Meta:
