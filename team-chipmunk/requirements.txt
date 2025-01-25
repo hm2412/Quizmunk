@@ -1,0 +1,2 @@
+Django==5.1.2
+django-password-eye==1.0.3
