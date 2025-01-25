@@ -2,12 +2,14 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from quizsite.app.forms import SignUpForm
 from quizsite.app.models import User, Student, Tutor
+from quizsite.app.helpers.decorators import redirect_authenticated_to_dashboard
 
-def sign_up(request):
+@redirect_authenticated_to_dashboard
+def sign_up_view(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            user = form.save()  
+            user = form.save()
             if user.role == User.STUDENT:
                 Student.objects.create(user=user, name="Default Student Name")
             elif user.role == User.TUTOR:

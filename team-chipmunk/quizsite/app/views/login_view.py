@@ -1,10 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from quizsite.app.forms import LoginForm
+from quizsite.app.helpers.decorators import redirect_authenticated_to_dashboard
 
+@redirect_authenticated_to_dashboard
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -15,11 +17,12 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, "Login successful!")
-                return HttpResponseRedirect(reverse('homepage'))  # Redirect to the home or dashboard page
+                if user.role == 'student':
+                    return HttpResponseRedirect(reverse('student_dashboard'))
+                elif user.role == 'tutor':
+                    return HttpResponseRedirect(reverse('tutor_dashboard'))
             else:
                 messages.error(request, "Invalid email or password")
-                return render(request,'login.html',{'form': form})  
-                
     else:
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
