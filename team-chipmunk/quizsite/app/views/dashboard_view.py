@@ -37,5 +37,7 @@ def tutor_dashboard(request):
             "quiz_description": "Test your math skills with this beginner-level quiz.",
         }
     ]
+    # this is what the code should be once it acc works quizzes = Quiz.objects.filter(tutorID=request.user.id).order_by('-ID')[:5]
+
 
     return render(request, 'tutor_dashboard.html', {"quizzes": quizzes})

@@ -74,6 +74,17 @@
     overflow-x: hidden;
 }
 
+.dashboard-top {
+    display: flex;
+    justify-content: space-between; /* This will push content to the left and right */
+    align-items: center; /* This ensures that items are vertically centered */
+}
+
+button.btn-primary {
+    margin-left: auto; /* This pushes the button to the far right */
+    margin-right: 100px;
+}
+
 .button-group {
     margin-top: 20px;
     display: flex;
