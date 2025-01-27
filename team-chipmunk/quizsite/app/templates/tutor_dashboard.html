@@ -35,7 +35,7 @@
             </main>
             <section>
                 <h3>My Quizzes</h3>
-                <div class="quizzes-list-container">
+                <div class="card-group">
                     {% for quiz in quizzes %}
                             {% include 'partials/quiz_card.html' with quiz_img=quiz.quiz_img quiz_title=quiz.quiz_title quiz_description=quiz.quiz_description %}
                     {% endfor %}

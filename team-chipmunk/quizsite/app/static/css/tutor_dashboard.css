@@ -51,6 +51,9 @@
     flex-direction: column;
     box-sizing: border-box; /* Ensures padding doesn't affect the overall width */
     min-width: calc(100% - 250px); /* Prevents overflow */
+    overflow-x: hidden; /* Allow vertical scrolling */
+    overflow-y: scroll;
+
 }
 
 .button-group {
@@ -130,28 +133,17 @@ footer {
     display: block;
 }
 
-.quizzes-list-container {
-    display: flex;
-    overflow-x: auto;
-    gap: 1rem;
-    padding: 1rem 0;
-    max-width: 80%;
-    height: 300px;
-    overflow-y: hidden;
-    white-space: nowrap;
+.card {
+    border-radius: 100px; /* Adjust the radius as needed */
 }
 
-.quizzes-list-container::-webkit-scrollbar {
-    height: 8px;
+.card-img-top {
+    width: 100%; /* Ensure the image takes up the full width of the card */
+    height: 200px; /* Fixed height for the image */
+    object-fit: cover; /* Ensure the image covers the area without distortion */
+    border-radius: 10px; /* Adjust the radius as needed */
 }
 
-.quizzes-list-container::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-    border-radius: 4px;
-}
-
-.quizzes-list-container .card {
-    flex: 0 0 auto; /* Prevent cards from shrinking and allow horizontal scrolling */
-    max-width: 100%;
-    width: 200px;
+.card-group {
+    gap: 1rem; /* Adjust the value to control the spacing */
 }
