@@ -6,17 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tutor Dashboard</title>
     <link rel="stylesheet" href="{% static 'css/tutor_dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <div class="container">
+    <div class="tutor_container">
         <div class="sidebar">
             {% include 'partials/tutor_navbar.html' %}
         </div>
-        <div class="content">
+        <div class="tutor_content">
             <div class="dashboard-header">
-                <h1>Welcome, Tutor!</h1>
+                <h1>Welcome, Tutor!</h1> <!-- 'Tutor' should be replaced by their name -->
                 <div class="profile-dropdown">
-                    <button class="dropdown-btn">Profile &#x25BC;</button>
+                    <button class="dropdown-btn">
+                        <img src="https://www.gravatar.com/avatar/{{ user.gravatar_hash }}?s=200&d=identicon" alt="Profile Picture" class="gravatar">
+                    </button>
                     <div class="dropdown-content">
                         <a href="#">Change Password</a>
                         <a href="#">Sign Out</a>
@@ -29,6 +32,7 @@
                     <p>Create quizzes, manage rooms, and view student results here.</p>
                 </section>
             </main>
+
             {% include 'partials/footer.html' %}
         </div>
     </div>
