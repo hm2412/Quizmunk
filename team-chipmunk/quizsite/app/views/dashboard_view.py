@@ -9,4 +9,48 @@ def student_dashboard(request):
 @redirect_unauthenticated_to_homepage
 @is_tutor
 def tutor_dashboard(request):
-    return render(request, 'tutor_dashboard.html')
+    #Placeholder Quizzes
+    quizzes = [
+        {
+            "quiz_img": "https://via.placeholder.com/300",
+            "quiz_title": "Math Quiz 1",
+            "quiz_description": "Test your math skills with this beginner-level quiz.",
+        },
+        {
+            "quiz_img": "https://via.placeholder.com/300",
+            "quiz_title": "Science Quiz 2",
+            "quiz_description": "Explore the wonders of science in this exciting quiz.",
+        },
+        {
+            "quiz_img": "https://via.placeholder.com/300",
+            "quiz_title": "History Quiz 3",
+            "quiz_description": "Challenge yourself with this deep dive into history.",
+        },
+        {
+            "quiz_img": "https://via.placeholder.com/300",
+            "quiz_title": "Geography Quiz 4",
+            "quiz_description": "Test your knowledge of world geography.",
+        },
+        {
+            "quiz_img": "https://via.placeholder.com/300",
+            "quiz_title": "Math Quiz 1",
+            "quiz_description": "Test your math skills with this beginner-level quiz.",
+        },
+        {
+            "quiz_img": "https://via.placeholder.com/300",
+            "quiz_title": "Science Quiz 2",
+            "quiz_description": "Explore the wonders of science in this exciting quiz.",
+        },
+        {
+            "quiz_img": "https://via.placeholder.com/300",
+            "quiz_title": "History Quiz 3",
+            "quiz_description": "Challenge yourself with this deep dive into history.",
+        },
+        {
+            "quiz_img": "https://via.placeholder.com/300",
+            "quiz_title": "Geography Quiz 4",
+            "quiz_description": "Test your knowledge of world geography.",
+        },
+    ]
+
+    return render(request, 'tutor_dashboard.html', {"quizzes": quizzes})

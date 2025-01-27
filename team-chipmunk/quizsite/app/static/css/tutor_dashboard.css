@@ -137,3 +137,29 @@ footer {
 .profile-dropdown:hover .dropdown-content {
     display: block;
 }
+
+.quizzes-list-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding: 1rem 0;
+    max-width: 80%;
+    height: 300px;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+.quizzes-list-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.quizzes-list-container::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+.quizzes-list-container .card {
+    flex: 0 0 auto; /* Prevent cards from shrinking and allow horizontal scrolling */
+    max-width: 100%;
+    width: 200px;
+}
