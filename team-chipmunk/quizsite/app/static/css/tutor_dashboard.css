@@ -44,6 +44,17 @@
     background-color: #1E7590;
 }
 
+.help-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: white;
+    color: #398AA2;
+    text-decoration: none;
+    border-radius: 50%;
+    height: 50px;
+    width: 50px;
+}
+
 .tutor_content {
     margin-left: 250px; /* Offset by the width of the sidebar */
     flex: 1;
@@ -51,4 +62,11 @@
     flex-direction: column;
     box-sizing: border-box; /* Ensures padding doesn't affect the overall width */
     min-width: calc(100% - 250px); /* Prevents overflow */
+}
+
+.dashboard_summary {
+    flex: 1;
+    text-align: center;
+    padding: 20px;
+    overflow-x: hidden;
 }
