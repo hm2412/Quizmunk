@@ -61,7 +61,9 @@
     display: flex;
     flex-direction: column;
     box-sizing: border-box; /* Ensures padding doesn't affect the overall width */
-    min-width: calc(100% - 250px); /* Prevents overflow */
+    min-width: calc(100% - 250px); /* Prevents overflow */ 
+    overflow-x: hidden; /* Allow vertical scrolling */
+    overflow-y: scroll;
 }
 
 .dashboard_summary {
@@ -70,3 +72,96 @@
     padding: 20px;
     overflow-x: hidden;
 }
+
+.button-group {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #398AA2;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.btn:hover {
+    background-color: #1E7590;
+    transition: 0.3s;
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    margin-top: auto;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-btn {
+    background-color: #398AA2;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.dropdown-btn:hover {
+    background-color: #1E7590;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    min-width: 150px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.dropdown-content a {
+    color: #333;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.profile-dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.card {
+    border-radius: 100px; /* Adjust the radius as needed */
+}
+
+.card-img-top {
+    width: 100%; /* Ensure the image takes up the full width of the card */
+    height: 200px; /* Fixed height for the image */
+    object-fit: cover; /* Ensure the image covers the area without distortion */
+    border-radius: 10px; /* Adjust the radius as needed */
+}
+
+.card-group {
+    gap: 1rem; /* Adjust the value to control the spacing */
+}
+
