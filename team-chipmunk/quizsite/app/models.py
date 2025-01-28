@@ -127,7 +127,7 @@ class Quiz(models.Model):
         "R": "Releasable",
     }
 
-    ID = models.CharField(max_length=10, unique=True)
+    quizID = models.CharField(max_length=10, unique=True)
     name = models.CharField(max_length=50)
     tutorID = models.CharField(max_length=10)
     subject = models.CharField(blank=True, max_length=50)
@@ -137,13 +137,10 @@ class Quiz(models.Model):
     def __str__(self):
         return(f"Quiz: {self.ID}, {self.name} - made by tutor {self.tutorID} and is {type}")
 
-    class Meta:
-        abstract = True
-
 class Question(models.Model):
     number = models.IntegerField()
     time = models.IntegerField()
-    quizID = models.CharField(max_length=10)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
 
     def __str__(self):
         return (f"Quiz {self.quizID} Question {self.number}")
