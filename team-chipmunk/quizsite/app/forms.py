@@ -10,10 +10,10 @@ class SignUpForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super(SignUpForm, self).__init__(*args, **kwargs)
-        for fieldname in ['email_address', 'role', 'password1', 'password2']:
-            if fieldname in ['password2']:
-                self.fields[fieldname].widget.attrs.update({'class': 'form-control', 'placeholder': 'confirm password',})
-            self.fields[fieldname].widget.attrs.update({'class': 'form-control', 'placeholder': fieldname,})
+        self.fields['email_address'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Enter your email'})
+        self.fields['role'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Select your role'})
+        self.fields['password1'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Password'})
+        self.fields['password2'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Confirm Password'})
         
 class LoginForm(forms.Form):
     email_address = forms.EmailField(
