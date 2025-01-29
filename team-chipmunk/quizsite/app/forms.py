@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from quizsite.app.models import User
+from quizsite.app.models import User, Quiz, IntegerInputQuestion, TrueFalseQuestion
 from django_password_eye.fields import PasswordEye
 
 class SignUpForm(UserCreationForm):
@@ -23,3 +23,18 @@ class LoginForm(forms.Form):
         max_length=255
     )
     password = PasswordEye(label= '')
+
+class QuizForm(forms.ModelForm):
+    class Meta:
+        model= Quiz
+        fields= ['ID','name','tutorID','subject','difficulty','type']
+        
+class IntegerInputQuestionForm(forms.ModelForm):
+    class Meta:
+        model = IntegerInputQuestion
+        fields = ['number', 'time', 'quizID', 'question_text', 'mark', 'correct_answer']
+
+class TrueFalseQuestionForm(forms.ModelForm):
+    class Meta:
+        model = TrueFalseQuestion
+        fields = ['number', 'time', 'quizID', 'question_text', 'is_correct', 'mark']
