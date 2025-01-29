@@ -6,8 +6,9 @@ import uuid
 import string
 import random
 
+
 class UserManager(BaseUserManager):
-    #creates and saves regular user in db
+    # creates and saves regular user in db
     def create_user(self, email_address, password=None, **extra_fields):
         if not email_address:
             raise ValueError('The Email Address field must be set')
@@ -16,7 +17,8 @@ class UserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
-    #creates and saves a superuser(admin) in the db
+
+    # creates and saves a superuser(admin) in the db
     def create_superuser(self, email_address, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
@@ -27,10 +29,12 @@ class UserManager(BaseUserManager):
             raise ValueError('Superuser must have is_superuser=True.')
 
         return self.create_user(email_address, password, **extra_fields)
-    #retrieves user by email address
+
+    # retrieves user by email address
     def get_by_natural_key(self, email_address):
         return self.get(email_address=email_address)
-    
+
+
 class User(AbstractBaseUser, PermissionsMixin):
     STUDENT = 'student'
     TUTOR = 'tutor'
@@ -48,8 +52,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    
-    objects= UserManager()
+
+    objects = UserManager()
     # Required (unique identifier)
     USERNAME_FIELD = 'email_address'
     REQUIRED_FIELDS = []
@@ -76,6 +80,7 @@ class Tutor(models.Model):
     def __str__(self):
         return f"Tutor: {self.name}"
 
+
 class GuestAccess(models.Model):
     """Model for guests without an account."""
     classroom_code = models.CharField(
@@ -99,6 +104,7 @@ class GuestAccess(models.Model):
     def __str__(self):
         return f"Guest - Classroom Code: {self.classroom_code}"
 
+
 def generate_join_code():
     from django.apps import apps
     Room = apps.get_model('app', 'Room')  # Dynamically load the Room model
@@ -106,6 +112,7 @@ def generate_join_code():
         code = ''.join(random.choices(string.ascii_uppercase, k=6))
         if not Room.objects.filter(join_code=code).exists():
             return code
+
 
 class Room(models.Model):
     name = models.TextField(blank=False, max_length=50, help_text="Rooms must have a name")
@@ -115,6 +122,7 @@ class Room(models.Model):
 
     def __str__(self):
         return f"Room: {self.name} (Code: {self.join_code})"
+
 
 class Quiz(models.Model):
     DIFFICULTIES = {
@@ -135,7 +143,8 @@ class Quiz(models.Model):
     type = models.CharField(max_length=1, choices=TYPES)
 
     def __str__(self):
-        return(f"Quiz: {self.ID}, {self.name} - made by tutor {self.tutorID} and is {type}")
+        return (f"Quiz: {self.ID}, {self.name} - made by tutor {self.tutorID} and is {type}")
+
 
 class Question(models.Model):
     number = models.IntegerField()
@@ -148,6 +157,7 @@ class Question(models.Model):
     class Meta:
         abstract = True
 
+
 class IntegerInputQuestion(Question):
     question_text = models.CharField(max_length=255)
     mark = models.IntegerField()
@@ -156,9 +166,10 @@ class IntegerInputQuestion(Question):
     def __str__(self):
         return f"IntegerInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
 
+
 class TrueFalseQuestion(Question):
     question_text = models.CharField(max_length=255)
-    is_correct = models.BooleanField() 
+    is_correct = models.BooleanField()
     mark = models.IntegerField()
 
     def __str__(self):
