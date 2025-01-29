@@ -11,9 +11,9 @@ def sign_up_view(request):
         if form.is_valid():
             user = form.save()
             if user.role == User.STUDENT:
-                Student.objects.create(user=user, name="Default Student Name")
+                Student.objects.create(user=user, name=user.username)
             elif user.role == User.TUTOR:
-                Tutor.objects.create(user=user, name="Default Tutor Name")
+                Tutor.objects.create(user=user, name=user.username)
             login(request, user)
             return redirect('homepage')  # Redirect to the home page or dashboard
     else:

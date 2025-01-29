@@ -6,10 +6,11 @@ from django_password_eye.fields import PasswordEye
 class SignUpForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ('email_address', 'role', 'password1', 'password2')
+        fields = ('username', 'email_address', 'role', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
         super(SignUpForm, self).__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Choose a username'})
         self.fields['email_address'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Enter your email'})
         self.fields['role'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Select your role'})
         self.fields['password1'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Password'})

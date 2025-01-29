@@ -8,16 +8,19 @@ import random
 
 class UserManager(BaseUserManager):
     #creates and saves regular user in db
-    def create_user(self, email_address, password=None, **extra_fields):
+    def create_user(self, email_address, username, password=None, **extra_fields):
         if not email_address:
             raise ValueError('The Email Address field must be set')
+        if not username:
+            raise ValueError('The Username field must be set')
+        
         email_address = self.normalize_email(email_address)
-        user = self.model(email_address=email_address, **extra_fields)
+        user = self.model(email_address=email_address, username=username, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
     #creates and saves a superuser(admin) in the db
-    def create_superuser(self, email_address, password=None, **extra_fields):
+    def create_superuser(self, email_address, username, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
@@ -26,7 +29,7 @@ class UserManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        return self.create_user(email_address, password, **extra_fields)
+        return self.create_user(email_address, username, password, **extra_fields)
     #retrieves user by email address
     def get_by_natural_key(self, email_address):
         return self.get(email_address=email_address)
@@ -41,6 +44,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     ]
 
     email_address = models.EmailField(unique=True)
+    username = models.CharField(max_length=50,unique=True)
     role = models.CharField(
         max_length=10,
         choices=ROLE_CHOICES,
@@ -52,10 +56,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects= UserManager()
     # Required (unique identifier)
     USERNAME_FIELD = 'email_address'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['username']
 
     def __str__(self):
-        return self.email_address
+        return self.username
 
     class Meta:
         ordering = ['email_address']

@@ -7,13 +7,15 @@ User = get_user_model()
 class ViewTests(TestCase):
     def setUp(self):
         # Create a student user
-        self.student_user = User.objects.create_user(
+        self.student_user = User.objects.create_user (
+            username="studenttestuser",
             email_address="student@example.com",
             password="password123",
             role=User.STUDENT,
         )
         # Create a tutor user
         self.tutor_user = User.objects.create_user(
+            username="tutortestuser",
             email_address="tutor@example.com",
             password="password123",
             role=User.TUTOR,
