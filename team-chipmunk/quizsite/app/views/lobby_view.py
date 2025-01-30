@@ -1,15 +1,31 @@
-from django.shortcuts import render
-from django.http import Http404
-from quizsite.app.models import Room
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from quizsite.app.models import Room, RoomParticipant, GuestAccess
 
-def lobby(request, code):
-    try:
-        room = Room.objects.get(join_code = code)
-        context = {
-            'code': f"Room Code: {room.join_code}",
-            'name': f"{room.name}",
-        }
-    except:
-        raise Http404(f"Could not find room with code: {code}")
+def lobby(request, join_code):
+    room = get_object_or_404(Room, join_code=join_code)
+
+    #if not room.quiz:
+    #    messages.error(request, 'Invalid code!')
+    #    return redirect('join_quiz')
+
+    if request.user.is_authenticated:
+        participant, created = RoomParticipant.objects.get_or_create(room=room, user=request.user)
     else:
-        return render(request, 'lobby.html', context)
+        guest_session = request.session.session_key
+        if not guest_session:
+            request.session.save()
+            guest_session = request.session.session_key
+        guest_access, _ = GuestAccess.objects.get_or_create(session_id=guest_session)
+        participant, created = RoomParticipant.objects.get_or_create(room=room, guest_access=guest_access)
+
+    participants = RoomParticipant.objects.filter(room=room)
+
+    context = {
+        'room': room,
+        'quiz': room.quiz,
+        'join_code': join_code,
+        'participants': participants,  
+    }
+
+    return render(request, 'lobby.html', context)

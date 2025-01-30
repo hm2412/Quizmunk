@@ -8,8 +8,46 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    {% include 'partials/navbar.html' %}
-    <h1 align="center">{{name}}</h1>
-    <h1 align="right">{{code}}</h1>
+    <div class="container">
+        {% include 'partials/navbar.html' %}
+        <main>
+            <section>
+                <h2>Lobby for {{ room.name }}</h2>
+                <p>Room Code: <strong>{{ join_code }}</strong></p>
+                
+                <h3>Live Participants:</h3>
+                <ul id="participants-list">
+                    {% for participant in participants %}
+                        <li>{{ participant }}</li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </main>
+        {% include 'partials/footer.html' %}
+    </div>
+
+    <script>
+        const ws = new WebSocket(`ws://${window.location.host}/ws/lobby/{{ join_code }}/`);
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const participantsList = document.getElementById("participants-list");
+            participantsList.innerHTML = "";  // Clear existing list
+
+            data.participants.forEach(participant => {
+                const li = document.createElement("li");
+                li.textContent = participant;
+                participantsList.appendChild(li);
+            });
+        };
+
+        ws.onopen = function() {
+            console.log("WebSocket connected!");
+        };
+
+        ws.onerror = function(error) {
+            console.error("WebSocket Error:", error);
+        };
+    </script>
 </body>
 </html>
