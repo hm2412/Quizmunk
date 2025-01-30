@@ -21,6 +21,7 @@ from quizsite.app.views.dashboard_view import student_dashboard, tutor_dashboard
 from quizsite.app.views.sign_up_view import sign_up_view
 from quizsite.app.views.login_view import login_view
 from quizsite.app.views.join_quiz_view import join_quiz_view
+from quizsite.app.views.lobby_view import lobby
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,5 +30,6 @@ urlpatterns = [
     path('login/', login_view, name='login'), 
     path('student-dashboard/', student_dashboard, name='student_dashboard'),
     path('tutor-dashboard/', tutor_dashboard, name='tutor_dashboard'),
-    path('join-quiz/', join_quiz_view, name='join_quiz')
+    path('join-quiz/', join_quiz_view, name='join_quiz'),
+    path('lobby/<str:code>', lobby, name='lobby'),
 ]
