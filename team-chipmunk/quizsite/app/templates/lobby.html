@@ -10,6 +10,7 @@
 <body>
     {% include 'partials/navbar.html' %}
     <h1 align="center">{{name}}</h1>
-    <h1 align="right">{{code}}</h1>
+        <h2>{{code}}</h2>
+        <img src="{% static 'images/qr_code.png' %}" alt="Room QR Code"  width="200px" height="200px">
 </body>
 </html>
