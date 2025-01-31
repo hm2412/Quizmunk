@@ -1,15 +1,20 @@
 from django.shortcuts import redirect,render, get_object_or_404
 from quizsite.app.forms import QuizForm, IntegerInputQuestionForm, TrueFalseQuestionForm
 from quizsite.app.models import Quiz, Question
+from django.http import JsonResponse
+
+
 def create_quiz_view(request):
-    if request.method == 'POST':
-        form = QuizForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('edit_quiz',quiz_id=form.instance.ID)
-    else:
-        form = QuizForm()
-    return render(request, 'create_quiz.html',{'form':form})
+    form = QuizForm(request.POST or None)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+
+    if 'HX-Request' not in request.headers:
+        return render(request, 'create_quiz.html', {'form': form})
+
+    return render(request, 'partials/create_quiz_form.html', {'form': form})
+
 
 def edit_quiz_view(request, quiz_id):
     quiz = get_object_or_404(Quiz, ID=quiz_id)
@@ -32,6 +37,7 @@ def edit_quiz_view(request, quiz_id):
         'int_form':int_form,
         'tf_form':tf_form
     })
+
 
 def delete_question_view(request, question_id):
     question = get_object_or_404(Question, pk=question_id)

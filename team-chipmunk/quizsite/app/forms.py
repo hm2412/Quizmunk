@@ -27,7 +27,7 @@ class LoginForm(forms.Form):
 class QuizForm(forms.ModelForm):
     class Meta:
         model= Quiz
-        fields= ['ID','name','tutorID','subject','difficulty','type']
+        fields= ['name','tutorID','subject','difficulty']
         
 class IntegerInputQuestionForm(forms.ModelForm):
     class Meta:

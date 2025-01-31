@@ -1,0 +1,39 @@
+<div class="modal">
+    <div class="modal-content" id="customQuizModal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Create Quiz</h2>
+        <form hx-post="{% url 'create_quiz' %}" hx-target="#quiz-form-container" hx-swap="innerHTML">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+.close {
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+}
+</style>
+
+<script>
+    function closeModal() {
+        let modal = document.getElementById("customQuizModal");
+        if (modal) {
+            modal.parentNode.remove(); 
+        }
+    }
+</script>

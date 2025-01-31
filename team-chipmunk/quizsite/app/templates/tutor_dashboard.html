@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tutor Dashboard</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://unpkg.com/htmx.org@1.8.4"></script>
 </head>
 <body>
     <div class="container">
@@ -24,6 +25,13 @@
             <section>
                 <h2>Your Dashboard</h2>
                 <p>Create quizzes, manage rooms, and view student results here.</p>
+
+                <button hx-get="{% url 'create_quiz' %}" hx-target="#quiz-form-container" hx-swap="innerHTML">
+                    Create Quiz
+                </button>
+            
+                <div id="quiz-form-container"></div>
+                
             </section>
         </main>
         {% include 'partials/footer.html' %}
