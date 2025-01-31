@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutor Profile</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        {% include 'partials/navbar.html' %}
+        <div class="dashboard-header">
+            <h1>Tutor Profile</h1>
+        </div>
+        <main>
+            <section>
+                <table class="profile-table">
+                    <tr>
+                        <th>Email Address:</th>
+                        <td>{{ user.email_address }}</td>
+                    </tr>
+                    <tr>
+                        <th>Role:</th>
+                        <td>{{ user.get_role_display }}</td>
+                    </tr>
+                </table>
+            </section>
+        </main>
+        {% include 'partials/footer.html' %}
+    </div>
+</body>
+</html>

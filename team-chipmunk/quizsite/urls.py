@@ -17,9 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from quizsite.app.views.homepage_view import homepage
-from quizsite.app.views.dashboard_view import student_dashboard, tutor_dashboard
 from quizsite.app.views.sign_up_view import sign_up_view
 from quizsite.app.views.login_view import login_view
+from quizsite.app.views.dashboard_view import student_dashboard, tutor_dashboard
+from quizsite.app.views.profile_view import student_profile, tutor_profile
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,4 +29,6 @@ urlpatterns = [
     path('login/', login_view, name='login'), 
     path('student-dashboard/', student_dashboard, name='student_dashboard'),
     path('tutor-dashboard/', tutor_dashboard, name='tutor_dashboard'),
+    path('student-profile/', student_profile, name='student_profile'),
+    path('tutor-profile/', tutor_profile, name='tutor_profile'),
 ]
