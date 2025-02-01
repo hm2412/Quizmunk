@@ -114,10 +114,11 @@ def generate_join_code():
             return code
 
 
+
 class Room(models.Model):
     name = models.TextField(blank=False, max_length=50, help_text="Rooms must have a name")
     # tutor = models.ForeignKey(Tutor, related_name="room owners", on_delete=models.CASCADE)
-    # quiz = models.ForeignKey(Quiz, related_name="Quiz chosen", on_delete=models.CASCADE)
+    quiz = models.ForeignKey("Quiz", related_name="room_set", on_delete=models.CASCADE, null=True, blank=True)
     join_code = models.CharField(max_length=8, unique=True, editable=False, default=generate_join_code)
 
     def __str__(self):
@@ -141,7 +142,7 @@ class Quiz(models.Model):
     subject = models.CharField(blank=True, max_length=50)
     difficulty = models.CharField(blank=True, max_length=1, choices=DIFFICULTIES)
     type = models.CharField(max_length=1, choices=TYPES)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    room = models.OneToOneField("Room", related_name="quiz_room", on_delete=models.SET_NULL, null=True, blank=True)
 
 
     def __str__(self):
@@ -176,3 +177,28 @@ class TrueFalseQuestion(Question):
 
     def __str__(self):
         return f"TrueFalseQuestion: {self.question_text}, Correct: {self.is_correct}"
+    
+
+    
+
+class RoomParticipant(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='participants')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    guest_access = models.ForeignKey(GuestAccess, on_delete=models.CASCADE, null=True, blank=True)
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    models.Q(user__isnull=False, guest_access__isnull=True) |
+                    models.Q(user__isnull=True, guest_access__isnull=False)
+                ),
+                name='user_xor_guest'
+            )
+        ]
+
+    def __str__(self):
+        if self.user:
+            return f"User: {self.user.email_address}"
+        return f"Guest: {self.guest_access.session_id[:8]}"
