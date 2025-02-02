@@ -49,6 +49,9 @@ MANIFEST
 *.manifest
 *.spec
 
+# QR code image
+**/qr_code.png
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
