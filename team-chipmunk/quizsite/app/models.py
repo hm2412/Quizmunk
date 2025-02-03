@@ -202,3 +202,12 @@ class RoomParticipant(models.Model):
         if self.user:
             return f"User: {self.user.email_address}"
         return f"Guest: {self.guest_access.session_id[:8]}"
+
+class Classroom(models.Model):
+    name = models.CharField(max_length=50)
+    tutor = models.ForeignKey(Tutor, related_name="classroom_teacher", on_delete=models.CASCADE)
+    description = models.CharField(max_length=255)
+
+class ClassroomStudent(models.Model):
+    classroom = models.ForeignKey(Classroom, related_name="students", on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, related_name="classrooms", on_delete=models.CASCADE)
