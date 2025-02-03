@@ -136,9 +136,26 @@ class Quiz(models.Model):
         return(f"Quiz: {self.name} - made by tutor {self.tutorID}")
 
 class Question(models.Model):
-    number = models.IntegerField()
-    time = models.IntegerField()
+    MARKS={
+        "5": "5",
+        "10": "10",
+        "15": "15",
+        "2O": "20",
+         "25": "25",
+        "30": "30",
+    }
+    TIMES={
+        "5": "5",
+        "10": "10",
+        "15": "15",
+        "2O": "20",
+         "25": "25",
+        "30": "30",
+    }
+    number = models.IntegerField(blank=True, null=True)
+    time = models.CharField(blank=True, max_length=2, choices=TIMES)
     quizID = models.CharField(max_length=10)
+    mark = models.CharField(blank=True, max_length=2, choices=MARKS)
 
     def __str__(self):
         return (f"Quiz {self.quizID} Question {self.number}")
@@ -148,7 +165,7 @@ class Question(models.Model):
 
 class IntegerInputQuestion(Question):
     question_text = models.CharField(max_length=255)
-    mark = models.IntegerField()
+    #mark = models.IntegerField()
     correct_answer = models.IntegerField()
 
     def __str__(self):
@@ -157,7 +174,7 @@ class IntegerInputQuestion(Question):
 class TrueFalseQuestion(Question):
     question_text = models.CharField(max_length=255)
     is_correct = models.BooleanField() 
-    mark = models.IntegerField()
+    #mark = models.IntegerField()
 
     def __str__(self):
         return f"TrueFalseQuestion: {self.question_text}, Correct: {self.is_correct}"

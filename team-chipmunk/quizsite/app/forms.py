@@ -27,14 +27,14 @@ class LoginForm(forms.Form):
 class QuizForm(forms.ModelForm):
     class Meta:
         model= Quiz
-        fields= ['name','tutorID','subject','difficulty']
+        fields= ['name','subject','difficulty']
         
 class IntegerInputQuestionForm(forms.ModelForm):
     class Meta:
         model = IntegerInputQuestion
-        fields = ['number', 'time', 'quizID', 'question_text', 'mark', 'correct_answer']
+        fields = ['time', 'question_text', 'mark', 'correct_answer']
 
 class TrueFalseQuestionForm(forms.ModelForm):
     class Meta:
         model = TrueFalseQuestion
-        fields = ['number', 'time', 'quizID', 'question_text', 'is_correct', 'mark']
+        fields = ['time', 'question_text', 'is_correct', 'mark']

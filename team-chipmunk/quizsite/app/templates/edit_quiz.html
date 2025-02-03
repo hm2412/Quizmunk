@@ -1,8 +1,11 @@
 <!DOCTYPE html>
+{% load static %}
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Edit Quiz: {{ quiz.name }}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
   <style>
@@ -26,9 +29,11 @@
       min-height: 300px;
     }
   </style>
+
 </head>
 <body>
   <div class="container-fluid">
+    {% include 'partials/navbar.html' %}
     <h2>Edit Quiz: {{ quiz.name }}</h2>
     <div class="row">
       <!-- Questions List -->
@@ -125,16 +130,13 @@
           var formHtml = $("#integer-form-template").html();
           $("#editor").html(formHtml);
           $("#editor").find("[name='question_text']").val(data.question_text);
-          $("#editor").find("[name='number']").val(data.number);
           $("#editor").find("[name='time']").val(data.time);
           $("#editor").find("[name='mark']").val(data.mark);
           $("#editor").find("[name='correct_answer']").val(data.correct_answer);
-          $("#editor").find("[name='quizID']").val(data.quizID);
         } else if (type === "true_false") {
           var formHtml = $("#truefalse-form-template").html();
           $("#editor").html(formHtml);
           $("#editor").find("[name='question_text']").val(data.question_text);
-          $("#editor").find("[name='number']").val(data.number);
           $("#editor").find("[name='time']").val(data.time);
           $("#editor").find("[name='mark']").val(data.mark);
           if(data.is_correct === true || data.is_correct === "True"){
@@ -195,5 +197,6 @@
       });
     });
   </script>
+  {% include 'partials/footer.html' %}
 </body>
 </html>
