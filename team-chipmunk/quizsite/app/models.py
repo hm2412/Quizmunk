@@ -31,6 +31,7 @@ class UserManager(BaseUserManager):
         return self.create_user(email_address, password, **extra_fields)
 
     # retrieves user by email address
+    # this function seems unnecessary?
     def get_by_natural_key(self, email_address):
         return self.get(email_address=email_address)
 
@@ -44,9 +45,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         (TUTOR, 'Tutor'),
     ]
 
+    first_name = models.CharField(max_length=50, blank=False)
+    last_name = models.CharField(max_length=50, blank=False)
     email_address = models.EmailField(unique=True)
     role = models.CharField(
-        max_length=10,
+        max_length=7,
         choices=ROLE_CHOICES,
         default=STUDENT,
     )
@@ -63,22 +66,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         ordering = ['email_address']
-
-
-class Student(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile')
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return f"Student: {self.name}"
-
-
-class Tutor(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='tutor_profile')
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return f"Tutor: {self.name}"
 
 
 class GuestAccess(models.Model):
@@ -116,9 +103,16 @@ def generate_join_code():
 
 
 class Room(models.Model):
-    name = models.TextField(blank=False, max_length=50, help_text="Rooms must have a name")
-    # tutor = models.ForeignKey(Tutor, related_name="room owners", on_delete=models.CASCADE)
-    quiz = models.ForeignKey("Quiz", related_name="room_set", on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(blank=False, max_length=50, help_text="Rooms must have a name")
+    quiz = models.ForeignKey(
+        Quiz, 
+        related_name="room_set", 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True,
+        verbose_name="Current quiz",
+        help_text="The quiz this room is made from."
+    )
     join_code = models.CharField(max_length=8, unique=True, editable=False, default=generate_join_code)
 
     def __str__(self):
@@ -126,48 +120,61 @@ class Room(models.Model):
 
 
 class Quiz(models.Model):
-    DIFFICULTIES = {
-        "E": "Easy",
-        "M": "Medium",
-        "H": "Hard",
-    }
-    TYPES = {
-        "L": "Live",
-        "R": "Releasable",
-    }
+    DIFFICULTIES = [
+        ("E", "Easy"),
+        ("M", "Medium"),
+        ("H", "Hard"),
+    ]
+    TYPES = [
+        ("L", "Live"),
+        ("R", "Releasable"),
+    ]
 
-    quizID = models.CharField(max_length=10, unique=True)
     name = models.CharField(max_length=50)
-    tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE)
     subject = models.CharField(blank=True, max_length=50)
     difficulty = models.CharField(blank=True, max_length=1, choices=DIFFICULTIES)
     type = models.CharField(max_length=1, choices=TYPES)
-    room = models.OneToOneField("Room", related_name="quiz_room", on_delete=models.SET_NULL, null=True, blank=True)
+    tutor = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        limit_choices_to={'role': 'Tutor'},  # Ensures only tutors can own quizzes
+        related_name='quizzes',
+        verbose_name="Related tutor",
+        help_text="The tutor that creates this quiz."
+    )
+    # room = models.OneToOneField("Room", related_name="quiz_room", on_delete=models.SET_NULL, null=True, blank=True)
+    # I believe this should be removed, as it's redundant? 
 
 
     def __str__(self):
         return (f"Quiz: {self.ID}, {self.name} - made by tutor {self.tutorID} and is {type}")
 
 class Question(models.Model):
-    MARKS={
-        "5": "5",
-        "10": "10",
-        "15": "15",
-        "2O": "20",
-         "25": "25",
-        "30": "30",
-    }
+    MARKS=[
+        ("5": "5 marks"),
+        ("10": "10 marks"),
+        ("15": "15 marks"),
+        ("2O": "20 marks"),
+        ("25": "25 marks"),
+        ("30": "30 marks"),
+    ]
     TIMES={
-        "5": "5",
-        "10": "10",
-        "15": "15",
-        "2O": "20",
-         "25": "25",
-        "30": "30",
+        ("5": "5 seconds"),
+        ("10": "10 seconds"),
+        ("15": "15 seconds"),
+        ("2O": "20 seconds"),
+        ("25": "25 seconds"),
+        ("30": "30 seconds"),
     }
     number = models.IntegerField(blank=True, null=True)
     time = models.CharField(blank=True, max_length=2, choices=TIMES)
-    quizID = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    quiz = models.ForeignKey(
+        Quiz, 
+        on_delete=models.CASCADE, 
+        related_name"questions",
+        verbose_name="Related quiz", 
+        help_text="The quiz this question belongs to."
+    )
     mark = models.CharField(blank=True, max_length=2, choices=MARKS)
 
     def __str__(self):
@@ -178,7 +185,6 @@ class Question(models.Model):
 
 class IntegerInputQuestion(Question):
     question_text = models.CharField(max_length=255)
-    #mark = models.IntegerField()
     correct_answer = models.IntegerField()
 
     def __str__(self):
@@ -186,17 +192,35 @@ class IntegerInputQuestion(Question):
 
 class TrueFalseQuestion(Question):
     question_text = models.CharField(max_length=255)
-    is_correct = models.BooleanField() 
-    #mark = models.IntegerField()
+    is_correct = models.BooleanField()
 
     def __str__(self):
         return f"TrueFalseQuestion: {self.question_text}, Correct: {self.is_correct}"
-    
 
 class RoomParticipant(models.Model):
-    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='participants')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    guest_access = models.ForeignKey(GuestAccess, on_delete=models.CASCADE, null=True, blank=True)
+    room = models.ForeignKey(
+        Room, 
+        on_delete=models.CASCADE, 
+        related_name='participants',
+        verbose_name="Room",
+        help_text="The room this participant belongs to."
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name="User",
+        help_text="A registered user participating in the room."
+    )
+    guest_access = models.ForeignKey(
+        GuestAccess,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name="Guest Access",
+        help_text="Guest access session for the participant."
+    )
     joined_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -210,6 +234,12 @@ class RoomParticipant(models.Model):
             )
         ]
 
+    def clean(self):
+        if self.user and self.guest_access:
+            raise ValidationError("Only one of 'user' OR 'guest_access' can be set.")
+        if not self.user and not self.guest_access:
+            raise ValidationError("Either user or guest_access must be set.")
+
     def __str__(self):
         if self.user:
             return f"User: {self.user.email_address}"
@@ -217,9 +247,20 @@ class RoomParticipant(models.Model):
 
 class Classroom(models.Model):
     name = models.CharField(max_length=50)
-    tutor = models.ForeignKey(Tutor, related_name="classroom_teacher", on_delete=models.CASCADE)
+    tutor = models.ForeignKey(
+        User,
+        related_name="classrooms",
+        on_delete=models.CASCADE,
+        limit_choices_to={"role": User.TUTOR}
+    )
     description = models.CharField(max_length=255)
 
 class ClassroomStudent(models.Model):
     classroom = models.ForeignKey(Classroom, related_name="students", on_delete=models.CASCADE)
-    student = models.ForeignKey(Student, related_name="classrooms", on_delete=models.CASCADE)
+    student = models.ForeignKey(
+        User,
+        related_name="classrooms",
+        on_delete=models.CASCADE,
+        limit_choices_to={"role": User.STUDENT}
+    )
+
