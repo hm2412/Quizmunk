@@ -52,6 +52,7 @@ class Migration(migrations.Migration):
                 ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
                 ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
                 ('email_address', models.EmailField(max_length=254, unique=True)),
+                ('username', models.CharField(max_length=50, unique=True)),
                 ('role', models.CharField(choices=[('student', 'Student'), ('tutor', 'Tutor')], default='student', max_length=10)),
                 ('is_active', models.BooleanField(default=True)),
                 ('is_staff', models.BooleanField(default=False)),
