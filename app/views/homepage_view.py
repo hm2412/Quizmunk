@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from quizsite.app.helpers.decorators import redirect_authenticated_to_dashboard
+from app.helpers.decorators import redirect_authenticated_to_dashboard
 
 @redirect_authenticated_to_dashboard
 def homepage(request):

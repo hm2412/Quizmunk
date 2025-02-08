@@ -3,8 +3,8 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from quizsite.app.forms import LoginForm
-from quizsite.app.helpers.decorators import redirect_authenticated_to_dashboard
+from app.forms import LoginForm
+from app.helpers.decorators import redirect_authenticated_to_dashboard
 
 @redirect_authenticated_to_dashboard
 def login_view(request):

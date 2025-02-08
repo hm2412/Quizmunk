@@ -1,0 +1,27 @@
+
+[
+    {
+        "model": "app.user",
+        "pk": 1,
+        "fields": {
+          "first_name": "John",
+          "last_name": "Doe",
+          "email_address": "johndoe@example.com",
+          "password": "password123",
+          "role": "User.STUDENT"
+        }
+    },
+
+    {
+      "model": "app.user",
+      "pk": 2,
+      "fields": {
+        "first_name": "Jane",
+        "last_name": "Doe",
+        "email_address": "janedoe@example.com",
+        "password": "password123",
+        "role": "User.TUTOR"
+      }
+  }
+]
+  

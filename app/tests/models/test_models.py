@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from quizsite.app.models import Quiz
+from app.models.quiz import Quiz
 
 class QuizTestCase(TestCase):
     def setUp(self):

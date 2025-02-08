@@ -1,10 +1,10 @@
 from django.shortcuts import render
-from quizsite.app.helpers.decorators import is_student, is_tutor, redirect_unauthenticated_to_homepage
+from app.helpers.decorators import is_student, is_tutor, redirect_unauthenticated_to_homepage
 
 @redirect_unauthenticated_to_homepage
 @is_student
 def student_dashboard(request):
-    return render(request, 'student_dashboard.html')
+    return render(request, 'student/student_dashboard.html')
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
@@ -40,4 +40,4 @@ def tutor_dashboard(request):
     # this is what the code should be once it acc works quizzes = Quiz.objects.filter(tutorID=request.user.id).order_by('-ID')[:5]
 
 
-    return render(request, 'tutor_dashboard.html', {"quizzes": quizzes})
+    return render(request, 'tutor/tutor_dashboard.html', {"quizzes": quizzes})

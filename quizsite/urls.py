@@ -16,13 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from quizsite.app.views.homepage_view import homepage
-from quizsite.app.views.sign_up_view import sign_up_view
-from quizsite.app.views.login_view import login_view, logout_view
-from quizsite.app.views.join_quiz_view import join_quiz
-from quizsite.app.views.lobby_view import lobby
-from quizsite.app.views.dashboard_view import student_dashboard, tutor_dashboard
-from quizsite.app.views.profile_view import student_profile, tutor_profile
+from app.views.homepage_view import homepage
+from app.views.sign_up_view import sign_up_view
+from app.views.login_view import login_view, logout_view
+from app.views.join_quiz_view import join_quiz
+from app.views.lobby_view import lobby
+from app.views.dashboard_view import student_dashboard, tutor_dashboard
+from app.views.profile_view import student_profile, tutor_profile
 
 urlpatterns = [
     path('admin/', admin.site.urls),
