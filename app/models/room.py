@@ -1,4 +1,5 @@
 from django.db import models
+from django.forms import ValidationError
 from app.models.user import User
 from app.models.guest import GuestAccess
 from app.models.quiz import Quiz
