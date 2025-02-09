@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from app.forms import SignUpForm
-from app.models.user import User
+from app.models import User
 from app.helpers.decorators import redirect_authenticated_to_dashboard
 
 @redirect_authenticated_to_dashboard

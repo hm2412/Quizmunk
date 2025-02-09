@@ -29,7 +29,7 @@ class Quiz(models.Model):
 
 
     def __str__(self):
-        return (f"Quiz: {self.ID}, {self.name} - made by tutor {self.tutorID} and is {type}")
+        return (f"Quiz: {self.ID}, {self.name} - made by tutor {self.tutorID}")
 
 class Question(models.Model):
     MARKS = [

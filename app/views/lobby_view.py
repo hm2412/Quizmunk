@@ -3,8 +3,8 @@ from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 import qrcode
-from app.models.room import Room, RoomParticipant
-from app.models.guest import GuestAccess
+from app.models import Room, RoomParticipant
+from app.models import GuestAccess
 
 def lobby(request, join_code):
     room = get_object_or_404(Room, join_code=join_code)

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from app.models.room import Room
+from app.models import Room
 
 def join_quiz(request):    #i.e to enter the codes
     if request.method == 'POST':

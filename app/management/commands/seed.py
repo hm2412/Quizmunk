@@ -5,7 +5,7 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "quizsite.settings")
 django.setup()
 
-from quizsite.app.models import Room, generate_join_code
+from app.models import Room, generate_join_code
 
 rooms = ["room1","room2","room3","room4","room5"]
 

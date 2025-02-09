@@ -1,0 +1,33 @@
+ <!DOCTYPE html>
+ {% load static %}
+ <html lang="en">
+ <head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Create Quiz</title>
+   <link rel="stylesheet" href="{% static 'css/quiz_form.css' %}">
+ </head>
+
+
+<div class="modal">
+    <div class="modal-content" id="customQuizModal">
+        <div class="modal-header">
+            <h2>Create Quiz</h2>
+            <span class="close" onclick="closeModal()">&times;</span>
+        </div>
+        <form hx-post="{% url 'create_quiz' %}" hx-target="#quiz-form-container" hx-swap="innerHTML">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function closeModal() {
+        let modal = document.getElementById("customQuizModal");
+        if (modal) {
+            modal.parentNode.remove(); 
+        }
+    }
+</script>

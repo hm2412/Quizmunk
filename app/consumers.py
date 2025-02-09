@@ -1,6 +1,6 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-from quizsite.app.models import Room, RoomParticipant
+from app.models import Room, RoomParticipant
 
 class LobbyConsumer(AsyncWebsocketConsumer):
     async def connect(self):
