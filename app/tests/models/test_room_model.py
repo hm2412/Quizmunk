@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 
-from app.models import User, Room, RoomParticipant
+from app.models import User, Room, RoomParticipant, GuestAccess
 from app.models.quiz import Quiz
 
 class RoomTestCase(TestCase):
@@ -10,6 +10,7 @@ class RoomTestCase(TestCase):
         test_tutor = User.objects.create_user(email_address='tutor@example.com', first_name='Test', last_name='Tutor', role=User.TUTOR)
         test_quiz = Quiz.objects.create(name="Some Quiz", tutor=test_tutor, subject="Computer Science", difficulty="M", type="L")
         self.test_user = User.objects.create_user(email_address='user@example.com', first_name='Test', last_name='User', role=User.STUDENT)
+        self.guest = GuestAccess.objects.create(classroom_code='TestClassroom')
         self.room = Room.objects.create(name="Test Room", quiz=test_quiz)
 
     def test_valid_room_is_valid(self):
@@ -42,6 +43,22 @@ class RoomTestCase(TestCase):
         except ValidationError:
             self.fail("Default participant should be deemed valid")
 
-    def test_roomless_participant_is_valid(self):
+    def test_default_guest_participant_is_valid(self):
+        self.participant = RoomParticipant.objects.create(room=self.room, guest_access=self.guest)
+        try:
+            self.participant.full_clean()
+        except ValidationError:
+            self.fail("Default guest participant should be deemed valid")
+
+    def test_roomless_participant_is_invalid(self):
         with self.assertRaises(IntegrityError):
             self.participant = RoomParticipant.objects.create(room=None, user=self.test_user)
+
+    def test_userless_participant_is_invalid(self):
+        with self.assertRaises(IntegrityError):
+            self.participant = RoomParticipant.objects.create(room=self.room)
+
+    def test_user_and_guest_participant_is_invalid(self):
+        with self.assertRaises(IntegrityError):
+            self.participant = RoomParticipant.objects.create(room=self.room, user=self.test_user, guest_access=self.guest)
+
