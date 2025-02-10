@@ -60,5 +60,5 @@ class RoomTestCase(TestCase):
         try:
             self.test_user2 = User.objects.create_user(email_address='user2@example.com', first_name='Test', last_name='User', role=User.STUDENT)
         except IntegrityError:
-            self.fail('Duplicate Email Addresses should be valid')
+            self.fail('Duplicate Email Addresses should be invalid')
 
