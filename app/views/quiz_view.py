@@ -3,6 +3,9 @@ from app.forms import QuizForm, IntegerInputQuestionForm, TrueFalseQuestionForm
 from app.models import Quiz, IntegerInputQuestion, TrueFalseQuestion
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
+from app.helpers.decorators import is_tutor, redirect_unauthenticated_to_homepage
+
+
 def create_quiz_view(request):
     form = QuizForm(request.POST or None)
     
@@ -20,6 +23,8 @@ def create_quiz_view(request):
             return render(request, 'tutor/create_quiz_form.html', {'form': form}, status=400)
     
     return render(request, 'tutor/create_quiz_form.html', {'form': form})
+
+
 def edit_quiz_view(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     
@@ -61,6 +66,8 @@ def edit_quiz_view(request, quiz_id):
         'tf_form': tf_form,
         'questions': questions,
     })
+
+
 def delete_question_view(request, question_id):
     try:
         question = IntegerInputQuestion.objects.get(pk=question_id)
@@ -72,6 +79,8 @@ def delete_question_view(request, question_id):
     quiz_id = int(question.quizID)
     question.delete()
     return redirect('edit_quiz', quiz_id=quiz_id)
+
+
 def get_question_view(request, quiz_id):
     question_id = request.GET.get('question_id')
     if not question_id:
@@ -101,3 +110,26 @@ def get_question_view(request, quiz_id):
         data["mark"] = question.mark
         data["is_correct"] = question.is_correct
     return JsonResponse(data)
+
+
+#this is for the your Quizzes page
+
+@redirect_unauthenticated_to_homepage
+@is_tutor
+def your_quizzes_view(request):
+    """show the drafts created by the tutor"""
+    drafts = Quiz.objects.filter(tutor=request.user).order_by("-id")
+    context = {'drafts':drafts}
+    return render(request, 'tutor/your_quizzes.html', context)
+
+
+@redirect_unauthenticated_to_homepage
+@is_tutor
+def delete_quiz_view(request, quiz_id):
+    """deletes a quiz that belongs to the tutor"""
+    quiz = get_object_or_404(Quiz, id=quiz_id, tutor=request.user)
+
+    if request.method == 'POST':
+        quiz.delete()
+        return redirect('your_quizzes')
+    

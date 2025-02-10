@@ -24,7 +24,7 @@ from app.views.join_quiz_view import join_quiz
 from app.views.lobby_view import lobby
 from app.views.dashboard_view import student_dashboard, tutor_dashboard
 from app.views.profile_view import student_profile, tutor_profile
-from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_view, get_question_view
+from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_view, get_question_view, your_quizzes_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,6 +34,7 @@ urlpatterns = [
     path('logout/', logout_view, name='logout'),
     path('student-dashboard/', student_dashboard, name='student_dashboard'),
     path('tutor-dashboard/', tutor_dashboard, name='tutor_dashboard'),
+    path('tutor/your-quizzes/', your_quizzes_view, name='your_quizzes'),
     path('create-quiz/', create_quiz_view, name='create_quiz'),
     path('edit-quiz/<int:quiz_id>/', edit_quiz_view, name='edit_quiz'),
     path('delete-question/<int:question_id>/', delete_question_view, name='delete_question'),
