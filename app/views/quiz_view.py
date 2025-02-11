@@ -9,16 +9,15 @@ from app.helpers.decorators import is_tutor, redirect_unauthenticated_to_homepag
 def create_quiz_view(request):
     form = QuizForm(request.POST or None)
     
-    if request.method == 'POST':
+    if request.method == 'GET':
         if form.is_valid():
             quiz = form.save()
             if request.headers.get('HX-Request'):
                 response = HttpResponse()
                 response['HX-Redirect'] = reverse('edit_quiz', kwargs={'quiz_id': quiz.id})
-                
                 return response
             else:
-                return redirect('edit_quiz', quiz_id=quiz.id)
+                return redirect('tutor/edit_quiz', quiz_id=quiz.id)
         else:
             return render(request, 'tutor/create_quiz_form.html', {'form': form}, status=400)
     

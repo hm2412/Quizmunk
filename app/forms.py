@@ -35,6 +35,7 @@ class QuizForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter quiz name'}),
             'subject':forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter subject'}),
             'difficulty': forms.Select(attrs={'class': 'form-control','placeholder':'Enter difficulty level'}),
+            'type': forms.Select(attrs={'class': 'form-control','placeholder':'Enter type'}),
         }
 
     def clean_name(self):
