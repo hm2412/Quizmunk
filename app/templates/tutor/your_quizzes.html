@@ -20,7 +20,7 @@
                     <span>
                         <strong>{{ quiz.name }}</strong> ({{ quiz.subject }})
                     </span>
-                    <a href="{% url 'edit_quiz' %}" class="btn btn-primary">Edit Quiz</a>
+                    <a href="{% url 'edit_quiz'  quiz_id=quiz.id %}" class="btn btn-primary">Edit Quiz</a>
                     <button class="btn btn-danger btn-sm"
                             hx-post="{% url 'delete_quiz' quiz.id %}" 
                             hx-target="#quiz-{{ quiz.id }}" 

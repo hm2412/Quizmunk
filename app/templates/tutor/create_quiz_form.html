@@ -15,7 +15,7 @@
             <h2>Create Quiz</h2>
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
-        <form hx-post="{% url 'create_quiz' %}" hx-target="#quiz-form-container" hx-swap="innerHTML">
+        <form method="post" hx-post="{% url 'create_quiz' %}" hx-target="#quiz-form-container" hx-swap="innerHTML">
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit">Submit</button>

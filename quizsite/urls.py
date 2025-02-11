@@ -34,7 +34,6 @@ urlpatterns = [
     path('logout/', logout_view, name='logout'),
     path('student-dashboard/', student_dashboard, name='student_dashboard'),
     path('tutor-dashboard/', tutor_dashboard, name='tutor_dashboard'),
-    path('tutor/your-quizzes/', your_quizzes_view, name='your_quizzes'),
     path('create-quiz/', create_quiz_view, name='create_quiz'),
     path('edit-quiz/<int:quiz_id>/', edit_quiz_view, name='edit_quiz'),
     path('delete-question/<int:question_id>/', delete_question_view, name='delete_question'),

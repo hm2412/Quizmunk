@@ -9,15 +9,17 @@ from app.helpers.decorators import is_tutor, redirect_unauthenticated_to_homepag
 def create_quiz_view(request):
     form = QuizForm(request.POST or None)
     
-    if request.method == 'GET':
+    if request.method == 'POST':
         if form.is_valid():
-            quiz = form.save()
+            quiz = form.save(commit=False)
+            quiz.tutor = request.user
+            quiz.save()
             if request.headers.get('HX-Request'):
                 response = HttpResponse()
                 response['HX-Redirect'] = reverse('edit_quiz', kwargs={'quiz_id': quiz.id})
                 return response
             else:
-                return redirect('tutor/edit_quiz', quiz_id=quiz.id)
+                return redirect('edit_quiz', quiz_id=quiz.id)
         else:
             return render(request, 'tutor/create_quiz_form.html', {'form': form}, status=400)
     
@@ -27,8 +29,8 @@ def create_quiz_view(request):
 def edit_quiz_view(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     
-    questions_int = list(IntegerInputQuestion.objects.filter(quizID=str(quiz.id)))
-    questions_tf = list(TrueFalseQuestion.objects.filter(quizID=str(quiz.id)))
+    questions_int = list(IntegerInputQuestion.objects.filter(quiz=quiz))
+    questions_tf = list(TrueFalseQuestion.objects.filter(quiz=quiz))
     questions = questions_int + questions_tf
     questions.sort(key=lambda q: (q.number if q.number is not None else float('inf')))
     
@@ -38,7 +40,7 @@ def edit_quiz_view(request, quiz_id):
             tf_form = TrueFalseQuestionForm() # Empty form to avoid errors in the template
             if int_form.is_valid():
                 question = int_form.save(commit=False)
-                question.quizID = quiz.id
+                question.quiz = quiz
                 question.save()
                 print(" Integer question saved successfully!")
                 return redirect('edit_quiz', quiz_id=quiz.id)
@@ -49,7 +51,7 @@ def edit_quiz_view(request, quiz_id):
             int_form= IntegerInputQuestionForm() # Empty form to avoid errors in the template
             if tf_form.is_valid():
                 question = tf_form.save(commit=False)
-                question.quizID = quiz.id
+                question.quiz = quiz
                 question.save()
                 print("True/False question saved successfully!")
                 return redirect('edit_quiz', quiz_id=quiz.id)
@@ -59,7 +61,7 @@ def edit_quiz_view(request, quiz_id):
         int_form = IntegerInputQuestionForm(initial={'quizID': str(quiz.id)})
         tf_form = TrueFalseQuestionForm(initial={'quizID': str(quiz.id)})
     
-    return render(request, 'edit_quiz.html', {
+    return render(request, 'tutor/edit_quiz.html', {
         'quiz': quiz,
         'int_form': int_form,
         'tf_form': tf_form,
@@ -75,7 +77,7 @@ def delete_question_view(request, question_id):
             question = TrueFalseQuestion.objects.get(pk=question_id)
         except TrueFalseQuestion.DoesNotExist:
             return HttpResponse("Question not found",status=404)
-    quiz_id = int(question.quizID)
+    quiz_id = question.quiz.id
     question.delete()
     return redirect('edit_quiz', quiz_id=quiz_id)
 
@@ -100,7 +102,7 @@ def get_question_view(request, quiz_id):
         "question_text": question.question_text,
         "number": question.number,
         "time": question.time,
-        "quizID": question.quizID,
+        "quizID": question.quiz.id,
     }
     if question_type == "integer":
         data["mark"] = question.mark
@@ -130,5 +132,9 @@ def delete_quiz_view(request, quiz_id):
 
     if request.method == 'POST':
         quiz.delete()
-        return redirect('your_quizzes')
-    
+        
+        if request.headers.get('HX-Request'):
+            return HttpResponse(status=204)
+        else:
+            return redirect('your_quizzes')
+    return HttpResponse("Method Not Allowed", status=405)
