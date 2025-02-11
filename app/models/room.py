@@ -3,8 +3,9 @@ from django.forms import ValidationError
 from app.models.user import User
 from app.models.guest import GuestAccess
 from app.models.quiz import Quiz
-import string
 import random
+import string
+
 
 def generate_join_code():
     from django.apps import apps
