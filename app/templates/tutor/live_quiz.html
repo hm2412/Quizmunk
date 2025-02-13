@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Quiz: Quiz Name</title>
+  <!-- Include Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Link to your custom stylesheet -->
+  <link rel="stylesheet" href="{% static 'css/live_quiz.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <div class="page-container">
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-area">
+        <!-- Current Question -->
+        <div class="question-container">
+          <h2 class="h4">Question 1</h2>  
+          <p class="question">What's the answer to this question?</p>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="leaderboard-container">
+          <h2 class="h5">Leaderboard</h2>
+          <ul class="list-group mt-2">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Alice <span class="badge bg-primary rounded-pill">50 pts</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Bob <span class="badge bg-secondary rounded-pill">45 pts</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Charlie <span class="badge bg-warning rounded-pill">40 pts</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Correct Answer -->
+        <div class="answer-container">
+          <h2 class="h4">Correct Answer</h2>
+          <p class="answer">Answer</p>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <!-- Time Left -->
+        <div class="circle">
+          <div>
+            <p class="mb-0 h5">[time]</p>
+            <p class="small">seconds</p>
+          </div>
+        </div>
+
+        <!-- Students Answered -->
+        <div class="circle">
+          <div>
+            <p class="mb-0 h5">[number]</p>
+            <p class="small">questions answered</p>
+          </div>
+        </div>
+
+        <!-- Total Students -->
+        <div class="circle">
+          <div>
+            <p class="mb-0 h5">?/</p>
+            <p class="small">[total students]</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      {% include 'partials/footer.html' %}
+    </footer>
+  </div>
+
+  <!-- Include Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
