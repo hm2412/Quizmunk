@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>Live Quiz - Teacher View</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+</head>
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #f4f4f4;
+        height: 100vh;
+    }
+    
+    #quiz-dashboard{
+        position: absolute;
+        top:0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between; 
+        text-align: center;
+        background: #398AA2;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        width: 100%;
+        height: 20%;
+        padding-bottom: 100px;
+    }
+    #left-container {
+        display: flex;
+        flex-direction: column;  /* Stacks items vertically */
+        align-items: flex-start;  /* Aligns to the left */
+        margin-left: 20px;
+        gap: 10px;
+    }    
+    .count-box{
+        display:flex;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        height: auto;
+        width: 180px;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    #count-final, #timer-container{
+        margin-bottom: 10px;
+        font-size: 18px;
+    }
+    #qr-container {
+        text-align: center;
+        flex-grow: 1;  /* Pushes QR code to center */
+    }
+    #quiz-controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px; /* Spacing between buttons */
+        margin-left: -20px;
+    }
+
+    #quiz-controls button {
+        width: 100%; /* Full width */
+        max-width: 250px; /* Optional: Set max width to control size */
+        padding: 15px; /* Make buttons bigger */
+        font-size: 16px; /* Make text larger */
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    #quiz-body {
+        position: relative;
+        display: flex;
+        height: 100%;
+        width: 100%;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: center;
+        margin-top: 260px; /* Pushes it down */
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    #question-container {
+        width: 50%;
+        height: 100%;
+        display: flex;  /* Enables flexbox */
+        flex-direction: column; /* Stacks elements vertically */
+        justify-content: center; /* Centers content vertically */
+        align-items: center; /* Centers content horizontally */
+        padding: 20px;
+        background: white;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    #options-container {
+        width: 50%;
+        height: 100%;
+        display: flex;
+        flex-direction: column; /* Stack options vertically */
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    #qr-code {
+        margin: 10px auto;
+    }
+    #options {
+        list-style: none;
+        padding: 0;
+        width: 80%;
+    }
+    
+    .option {
+        padding: 15px;
+        margin: 10px 0;
+        background: #f0f0f0;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+        text-align: center;
+        font-size: 18px; /* Bigger option text */
+        font-weight: bold;
+        border: 2px solid transparent;
+        transition: background 0.3s, border 0.3s;
+    }
+    
+    .option:hover {
+        background: #ddd;
+        border: 2px solid #398AA2;
+    }
+</style>
+<body>
+    <div id="quiz-dashboard">
+        <div id="left-container">
+            <div class="count-box">
+                <p id="count-final">Students Joined: <span id="student-count">0</span></p>
+            </div>
+            <div class="count-box">
+                <p id="timer-container">Time Left:<span id="timer"> 30s</span></p>
+            </div>
+        </div>
+        <div id="qr-container">
+            <img src="{% static 'images/sample_qr_code.png' %}" alt="QR Code" width="150">
+            <p>Join Code: <span id="join-code">ABC123</span></p>
+        </div>
+
+        <div id="quiz-controls">
+            <button id="start-quiz-btn" class="btn btn-success"
+                hx-post="{% url 'start_quiz' quiz.id %}"
+                hx-target="#current-question-container"
+                hx-swap="innerHTML"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+                ▶ Start Quiz
+            </button>
+
+                <!-- Next Question Button -->
+            <button id="next-question-btn" class="btn btn-primary"
+                hx-post="{% url 'next_question' quiz.id %}"
+                hx-target="#current-question-container"
+                hx-swap="innerHTML"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+                ⏭ Next Question
+            </button>
+
+                <!-- End Quiz Button -->
+            <button id="end-quiz-btn" class="btn btn-danger"
+                hx-post="{% url 'end_quiz' quiz.id %}"
+                hx-target="#quiz-results-container"
+                hx-swap="innerHTML"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+                ⏹ End Quiz
+            </button>
+        </div>
+    </div>
+
+    <div id="quiz-body">
+        <div id="question-container">
+            <h3 id="question" data-question-id="1">What is 2 + 2?</h3>
+        </div>
+        <div id="options-container">
+            <ul id="options">
+                <li class="option">3</li>
+                <li class="option">4</li>
+                <li class="option">5</li>
+                <li class="option">6</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

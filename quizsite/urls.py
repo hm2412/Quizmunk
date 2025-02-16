@@ -24,7 +24,7 @@ from app.views.join_quiz_view import join_quiz
 from app.views.lobby_view import lobby
 from app.views.dashboard_view import student_dashboard, tutor_dashboard
 from app.views.profile_view import student_profile, tutor_profile
-from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_view, get_question_view, your_quizzes_view, delete_quiz_view
+from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_view, get_question_view, your_quizzes_view, delete_quiz_view, teacher_live_quiz_view, start_quiz,next_question,end_quiz,get_live_responses
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -44,4 +44,9 @@ urlpatterns = [
     path('lobby/<str:join_code>', lobby, name='lobby'),
     path('your-quizzes/', your_quizzes_view, name='your_quizzes'),
     path('delete-quiz/<int:quiz_id>/', delete_quiz_view, name='delete_quiz'),
+    path('live-quiz/<int:quiz_id>/', teacher_live_quiz_view, name='teacher_live_quiz'),
+    path('live-quiz/<int:quiz_id>/start/', start_quiz, name='start_quiz'),
+    path('live-quiz/<int:quiz_id>/next/', next_question, name='next_question'),
+    path('live-quiz/<int:quiz_id>/end/', end_quiz, name='end_quiz'),
+    path('live-quiz/<int:quiz_id>/responses/', get_live_responses, name='get_live_responses'),
 ]

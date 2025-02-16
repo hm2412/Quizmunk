@@ -1,10 +1,10 @@
 from django.shortcuts import redirect,render, get_object_or_404
 from app.forms import QuizForm, IntegerInputQuestionForm, TrueFalseQuestionForm
-from app.models import Quiz, IntegerInputQuestion, TrueFalseQuestion
+from app.models import Quiz, IntegerInputQuestion, TrueFalseQuestion, Question
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from app.helpers.decorators import is_tutor, redirect_unauthenticated_to_homepage
-
+from django.views.decorators.http import require_POST
 
 def create_quiz_view(request):
     form = QuizForm(request.POST or None)
@@ -126,15 +126,57 @@ def your_quizzes_view(request):
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
+@require_POST
 def delete_quiz_view(request, quiz_id):
     """deletes a quiz that belongs to the tutor"""
+    print(f"Delete request received for quiz ID: {quiz_id}") 
     quiz = get_object_or_404(Quiz, id=quiz_id, tutor=request.user)
-
-    if request.method == 'POST':
-        quiz.delete()
-        
-        if request.headers.get('HX-Request'):
+    print(f"Deleting quiz: {quiz}") 
+    quiz.delete()
+    if request.headers.get('HX-Request'):
+            print("HTMX request detected. Returning 204 No Content.")
             return HttpResponse(status=204)
-        else:
-            return redirect('your_quizzes')
-    return HttpResponse("Method Not Allowed", status=405)
+    print("Standard request. Redirecting to 'your_quizzes'.")
+    return redirect('your_quizzes')
+
+def teacher_live_quiz_view(request, quiz_id):
+    quiz = Quiz.objects.filter(id=quiz_id).first()
+
+    if not quiz:
+        # Show a message instead of crashing
+        return render(request, "tutor/live_quiz.html", {
+            "quiz": {"id": quiz_id, "title": "Sample Quiz (Not Found)"},
+            "error_message": "Quiz not found. Showing sample questions."
+        })
+
+    return render(request, "tutor/live_quiz.html", {"quiz": quiz})
+
+def start_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    first_question = quiz.questions.first()
+
+    if first_question:
+        return render(request, "partials/current_question.html", {"question": first_question})
+    
+    return JsonResponse({"message": "No questions available"}, status=404)
+
+def next_question(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    current_question_id = request.POST.get("current_question_id")
+
+    if current_question_id:
+        current_question = get_object_or_404(Question, id=current_question_id)
+        next_question = quiz.questions.filter(id__gt=current_question.id).first()
+    else:
+        next_question = quiz.questions.first()
+
+    if next_question:
+        return render(request, "partials/current_question.html", {"question": next_question})
+
+    return JsonResponse({"message": "No more questions"}, status=200)
+
+def end_quiz(request, quiz_id):
+    return JsonResponse({"message": "Quiz ended!"})
+
+def get_live_responses(request, quiz_id):
+    return JsonResponse({"responses": ["Student A: Answer 1", "Student B: Answer 2"]})
