@@ -147,3 +147,27 @@ class NumericalRangeQuestion(Question):
     def __str__(self):
         return f"NumericalRangeQuestion: {self.question_text}, Accepted Range: {self.min_value}-{self.max_value}"
 
+class SortingQuestion(Question):
+    question_text = models.CharField(max_length=255)
+
+    items = models.TextField()
+   
+    correct_order = models.CharField(max_length=200)
+
+    quiz = models.ForeignKey(
+        Quiz,
+        related_name="sorting_questions",
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self):
+        return f"SortingQuestion: {self.question_text}"
+
+    def get_items(self):
+        
+        return self.items.split(',')
+
+    def get_correct_order(self):
+        
+        return [int(x) for x in self.correct_order.split(',')]
+
