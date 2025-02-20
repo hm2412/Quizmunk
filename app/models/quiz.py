@@ -32,24 +32,9 @@ class Quiz(models.Model):
         return (f"Quiz: {self.id}, {self.name} - made by tutor {self.tutor}")
 
 class Question(models.Model):
-    MARKS = [
-        ("5", "5"),
-        ("10", "10"),
-        ("15", "15"),
-        ("20", "20"),
-        ("25", "25"),
-        ("30", "30"),
-    ]
-    TIMES = [
-        ("5", "5"),
-        ("10", "10"),
-        ("15", "15"),
-        ("20", "20"),
-        ("25", "25"),
-        ("30", "30"),
-    ]
-    number = models.IntegerField(blank=True, null=True)
-    time = models.CharField(blank=True, max_length=2, choices=TIMES)
+    question_text = models.CharField(max_length=255)
+    position = models.IntegerField(blank=True, null=True)
+    time = models.IntegerField(blank=True)
     quiz = models.ForeignKey(
         Quiz,
         related_name="questions",  # Positional argument
@@ -57,16 +42,16 @@ class Question(models.Model):
         verbose_name="Related quiz",  # Keyword argument
         help_text="The quiz this question belongs to."
     )
-    mark = models.CharField(blank=True, max_length=2, choices=MARKS)
+    mark = models.IntegerField(blank=True)
 
     def __str__(self):
-        return f"Quiz {self.quiz.id} Question {self.number}"
+        return f"Quiz {self.quiz.id} Question {self.position}"
 
     class Meta:
         abstract = True
+        ordering = ['position']
 
 class IntegerInputQuestion(Question):
-    question_text = models.CharField(max_length=255)
     correct_answer = models.IntegerField()
 
     # This attribute is inherited but needs a unique related_name, which is why it's being overwritten here
@@ -81,7 +66,6 @@ class IntegerInputQuestion(Question):
         return f"IntegerInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
 
 class TrueFalseQuestion(Question):
-    question_text = models.CharField(max_length=255)
     is_correct = models.BooleanField()
 
     quiz = models.ForeignKey(
@@ -94,7 +78,6 @@ class TrueFalseQuestion(Question):
         return f"TrueFalseQuestion: {self.question_text}, Correct: {self.is_correct}"
     
 class TextInputQuestion(Question): # Can also be used for a fill in the blanks question.
-    question_text = models.CharField(max_length=255)
     correct_answer = models.TextField()
 
     quiz = models.ForeignKey(
@@ -107,7 +90,6 @@ class TextInputQuestion(Question): # Can also be used for a fill in the blanks q
         return f"TextInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
 
 class DecimalInputQuestion(Question):
-    question_text = models.CharField(max_length=255)
     correct_answer = models.DecimalField(max_digits=10, decimal_places=2)
     
     quiz = models.ForeignKey(
@@ -120,7 +102,6 @@ class DecimalInputQuestion(Question):
         return f"DecimalInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
 
 class MultipleChoiceQuestion(Question):
-    question_text = models.CharField(max_length=255)
     options = models.JSONField() # Supports more than 4 choices
     correct_option = models.CharField(max_length=255)
     
@@ -134,9 +115,9 @@ class MultipleChoiceQuestion(Question):
         return f"MultipleChoiceQuestion: {self.question_text}, Correct: {self.correct_option}"
     
 class NumericalRangeQuestion(Question):
-    question_text = models.CharField(max_length=255)
-    min_value = models.DecimalField()
-    max_value = models.DecimalField()
+    #this can be changed
+    min_value = models.DecimalField(max_digits=10, decimal_places=10)
+    max_value = models.DecimalField(max_digits=10, decimal_places=10)
 
     quiz = models.ForeignKey(
         Quiz,
@@ -148,7 +129,6 @@ class NumericalRangeQuestion(Question):
         return f"NumericalRangeQuestion: {self.question_text}, Accepted Range: {self.min_value}-{self.max_value}"
 
 class SortingQuestion(Question):
-    question_text = models.CharField(max_length=255)
 
     items = models.TextField()
    
