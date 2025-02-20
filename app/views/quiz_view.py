@@ -29,11 +29,13 @@ def create_quiz_view(request):
 def edit_quiz_view(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     
+    #if new types are added add them here
     questions_int = list(IntegerInputQuestion.objects.filter(quiz=quiz))
     questions_tf = list(TrueFalseQuestion.objects.filter(quiz=quiz))
     questions = questions_int + questions_tf
-    questions.sort(key=lambda q: (q.number if q.number is not None else float('inf')))
+    questions.sort(key=lambda q: (q.position if q.position is not None else float('inf')))
 
+    #also here
     form_types = {
         'integer': IntegerInputQuestionForm,
         'true_false': TrueFalseQuestionForm,
@@ -73,6 +75,8 @@ def edit_quiz_view(request, quiz_id):
         'quiz': quiz,
         'form': form,
         'questions': questions,
+        'int_form': IntegerInputQuestionForm(),
+        'tf_form': TrueFalseQuestionForm(),
     })
 
 
@@ -107,7 +111,7 @@ def get_question_view(request, quiz_id):
         "id": question.id,
         "question_type": question_type,
         "question_text": question.question_text,
-        "number": question.number,
+        "position": question.position,
         "time": question.time,
         "quizID": question.quiz.id,
     }

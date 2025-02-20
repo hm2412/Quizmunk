@@ -55,9 +55,9 @@ class IntegerInputQuestionForm(forms.ModelForm):
         model = IntegerInputQuestion
         fields = ['time','question_text', 'mark', 'correct_answer']
         widgets = {
-            'time': forms.Select(attrs={'class': 'form-control'}),
+            'time': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
             'question_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter question text'}),
-            'mark': forms.Select(attrs={'class': 'form-control'}),
+            'mark': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
             'correct_answer':forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter correct answer'}),
         }
     def clean_correct_answer(self):
@@ -71,8 +71,8 @@ class TrueFalseQuestionForm(forms.ModelForm):
         model = TrueFalseQuestion
         fields = ['time', 'question_text', 'is_correct', 'mark']
         widgets = {
-            'time': forms.Select(attrs={'class': 'form-control'}),
+            'time': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
             'question_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter question text'}),
             'is_correct': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'mark': forms.Select(attrs={'class': 'form-control'}),
+            'mark': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
         }
