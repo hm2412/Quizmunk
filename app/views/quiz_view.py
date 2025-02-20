@@ -33,38 +33,45 @@ def edit_quiz_view(request, quiz_id):
     questions_tf = list(TrueFalseQuestion.objects.filter(quiz=quiz))
     questions = questions_int + questions_tf
     questions.sort(key=lambda q: (q.number if q.number is not None else float('inf')))
+
+    form_types = {
+        'integer': IntegerInputQuestionForm,
+        'true_false': TrueFalseQuestionForm,
+    }
+
+    form_type = None
+    form = None
     
     if request.method == 'POST':
-        if 'integer' in request.POST:
-            int_form = IntegerInputQuestionForm(request.POST)
-            tf_form = TrueFalseQuestionForm() # Empty form to avoid errors in the template
-            if int_form.is_valid():
-                question = int_form.save(commit=False)
+        for key in form_types:
+            if key in request.POST:
+                form_type = key
+                break
+        if form_type:
+            form_class = form_types.get(form_type)
+            form = form_class(request.POST)
+            if form.is_valid():
+                question = form.save(commit=False)
                 question.quiz = quiz
                 question.save()
-                print(" Integer question saved successfully!")
+                print("Question saved successfully!")
                 return redirect('edit_quiz', quiz_id=quiz.id)
             else:
-                print(" Integer form validation failed:", int_form.errors)
-        elif 'true_false' in request.POST:
-            tf_form = TrueFalseQuestionForm(request.POST)
-            int_form= IntegerInputQuestionForm() # Empty form to avoid errors in the template
-            if tf_form.is_valid():
-                question = tf_form.save(commit=False)
-                question.quiz = quiz
-                question.save()
-                print("True/False question saved successfully!")
-                return redirect('edit_quiz', quiz_id=quiz.id)
-            else:
-                print("True/False form validation failed:", tf_form.errors)
+                print("Form validation failed:", form.errors)
+
     else:
-        int_form = IntegerInputQuestionForm(initial={'quizID': str(quiz.id)})
-        tf_form = TrueFalseQuestionForm(initial={'quizID': str(quiz.id)})
-    
+        # Initialize form based on the selected form type
+        for key in form_types:
+            if key in request.GET:
+                form_type = key
+                break
+
+        if form_type:
+            form_class = form_types.get(form_type)
+            form = form_class(initial={'quizID': str(quiz.id)})
     return render(request, 'tutor/edit_quiz.html', {
         'quiz': quiz,
-        'int_form': int_form,
-        'tf_form': tf_form,
+        'form': form,
         'questions': questions,
     })
 
