@@ -92,3 +92,82 @@ class TrueFalseQuestion(Question):
 
     def __str__(self):
         return f"TrueFalseQuestion: {self.question_text}, Correct: {self.is_correct}"
+    
+class TextInputQuestion(Question): # Can also be used for a fill in the blanks question.
+    question_text = models.CharField(max_length=255)
+    correct_answer = models.TextField()
+
+    quiz = models.ForeignKey(
+        Quiz,
+        related_name="text_questions", 
+        on_delete=models.CASCADE,
+    )
+    
+    def __str__(self):
+        return f"TextInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
+
+class DecimalInputQuestion(Question):
+    question_text = models.CharField(max_length=255)
+    correct_answer = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    quiz = models.ForeignKey(
+        Quiz,
+        related_name="decimal_questions", 
+        on_delete=models.CASCADE,
+    )
+    
+    def __str__(self):
+        return f"DecimalInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
+
+class MultipleChoiceQuestion(Question):
+    question_text = models.CharField(max_length=255)
+    options = models.JSONField() # Supports more than 4 choices
+    correct_option = models.CharField(max_length=255)
+    
+    quiz = models.ForeignKey(
+        Quiz,
+        related_name="multiple_choice_questions", 
+        on_delete=models.CASCADE,
+    )
+    
+    def __str__(self):
+        return f"MultipleChoiceQuestion: {self.question_text}, Correct: {self.correct_option}"
+    
+class NumericalRangeQuestion(Question):
+    question_text = models.CharField(max_length=255)
+    min_value = models.DecimalField()
+    max_value = models.DecimalField()
+
+    quiz = models.ForeignKey(
+        Quiz,
+        related_name="numerical_range_questions", 
+        on_delete=models.CASCADE,
+    )
+    
+    def __str__(self):
+        return f"NumericalRangeQuestion: {self.question_text}, Accepted Range: {self.min_value}-{self.max_value}"
+
+class SortingQuestion(Question):
+    question_text = models.CharField(max_length=255)
+
+    items = models.TextField()
+   
+    correct_order = models.CharField(max_length=200)
+
+    quiz = models.ForeignKey(
+        Quiz,
+        related_name="sorting_questions",
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self):
+        return f"SortingQuestion: {self.question_text}"
+
+    def get_items(self):
+        
+        return self.items.split(',')
+
+    def get_correct_order(self):
+        
+        return [int(x) for x in self.correct_order.split(',')]
+

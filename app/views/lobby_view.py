@@ -20,7 +20,7 @@ def lobby(request, join_code):
         participant, created = RoomParticipant.objects.get_or_create(room=room, guest_access=guest_access)
 
     participants = RoomParticipant.objects.filter(room=room)
-    qr_code_path = "quizsite/app/static/images/qr_code.png"
+    qr_code_path = "app/static/images/qr_code.png"
 
     try:
         os.makedirs(os.path.dirname(qr_code_path), exist_ok=True)
