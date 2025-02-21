@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
-from app.models import Quiz
+from app.models import Room
 
-def student_live_quiz(request, quiz_id):
-    quiz = get_object_or_404(Quiz, id=quiz_id)
-    return render(request, 'live_quiz.html', {'quiz': quiz})
+def student_live_quiz(request, room_code):
+    room = get_object_or_404(Room, join_code=room_code)
+    return render(request, 'student/student_live_quiz.html', {'room': room})
