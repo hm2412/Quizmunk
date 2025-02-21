@@ -55,9 +55,9 @@ class IntegerInputQuestionForm(forms.ModelForm):
         model = IntegerInputQuestion
         fields = ['time','question_text', 'mark', 'correct_answer']
         widgets = {
-            'time': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
+            'time': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
             'question_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter question text'}),
-            'mark': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
+            'mark': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
             'correct_answer':forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter correct answer'}),
         }
     def clean_correct_answer(self):
@@ -66,13 +66,39 @@ class IntegerInputQuestionForm(forms.ModelForm):
             raise forms.ValidationError("Correct answer must be an integer.")
         return correct_answer
     
+    def clean_time(self):
+        time = self.cleaned_data.get('time')
+        if not isinstance(time, int):
+            raise forms.ValidationError("Time must be an integer.")
+        return time
+
+    def clean_mark(self):
+        mark = self.cleaned_data.get('mark')
+        if not isinstance(mark, int):
+            raise forms.ValidationError("Mark must be an integer.")
+        return mark
+    
 class TrueFalseQuestionForm(forms.ModelForm):
     class Meta:
         model = TrueFalseQuestion
         fields = ['time', 'question_text', 'is_correct', 'mark']
         widgets = {
-            'time': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
+            'time': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
             'question_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter question text'}),
             'is_correct': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'mark': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
+            'mark': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
         }
+    
+    def clean_time(self):
+        time = self.cleaned_data.get('time')
+        if not isinstance(time, int):
+            raise forms.ValidationError("Time must be an integer.")
+        return time
+
+    def clean_mark(self):
+        mark = self.cleaned_data.get('mark')
+        if not isinstance(mark, int):
+            raise forms.ValidationError("Mark must be an integer.")
+        return mark
+
+        
