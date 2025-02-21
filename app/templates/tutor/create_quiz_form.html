@@ -38,10 +38,7 @@
    });
    
    function closeModal() {
-       let modal = document.getElementById("customQuizModal");
-       if (modal) {
-           modal.parentNode.remove(); 
-       }
+        window.location.href = "{% url 'tutor_dashboard' %}";
    }
 </script>
 </body>
