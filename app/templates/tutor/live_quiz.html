@@ -21,7 +21,19 @@
           <h2 class="h4">Question 1</h2>  
           <p class="question">What's the answer to this question?</p>
         </div>
-
+         <!-- Correct Answer -->
+         <div class="row">
+          <div class="col-sm-6">
+            <h2 class="h4">Correct Answer</h2>
+            <p class="answer">Answer</p>
+          </div>
+          <div class="col-sm-6">
+            <button type="button" class="btn btn-light">1</button>
+            <button type="button" class="btn btn-light">2</button>
+            <button type="button" class="btn btn-light">3</button>
+            <button type="button" class="btn btn-light">4</button>
+          </div>
+        </div>
         <!-- Leaderboard -->
         <div class="leaderboard-container">
           <h2 class="h5">Leaderboard</h2>
@@ -37,12 +49,6 @@
             </li>
           </ul>
         </div>
-
-        <!-- Correct Answer -->
-        <div class="answer-container">
-          <h2 class="h4">Correct Answer</h2>
-          <p class="answer">Answer</p>
-        </div>
       </div>
 
       <!-- Sidebar -->
@@ -55,19 +61,17 @@
           </div>
         </div>
 
-        <!-- Students Answered -->
+        <!-- Ratio for students answered vs students joined  -->
         <div class="circle">
           <div>
-            <p class="mb-0 h5">[number]</p>
-            <p class="small">questions answered</p>
+            <p class="mb-0 h5">[no of students answered / no of students joined]</p>
           </div>
         </div>
 
-        <!-- Total Students -->
+        <!-- Ratio for questions answered vs total no of questions -->
         <div class="circle">
           <div>
-            <p class="mb-0 h5">?/</p>
-            <p class="small">[total students]</p>
+            <p class="mb-0 h5">[no of questions answered / no of questions total]</p>
           </div>
         </div>
       </div>

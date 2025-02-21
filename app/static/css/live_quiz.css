@@ -57,6 +57,12 @@ html, body {
     color: white;
   }
 
+  .row{
+    text-align: center;
+    background-color: #28a745;
+    color: white;
+  }
+
   .answer{
     font-size: 35px;
   }
