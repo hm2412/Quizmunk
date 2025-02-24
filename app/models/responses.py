@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from app.models import TrueFalseQuestion, IntegerInputQuestion
@@ -21,6 +22,16 @@ class TrueFalseResponse(Response):
 class IntegerInputResponse(Response):
     question = models.ForeignKey(IntegerInputQuestion, on_delete=models.CASCADE)
     answer = models.IntegerField()
+
+    def clean(self):
+        # Custom validation for the answer field
+        if isinstance(self.answer, float):
+            raise ValidationError("Answer must be an integer.")
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Integer Input Answer by {self.player} for question {self.question}: {self.answer}"
