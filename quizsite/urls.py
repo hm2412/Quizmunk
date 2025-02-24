@@ -43,5 +43,7 @@ urlpatterns = [
     path('tutor-profile/', tutor_profile, name='tutor_profile'),
     path('join-quiz/', join_quiz, name='join_quiz'),
     path('lobby/<str:join_code>', lobby, name='lobby'),
-    path("password-reset/", password_reset, name="password_reset"),
+    path("password-reset/", password_reset, name="password_reset"),path('classrooms/', classroom_view, name='classroom_view'),
+    path('classrooms/<int:classroom_id>/', classroom_detail_view, name='classroom_detail'),
+    
 ]
