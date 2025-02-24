@@ -2,6 +2,8 @@ from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from functools import wraps
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 
 def is_student(view_func):
     @wraps(view_func)
@@ -42,3 +44,7 @@ def redirect_unauthenticated_to_homepage(view_func):
             return HttpResponseRedirect(reverse('homepage'))
         return view_func(request, *args, **kwargs)
     return _wrapped_view
+
+def disable_browser_cache(view_func):
+    """Decorator to prevent browser caching for logged-in-only views."""
+    return method_decorator(never_cache)(view_func)

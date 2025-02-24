@@ -5,8 +5,10 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from app.forms import LoginForm
 from app.helpers.decorators import redirect_authenticated_to_dashboard
+from django.views.decorators.cache import never_cache
 
 @redirect_authenticated_to_dashboard
+@never_cache
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
