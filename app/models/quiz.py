@@ -29,27 +29,12 @@ class Quiz(models.Model):
 
 
     def __str__(self):
-        return (f"Quiz: {self.ID}, {self.name} - made by tutor {self.tutorID}")
+        return (f"Quiz: {self.id}, {self.name} - made by tutor {self.tutor}")
 
 class Question(models.Model):
-    MARKS = [
-        ("5", "5"),
-        ("10", "10"),
-        ("15", "15"),
-        ("20", "20"),
-        ("25", "25"),
-        ("30", "30"),
-    ]
-    TIMES = [
-        ("5", "5"),
-        ("10", "10"),
-        ("15", "15"),
-        ("20", "20"),
-        ("25", "25"),
-        ("30", "30"),
-    ]
-    number = models.IntegerField(blank=True, null=True)
-    time = models.CharField(blank=True, max_length=2, choices=TIMES)
+    question_text = models.CharField(max_length=255)
+    position = models.IntegerField(blank=True, null=True)
+    time = models.PositiveIntegerField()
     quiz = models.ForeignKey(
         Quiz,
         related_name="questions",  # Positional argument
@@ -57,16 +42,16 @@ class Question(models.Model):
         verbose_name="Related quiz",  # Keyword argument
         help_text="The quiz this question belongs to."
     )
-    mark = models.CharField(blank=True, max_length=2, choices=MARKS)
+    mark = models.IntegerField()
 
     def __str__(self):
-        return f"Quiz {self.quiz.id} Question {self.number}"
+        return f"Quiz {self.quiz.id} Question {self.position}"
 
     class Meta:
         abstract = True
+        ordering = ['position']
 
 class IntegerInputQuestion(Question):
-    question_text = models.CharField(max_length=255)
     correct_answer = models.IntegerField()
 
     # This attribute is inherited but needs a unique related_name, which is why it's being overwritten here
@@ -81,7 +66,6 @@ class IntegerInputQuestion(Question):
         return f"IntegerInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
 
 class TrueFalseQuestion(Question):
-    question_text = models.CharField(max_length=255)
     is_correct = models.BooleanField()
 
     quiz = models.ForeignKey(
@@ -92,3 +76,78 @@ class TrueFalseQuestion(Question):
 
     def __str__(self):
         return f"TrueFalseQuestion: {self.question_text}, Correct: {self.is_correct}"
+    
+class TextInputQuestion(Question): # Can also be used for a fill in the blanks question.
+    correct_answer = models.TextField()
+
+    quiz = models.ForeignKey(
+        Quiz,
+        related_name="text_questions", 
+        on_delete=models.CASCADE,
+    )
+    
+    def __str__(self):
+        return f"TextInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
+
+class DecimalInputQuestion(Question):
+    correct_answer = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    quiz = models.ForeignKey(
+        Quiz,
+        related_name="decimal_questions", 
+        on_delete=models.CASCADE,
+    )
+    
+    def __str__(self):
+        return f"DecimalInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
+
+class MultipleChoiceQuestion(Question):
+    options = models.JSONField() # Supports more than 4 choices
+    correct_option = models.CharField(max_length=255)
+    
+    quiz = models.ForeignKey(
+        Quiz,
+        related_name="multiple_choice_questions", 
+        on_delete=models.CASCADE,
+    )
+    
+    def __str__(self):
+        return f"MultipleChoiceQuestion: {self.question_text}, Correct: {self.correct_option}"
+    
+class NumericalRangeQuestion(Question):
+    #this can be changed
+    min_value = models.DecimalField(max_digits=10, decimal_places=10)
+    max_value = models.DecimalField(max_digits=10, decimal_places=10)
+
+    quiz = models.ForeignKey(
+        Quiz,
+        related_name="numerical_range_questions", 
+        on_delete=models.CASCADE,
+    )
+    
+    def __str__(self):
+        return f"NumericalRangeQuestion: {self.question_text}, Accepted Range: {self.min_value}-{self.max_value}"
+
+class SortingQuestion(Question):
+
+    items = models.TextField()
+   
+    correct_order = models.CharField(max_length=200)
+
+    quiz = models.ForeignKey(
+        Quiz,
+        related_name="sorting_questions",
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self):
+        return f"SortingQuestion: {self.question_text}"
+
+    def get_items(self):
+        
+        return self.items.split(',')
+
+    def get_correct_order(self):
+        
+        return [int(x) for x in self.correct_order.split(',')]
+
