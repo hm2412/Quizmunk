@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ classroom.name }}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .classroom-details {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .description-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .description-card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .description-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .classroom-actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-btn {
+            background: #398AA2;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .back-btn:hover {
+            background: #2d6f82;
+            transform: translateY(-2px);
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% include 'partials/tutor_navbar.html' %}
+
+        <div class="dashboard-header">
+            <h1>{{ classroom.name }}</h1>
+        </div>
+
+        <main>
+            <section class="classroom-details">
+                <div class="description-card">
+                    <h2>Class Description</h2>
+                    <p>{{ classroom.description }}</p>
+                </div>
+
+                <div class="classroom-actions">
+                    <a href="{% url 'classroom_view' %}" class="btn back-btn">← Back</a>
+                    <form method="POST" onsubmit="return confirm('Delete this classroom?');" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn delete-btn">Delete</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+
+        {% include 'partials/footer.html' %}
+    </div>
+</body>
+</html> 
