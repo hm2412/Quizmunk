@@ -61,3 +61,49 @@
     </script>
 </body>
 </html>
+<script>
+    $(document).ready(function() {
+        const roomCode = "{{ room.join_code }}";  // Get the room code from the template
+        const ws = new WebSocket(`ws://${window.location.host}/ws/student/${roomCode}/`);
+
+        // Handle WebSocket connection
+        ws.onopen = () => {
+            console.log("WebSocket connected!");
+        };
+
+        // Handle incoming messages (e.g., new questions)
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log("Message received:", data);
+
+            // Update the question and options
+            $("#question-text").text(data.question);
+            const answerButtons = $(".answer-box");
+            data.options.forEach((option, index) => {
+                $(answerButtons[index]).text(`${String.fromCharCode(65 + index)}. ${option}`);
+            });
+        };
+
+        // Handle WebSocket errors
+        ws.onerror = (error) => {
+            console.error("WebSocket error:", error);
+        };
+
+        // Handle WebSocket disconnection
+        ws.onclose = () => {
+            console.log("WebSocket disconnected!");
+        };
+
+        // Handle answer selection
+        $(".answer-box").click(function() {
+            $(".answer-box").removeClass("selected btn-primary").addClass("btn-outline-primary");
+            $(this).removeClass("btn-outline-primary").addClass("selected btn-primary");
+        });
+
+        // Handle "Next Question" button
+        $("#next-question").click(function() {
+            // Send a message to the tutor to request the next question
+            ws.send(JSON.stringify({ action: "next_question" }));
+        });
+    });
+</script>
