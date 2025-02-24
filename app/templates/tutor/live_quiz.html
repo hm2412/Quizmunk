@@ -44,15 +44,20 @@
         <div class="leaderboard-container">
           <h2 class="h5">Leaderboard</h2>
           <ul class="list-group mt-2">
+            {% for leader in leaders %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-              Alice <span class="badge bg-primary rounded-pill">50 pts</span>
+              {% if leader.user %}
+                {{ leader.user.first_name }}
+              {% elif leader.guest_access %}
+                Guest {{ leader.guest_access.session_id|slice:":8" }}
+              {% else %}
+                Guest
+              {% endif %}          
+              <span class="badge bg-primary rounded-pill">{{leader.score}} pts</span>
             </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Bob <span class="badge bg-secondary rounded-pill">45 pts</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Charlie <span class="badge bg-warning rounded-pill">40 pts</span>
-            </li>
+            {% empty %}
+            <li class="list-group-item">No participants yet.</li>
+            {% endfor %}
           </ul>
         </div>
       </div>

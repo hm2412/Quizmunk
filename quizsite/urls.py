@@ -43,5 +43,5 @@ urlpatterns = [
     path('tutor-profile/', tutor_profile, name='tutor_profile'),
     path('join-quiz/', join_quiz, name='join_quiz'),
     path('lobby/<str:join_code>', lobby, name='lobby'),
-    path('live-quiz/', tutor_live_quiz, name='tutor_live_quiz'),
+    path('live-quiz/<int:room_id>', tutor_live_quiz, name='tutor_live_quiz'),
 ]
