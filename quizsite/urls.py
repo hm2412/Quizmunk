@@ -24,8 +24,10 @@ from app.views.join_quiz_view import join_quiz
 from app.views.lobby_view import lobby
 from app.views.dashboard_view import student_dashboard, tutor_dashboard
 from app.views.profile_view import student_profile, tutor_profile
-from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_view, get_question_view
+from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_view, get_question_view, your_quizzes_view, delete_quiz_view
 from app.views.live_quiz_view import tutor_live_quiz, start_quiz, next_question, end_quiz
+from app.views.password_reset_view import password_reset
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', homepage, name='homepage'),
@@ -46,4 +48,7 @@ urlpatterns = [
     path("start-quiz/", start_quiz, name="start_quiz"),
     path("next-question/", next_question, name="next_question"),
     path("end-quiz/", end_quiz, name="end_quiz"),
+    path('your-quizzes/', your_quizzes_view, name='your_quizzes'),
+    path('delete-quiz/<int:quiz_id>/', delete_quiz_view, name='delete_quiz'),
+    path("password-reset/", password_reset, name="password_reset"),
 ]
