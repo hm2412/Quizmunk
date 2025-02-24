@@ -6,6 +6,9 @@ from django.urls import reverse
 from app.helpers.decorators import is_tutor, redirect_unauthenticated_to_homepage
 from django.views.decorators.http import require_POST
 
+
+@redirect_unauthenticated_to_homepage
+@is_tutor
 def create_quiz_view(request):
     form = QuizForm(request.POST or None)
     
@@ -26,6 +29,8 @@ def create_quiz_view(request):
     return render(request, 'tutor/create_quiz_form.html', {'form': form})
 
 
+@redirect_unauthenticated_to_homepage
+@is_tutor
 def edit_quiz_view(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     
@@ -80,6 +85,8 @@ def edit_quiz_view(request, quiz_id):
     })
 
 
+@redirect_unauthenticated_to_homepage
+@is_tutor
 def delete_question_view(request, question_id):
     try:
         question = IntegerInputQuestion.objects.get(pk=question_id)
@@ -93,6 +100,8 @@ def delete_question_view(request, question_id):
     return redirect('edit_quiz', quiz_id=quiz_id)
 
 
+@redirect_unauthenticated_to_homepage
+@is_tutor
 def get_question_view(request, quiz_id):
     question_id = request.GET.get('question_id')
     if not question_id:
@@ -150,6 +159,7 @@ def delete_quiz_view(request, quiz_id):
     print("Standard request. Redirecting to 'your_quizzes'.")
     return redirect('your_quizzes')
 
+
 def teacher_live_quiz_view(request, quiz_id):
     quiz = Quiz.objects.filter(id=quiz_id).first()
 
@@ -162,6 +172,7 @@ def teacher_live_quiz_view(request, quiz_id):
 
     return render(request, "tutor/live_quiz.html", {"quiz": quiz})
 
+
 def start_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     first_question = quiz.questions.first()
@@ -170,6 +181,7 @@ def start_quiz(request, quiz_id):
         return render(request, "partials/current_question.html", {"question": first_question})
     
     return JsonResponse({"message": "No questions available"}, status=404)
+
 
 def next_question(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
@@ -186,8 +198,10 @@ def next_question(request, quiz_id):
 
     return JsonResponse({"message": "No more questions"}, status=200)
 
+
 def end_quiz(request, quiz_id):
     return JsonResponse({"message": "Quiz ended!"})
+
 
 def get_live_responses(request, quiz_id):
     return JsonResponse({"responses": ["Student A: Answer 1", "Student B: Answer 2"]})
