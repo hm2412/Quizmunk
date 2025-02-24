@@ -5,7 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from app.helpers.decorators import is_tutor, redirect_unauthenticated_to_homepage
 from django.views.decorators.http import require_POST
-
+from app.question_registry import QUESTION_FORMS, QUESTION_MODELS
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
@@ -40,22 +40,16 @@ def edit_quiz_view(request, quiz_id):
     questions = questions_int + questions_tf
     questions.sort(key=lambda q: (q.position if q.position is not None else float('inf')))
 
-    #also here
-    form_types = {
-        'integer': IntegerInputQuestionForm,
-        'true_false': TrueFalseQuestionForm,
-    }
-
     form_type = None
     form = None
     
     if request.method == 'POST':
-        for key in form_types:
+        for key in QUESTION_FORMS:
             if key in request.POST:
                 form_type = key
                 break
         if form_type:
-            form_class = form_types.get(form_type)
+            form_class = QUESTION_FORMS.get(form_type)
             form = form_class(request.POST)
             if form.is_valid():
                 question = form.save(commit=False)
@@ -68,33 +62,42 @@ def edit_quiz_view(request, quiz_id):
 
     else:
         # Initialize form based on the selected form type
-        for key in form_types:
+        for key in QUESTION_FORMS:
             if key in request.GET:
                 form_type = key
                 break
 
         if form_type:
-            form_class = form_types.get(form_type)
+            form_class = QUESTION_FORMS.get(form_type)
             form = form_class(initial={'quizID': str(quiz.id)})
+
+    #makes loading the forms easier 
+    question_forms = {}
+    for key, form_class in QUESTION_FORMS.items():
+        question_forms[key] = form_class(initial={'quizID': str(quiz.id)})
+
     return render(request, 'tutor/edit_quiz.html', {
         'quiz': quiz,
         'form': form,
         'questions': questions,
-        'int_form': IntegerInputQuestionForm(),
-        'tf_form': TrueFalseQuestionForm(),
+        'question_forms': question_forms,
     })
 
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
 def delete_question_view(request, question_id):
-    try:
-        question = IntegerInputQuestion.objects.get(pk=question_id)
-    except IntegerInputQuestion.DoesNotExist:
+    question = None
+    for key, model in QUESTION_MODELS.items():
         try:
-            question = TrueFalseQuestion.objects.get(pk=question_id)
-        except TrueFalseQuestion.DoesNotExist:
-            return HttpResponse("Question not found",status=404)
+            question = model.objects.get(pk=question_id)
+            break
+        except model.DoesNotExist:
+            continue
+
+    if not question:
+        return HttpResponse("Question not found", status=404)
+    
     quiz_id = question.quiz.id
     question.delete()
     return redirect('edit_quiz', quiz_id=quiz_id)
@@ -107,15 +110,19 @@ def get_question_view(request, quiz_id):
     if not question_id:
         return JsonResponse({"error": "Question ID is required"}, status=400)
     
-    try:
-        question = IntegerInputQuestion.objects.get(pk=question_id)
-        question_type = "integer"
-    except IntegerInputQuestion.DoesNotExist:
+    question = None
+    question_type = None
+    for key, model in QUESTION_MODELS.items():
         try:
-            question= TrueFalseQuestion.objects.get(pk=question_id)
-            question_type = "true_false"
-        except TrueFalseQuestion.DoesNotExist:
-            return JsonResponse({"error":"Question not found"}, status=404)
+            question = model.objects.get(pk=question_id)
+            question_type = key
+            break
+        except model.DoesNotExist:
+            continue
+
+    if not question:
+        return JsonResponse({"error": "Question not found"}, status=404)
+
     data = {
         "id": question.id,
         "question_type": question_type,
@@ -123,12 +130,13 @@ def get_question_view(request, quiz_id):
         "position": question.position,
         "time": question.time,
         "quizID": question.quiz.id,
+        "mark": question.mark,
     }
+
+    #add more types here with their uniqe fields
     if question_type == "integer":
-        data["mark"] = question.mark
         data["correct_answer"] = question.correct_answer
     else:
-        data["mark"] = question.mark
         data["is_correct"] = question.is_correct
     return JsonResponse(data)
 
