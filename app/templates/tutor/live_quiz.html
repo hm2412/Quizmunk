@@ -70,6 +70,18 @@
         <!-- Ratio for students answered vs students joined  -->
         <div class="circle">
           <div>
+            <script type="text/javascript">
+              const ws = new WebSocket(`ws://${window.location.host}/ws/live-quiz/{{ join_code }}/`);
+
+              ws.onopen = () => {
+                console.log("Websocket connected!");
+              }
+
+              ws.onmessage = function(event) {
+                let data = JSON.parse(event.data);
+                console.log('Data:', data);
+              }
+            </script>
             <p class="mb-0 h5">[no of students answered / {{ participant_number }}]</p>
           </div>
         </div>
@@ -82,15 +94,6 @@
         </div>
       </div>
     </div>
-
-    <script type="text/javascript">
-      const ws = new WebSocket(`ws://${window.location.host}/ws/live-quiz/`)
-
-      ws.onmessage = function(event) {
-        let data = JSON.parse(event.data)
-        console.log('Data:', data)
-      }
-    </script>
 
     <!-- Footer -->
     <footer>
