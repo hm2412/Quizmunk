@@ -19,3 +19,22 @@ class ClassroomStudent(models.Model):
         on_delete=models.CASCADE,
         limit_choices_to={"role": User.STUDENT}
     )
+
+class ClassroomInvitation(models.Model):
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
+    student = models.ForeignKey(
+        User,
+        related_name="classroom_invitations",
+        on_delete=models.CASCADE,
+        limit_choices_to={"role": User.STUDENT}
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=10,
+        choices=[
+            ('pending', 'Pending'),
+            ('accepted', 'Accepted'),
+            ('declined', 'Declined')
+        ],
+        default='pending'
+    )

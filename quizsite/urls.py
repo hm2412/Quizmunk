@@ -26,6 +26,7 @@ from app.views.dashboard_view import student_dashboard, tutor_dashboard
 from app.views.profile_view import student_profile, tutor_profile
 from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_view, get_question_view
 from app.views.password_reset_view import password_reset
+from app.views.classroom_view import classroom_view, classroom_detail_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -43,7 +44,7 @@ urlpatterns = [
     path('tutor-profile/', tutor_profile, name='tutor_profile'),
     path('join-quiz/', join_quiz, name='join_quiz'),
     path('lobby/<str:join_code>', lobby, name='lobby'),
-    path("password-reset/", password_reset, name="password_reset"),path('classrooms/', classroom_view, name='classroom_view'),
+    path("password-reset/", password_reset, name="password_reset"),
+    path('classrooms/', classroom_view, name='classroom_view'),
     path('classrooms/<int:classroom_id>/', classroom_detail_view, name='classroom_detail'),
-    
 ]

@@ -68,6 +68,37 @@
             background: #c82333;
             transform: translateY(-2px);
         }
+
+        .assign-btn{
+            background:rgb(68, 156, 104);
+            color: white;
+        }
+
+        .assign-btn:hover {
+            background:rgb(57, 129, 87);
+            transform: translateY(-2px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #create-modal:not(:target) {
+            display: none;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+        }
     </style>
 </head>
 <body>
@@ -83,18 +114,44 @@
                 <div class="description-card">
                     <h2>Class Description</h2>
                     <p>{{ classroom.description }}</p>
+                    <!-- <a href="{% url 'classroom_view' %}" class="btn invite-btn">Invite<a> -->
+                    <a href="#create-modal" class="add-student btn invite-btn">Invite</a>
+                    <a href="{% url 'classroom_view' %}" class="btn assign-btn">Assign Quiz<a>
                 </div>
 
                 <div class="classroom-actions">
                     <a href="{% url 'classroom_view' %}" class="btn back-btn">← Back</a>
-                    <form method="POST" onsubmit="return confirm('Delete this classroom?');" style="display: inline;">
+                    <!-- <form method="POST" onsubmit="return confirm('Delete this classroom?');" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit" class="btn delete-btn">Delete</button>
-                    </form>
+                    </form> -->
                 </div>
             </section>
+            <section class="classroom-students">
+                <h2>Your Students:</h2>
+                <ul>
+                    {% for st in students %}
+                        <li>{{ st.student.first_name }} {{ st.student.last_name }} - {{ st.student.email_address }}</li>
+                    {% empty %}
+                        <li>No students in this class.</li>
+                    {% endfor %}
+                </ul>
+            </section>
         </main>
-
+        
+        <div id="create-modal" class="modal">
+            <div class="modal-content">
+                <h2>Invite to Classroom</h2>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="text" name="student_email" placeholder="Email Address" required>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <a href="#" class="btn cancel">Cancel</a>
+                        <button type="submit" class="btn invite">Invite</button>
+                    </div>
+                </form>
+            </div>
+        </div>
         {% include 'partials/footer.html' %}
     </div>
 </body>
