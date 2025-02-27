@@ -25,6 +25,7 @@ def tutor_live_quiz(request, join_code):
         'room': room,
         'join_code': join_code,
         'participants': participants,
+        'leaders': leaders,
         'participant_number': participantNumber,
     }
     return render(request, 'tutor/live_quiz.html', context)
