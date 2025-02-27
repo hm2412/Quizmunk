@@ -145,8 +145,8 @@
         .catch(error=>console.error("Error:",error));
       }
       startQuizBtn.addEventListener("click", function() {
-        let roomId = "{{ room.id }}";
-        sendRequest(`/start-quiz/${roomId}/`, function(data) {
+        let joinCode = "{{ join_code }}";
+        sendRequest(`/start-quiz/${joinCode}`, function(data) {
           if (data.message) {
             startQuizBtn.textContent = "Quiz Started ✅";
             startQuizBtn.disabled = true; // Disable after starting
@@ -156,8 +156,8 @@
       });
 
       nextQuestionBtn.addEventListener("click", function () {
-        let roomId = "{{ room.id }}";
-        sendRequest(`/next-question/${roomId}/`, function(data) {
+        let joinCode = "{{ join_code }}";
+        sendRequest(`/next-question/${joinCode}`, function(data) {
             if (data.question && data.answer) {
                 questionNumber.textContent = `Question ${data.question_number}`;
                 questionText.textContent = data.question;
@@ -165,9 +165,10 @@
             }
         });
     });
+
     endQuizBtn.addEventListener("click", function () {
-        let roomId = "{{ room.id }}";
-        sendRequest(`/end-quiz/${roomId}/`, function(data) {
+        let joinCode = "{{ join_code }}";
+        sendRequest(`/end-quiz/${joinCode}`, function(data) {
             quizControls.innerHTML = `<h2 class="text-danger">Quiz Ended 🚀</h2>`;
             questionText.textContent = "";
             answerText.textContent = "";
