@@ -56,6 +56,7 @@ class RoomParticipant(models.Model):
         help_text="Guest access session for the participant."
     )
     joined_at = models.DateTimeField(auto_now_add=True)
+    score = models.IntegerField(default=0)
 
     class Meta:
         constraints = [
