@@ -112,15 +112,14 @@
         <main>
             <section class="classroom-details">
                 <div class="description-card">
-                    <h2>Class Description</h2>
+                    <h2>{{ classroom.name }}</h2>
                     <p>{{ classroom.description }}</p>
-                    <!-- <a href="{% url 'classroom_view' %}" class="btn invite-btn">Invite<a> -->
                     <a href="#create-modal" class="add-student btn invite-btn">Invite</a>
-                    <a href="{% url 'classroom_view' %}" class="btn assign-btn">Assign Quiz<a>
+                    <a href="" class="btn assign-btn">Assign Quiz<a>
                 </div>
 
                 <div class="classroom-actions">
-                    <a href="{% url 'classroom_view' %}" class="btn back-btn">← Back</a>
+                    <a href="{% url 'tutor_classroom_view' %}" class="btn back-btn">← Back</a>
                     <!-- <form method="POST" onsubmit="return confirm('Delete this classroom?');" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit" class="btn delete-btn">Delete</button>

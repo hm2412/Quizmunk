@@ -89,7 +89,7 @@
 
         <div class="classroom-grid">
             {% for classroom in classrooms %}
-            <a href="{% url 'classroom_detail' classroom.id %}" class="classroom-card">
+            <a href="{% url 'tutor_classroom_detail' classroom.id %}" class="classroom-card">
                 <p>{{ classroom.name }}</p>
             </a>
             {% endfor %}
