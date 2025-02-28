@@ -3,8 +3,17 @@ from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 import qrcode
-from app.models import Room, RoomParticipant
-from app.models import GuestAccess
+from app.models import Room, RoomParticipant, Quiz, GuestAccess
+from app.helpers.decorators import is_tutor
+from app.views.live_quiz_view import tutor_live_quiz
+
+@is_tutor
+def setup_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+
+    room = Room.objects.create(name=f"{quiz.name} Room", quiz=quiz)
+
+    return redirect(lobby, join_code=room.join_code)
 
 def lobby(request, join_code):
     room = get_object_or_404(Room, join_code=join_code)
@@ -42,7 +51,9 @@ def lobby(request, join_code):
     #if not room.quiz:
     #    messages.error(request, 'Invalid code!')
     #    return redirect('join_quiz')
-
+    if request.method == 'POST':
+        # Redirect to start quiz functionality
+        return redirect(tutor_live_quiz, join_code=room.join_code, )
     
     context = {
         'room': room,

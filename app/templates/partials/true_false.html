@@ -1,0 +1,43 @@
+<div class="question"> 
+    <button class="btn true">
+        True
+    </button>
+    <button class="btn false">
+        False
+    </button>
+</div>
+
+
+<!-- This can be placed in a separate CSS file once this partial is used in other templates-->
+<style>
+    .question {
+    display: flex; 
+    gap: 10px; 
+    width: 100%;
+    height: 100%;
+}
+
+.btn {
+    flex: 1;
+    padding: 10px;
+    font-size: 1.2rem;
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer;
+}
+
+.true {
+    background-color: #28a745; 
+    color: white;
+}
+
+.false {
+    background-color: #dc3545; 
+    color: white; 
+}
+
+.btn:hover {
+    opacity: 0.9; 
+}
+
+</style>

@@ -122,7 +122,7 @@ class Migration(migrations.Migration):
                 ('user', models.ForeignKey(blank=True, help_text='A registered user participating in the room.', null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='User')),
             ],
             options={
-                'constraints': [models.CheckConstraint(condition=models.Q(models.Q(('guest_access__isnull', True), ('user__isnull', False)), models.Q(('guest_access__isnull', False), ('user__isnull', True)), _connector='OR'), name='user_xor_guest')],
+                'constraints': [models.CheckConstraint(check=models.Q(models.Q(('guest_access__isnull', True), ('user__isnull', False)), models.Q(('guest_access__isnull', False), ('user__isnull', True)), _connector='OR'), name='user_xor_guest')],
             },
         ),
     ]
