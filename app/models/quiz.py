@@ -66,7 +66,7 @@ class IntegerInputQuestion(Question):
         return f"IntegerInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
 
 class TrueFalseQuestion(Question):
-    is_correct = models.BooleanField()
+    is_correct = models.BooleanField() 
 
     quiz = models.ForeignKey(
         Quiz,
