@@ -50,5 +50,5 @@ urlpatterns = [
     path('live-quiz/<int:quiz_id>/next/', next_question, name='next_question'),
     path('live-quiz/<int:quiz_id>/end/', end_quiz, name='end_quiz'),
     path('live-quiz/<int:quiz_id>/responses/', get_live_responses, name='get_live_responses'),
-    path("password-reset/", password_reset, name="password_reset"),
+    #path("password-reset/", password_reset, name="password_reset"),
 ]
