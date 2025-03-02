@@ -15,7 +15,7 @@ class Quiz(models.Model):
     name = models.CharField(max_length=50)
     subject = models.CharField(blank=True, max_length=50)
     difficulty = models.CharField(blank=True, max_length=1, choices=DIFFICULTIES)
-    type = models.CharField(max_length=1, choices=TYPES)
+    type = models.CharField(max_length=1, choices=TYPES, blank=True)
     tutor = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -66,7 +66,7 @@ class IntegerInputQuestion(Question):
         return f"IntegerInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
 
 class TrueFalseQuestion(Question):
-    is_correct = models.BooleanField() 
+    is_correct = models.BooleanField()
 
     quiz = models.ForeignKey(
         Quiz,
