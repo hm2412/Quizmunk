@@ -60,3 +60,9 @@ def end_quiz(request):
         return JsonResponse({"message": "Quiz ended!"})
     return JsonResponse({"error": "Invalid request"}, status=400)
 
+
+
+
+def student_live_quiz(request, room_code):
+    room = get_object_or_404(Room, join_code=room_code)
+    return render(request, 'student/student_live_quiz.html', {'room': room})

@@ -71,9 +71,13 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'quizsite.wsgi.application'
 
 ASGI_APPLICATION = 'quizsite.asgi.application'
+
+
+WSGI_APPLICATION = 'quizsite.wsgi.application'
+
+
 
 CHANNEL_LAYERS = {
     'default': {
@@ -84,6 +88,8 @@ CHANNEL_LAYERS = {
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 DATABASES = {
     'default': {

@@ -25,6 +25,8 @@ from app.views.lobby_view import lobby
 from app.views.dashboard_view import student_dashboard, tutor_dashboard
 from app.views.profile_view import student_profile, tutor_profile
 from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_view, get_question_view
+from app.views.password_reset_view import password_reset
+from app.views.live_quiz_view import student_live_quiz
 from app.views.live_quiz_view import tutor_live_quiz, start_quiz, next_question, end_quiz
 
 urlpatterns = [
@@ -43,6 +45,8 @@ urlpatterns = [
     path('tutor-profile/', tutor_profile, name='tutor_profile'),
     path('join-quiz/', join_quiz, name='join_quiz'),
     path('lobby/<str:join_code>', lobby, name='lobby'),
+    path("password-reset/", password_reset, name="password_reset"),
+    path("student/live-quiz/<str:room_code>/", student_live_quiz, name="student_live_quiz"),
     path('live-quiz/<str:join_code>', tutor_live_quiz, name='tutor_live_quiz'),
     path("start-quiz/", start_quiz, name="start_quiz"),
     path("next-question/", next_question, name="next_question"),

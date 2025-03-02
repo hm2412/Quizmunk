@@ -70,7 +70,7 @@
         <div class="circle">
           <div>
             <script type="text/javascript">
-              const ws = new WebSocket(`ws://${window.location.host}/ws/live-quiz/{{ join_code }}/`);
+              const ws = new WebSocket(`ws://${window.location.host}/ws/live-quiz/{{join_code}}/`);
 
               ws.onopen = () => {
                 console.log("Websocket connected!");
@@ -129,6 +129,20 @@
       const answerText = document.querySelector(".answer"); // Target answer field
       const quizControls = document.getElementById("quiz-controls"); // Controls section
 
+
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            console.log('Received question data:', data);
+
+            // Update the question text and options dynamically
+            if (data.type === "quiz_update") {
+                questionNumber.textContent = `Question ${data.message.question_number}`;
+                questionText.textContent = data.message.question;
+                answerText.textContent = data.message.answer;  // Modify if you need multiple options
+            }
+        };
+
       function sendRequest(url, callback){
         fetch(url,{
           method:"POST",
@@ -144,6 +158,7 @@
         })
         .catch(error=>console.error("Error:",error));
       }
+
       startQuizBtn.addEventListener("click", function() {
         sendRequest("/start-quiz/",function(data){
           startQuizBtn.textContent = "Quiz Started ✅";
