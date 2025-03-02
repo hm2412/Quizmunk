@@ -50,7 +50,7 @@ def edit_quiz_view(request, quiz_id):
                 break
         if form_type:
             form_class = QUESTION_FORMS.get(form_type)
-            form = form_class(request.POST)
+            form = form_class(request.POST, request.FILES)
             if form.is_valid():
                 question = form.save(commit=False)
                 question.quiz = quiz

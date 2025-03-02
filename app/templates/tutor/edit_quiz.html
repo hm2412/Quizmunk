@@ -167,6 +167,19 @@
         window.location.href = "/tutor-dashboard/";
       });
     });
+
+    $("#editor").on("change", "input[type='file']", function() {
+        var fileInput = $(this);
+        if (this.files && this.files[0]) {
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            fileInput.closest("form").find("img[id$='-image-preview']")
+                    .attr("src", e.target.result)
+                    .show();
+          };
+          reader.readAsDataURL(this.files[0]);
+        }
+    });
   </script>
   {% include 'partials/footer.html' %}
   <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container"></div>
