@@ -4,12 +4,13 @@ from app.models import IntegerInputQuestion
 class IntegerInputQuestionForm(forms.ModelForm):
     class Meta:
         model = IntegerInputQuestion
-        fields = ['time', 'question_text', 'mark', 'correct_answer']
+        fields = ['time', 'question_text', 'mark', 'correct_answer', 'image']
         widgets = {
             'time': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
             'question_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter question text'}),
             'mark': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
             'correct_answer': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter correct answer'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }
 
     def clean_correct_answer(self):

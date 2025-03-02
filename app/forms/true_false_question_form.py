@@ -4,12 +4,13 @@ from app.models import TrueFalseQuestion
 class TrueFalseQuestionForm(forms.ModelForm):
     class Meta:
         model = TrueFalseQuestion
-        fields = ['time', 'question_text', 'is_correct', 'mark']
+        fields = ['time', 'question_text', 'is_correct', 'mark', 'image']
         widgets = {
             'time': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
             'question_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter question text'}),
             'is_correct': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'mark': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }
 
     def clean_time(self):

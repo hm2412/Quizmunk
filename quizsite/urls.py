@@ -17,6 +17,8 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from app.views.homepage_view import homepage
 from app.views.sign_up_view import sign_up_view
 from app.views.login_view import login_view, logout_view
@@ -61,4 +63,4 @@ urlpatterns = [
     path('accept-classroom-invite/<int:invite_id>/', accept_classroom_invite, name="accept_classroom_invite"),
     path('decline-classroom-invite/<int:invite_id>/', decline_classroom_invite, name="decline_classroom_invite"),
     path("student/live-quiz/<str:room_code>/", student_live_quiz, name="student_live_quiz"),
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -131,6 +131,7 @@ def get_question_view(request, quiz_id):
         "time": question.time,
         "quizID": question.quiz.id,
         "mark": question.mark,
+        "image": question.image.url if hasattr(question, 'image') and question.image else "",
     }
 
     #add more types here with their uniqe fields

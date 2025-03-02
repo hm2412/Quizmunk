@@ -43,6 +43,7 @@ class Question(models.Model):
         help_text="The quiz this question belongs to."
     )
     mark = models.IntegerField()
+    image = models.ImageField(null=True, blank=True, upload_to='questions_images/')
 
     def __str__(self):
         return f"Quiz {self.quiz.id} Question {self.position}"

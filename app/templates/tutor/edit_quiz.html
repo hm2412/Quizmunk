@@ -60,9 +60,12 @@
   <!-- Hidden form templates for question types -->
   {% for key, form in question_forms.items %}
     <div id="{{ key }}-form-template" style="display: none;">
-      <form id="{{ key }}-question-form" method="post" action="">
+      <form id="{{ key }}-question-form" method="post" action="" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
+        <div id="{{ key }}-image-preview-container" style="margin-top: 10px;">
+          <img id="{{ key }}-image-preview" src="" alt="No image uploaded" style="max-width: 100%; display: none;" />
+        </div>
         <input type="hidden" name="{{ key }}" value="true">
         <input type="hidden" name="quizID" value="{{ quiz.id }}"> 
         <button type="submit" class="btn btn-primary">Save {{ key|capfirst }} Question</button>
@@ -104,6 +107,14 @@
           $("#editor").find("[name='question_text']").val(data.question_text || "");
           $("#editor").find("[name='time']").val(data.time || "");
           $("#editor").find("[name='mark']").val(data.mark || "");
+          console.log("Image URL:", data.image);
+          if(data.image) {
+            $("#editor").find("#" + type + "-image-preview")
+                      .attr("src", data.image)
+                      .show();
+          } else {
+            $("#editor").find("#" + type + "-image-preview").hide();
+          }
           // add other types uniqe fields here
           if (type === "integer") {
             $("#editor").find("[name='correct_answer']").val(data.correct_answer || "");
