@@ -20,6 +20,9 @@ class ClassroomStudent(models.Model):
         limit_choices_to={"role": User.STUDENT}
     )
 
+    class Meta:
+        unique_together = ('classroom', 'student')  # Prevents duplicate invite
+
 class ClassroomInvitation(models.Model):
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
     student = models.ForeignKey(
@@ -38,3 +41,6 @@ class ClassroomInvitation(models.Model):
         ],
         default='pending'
     )
+
+    class Meta:
+        unique_together = ('classroom', 'student')  # Prevents duplicate invite
