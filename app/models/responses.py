@@ -1,12 +1,13 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 
-from app.models import TrueFalseQuestion, IntegerInputQuestion
+from app.models import TrueFalseQuestion, IntegerInputQuestion, Quiz
 from app.models.user import User
 
 class Response(models.Model):
     player = models.ForeignKey(User, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True

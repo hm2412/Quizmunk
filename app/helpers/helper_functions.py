@@ -5,3 +5,7 @@ def getAllQuestions(quiz):
         questions_int = list(IntegerInputQuestion.objects.filter(quiz=quiz))
         questions_tf = list(TrueFalseQuestion.objects.filter(quiz=quiz))
         return questions_int + questions_tf
+
+def isCorrectAnswer(response):
+    if isinstance(response, IntegerInputQuestion) or isinstance(response, TrueFalseQuestion):
+        return response.answer == response.question.correct_answer
