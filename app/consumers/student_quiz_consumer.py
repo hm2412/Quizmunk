@@ -5,9 +5,7 @@ from channels.db import database_sync_to_async as sync_to_async, aclose_old_conn
 class StudentQuizConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_code = self.scope['url_route']['kwargs']['room_code']
-        self.room_group_name = f"live_quiz_{self.room_code}" 
-
-        print(f"Student joined group: {self.room_group_name}")
+        self.room_group_name = f"live_quiz_{self.room_code}"
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()

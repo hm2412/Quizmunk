@@ -14,7 +14,7 @@ class QuizConsumer(AsyncWebsocketConsumer):
         self.join_code = self.scope['url_route']['kwargs']['join_code']
         self.room_group_name = f"live_quiz_{self.join_code}"
 
-        print(f"Tutor joined group: {self.room_group_name}")
+        print(f"Someone has joined the room: {self.room_group_name}")
 
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -37,17 +37,25 @@ class QuizConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
+        await aclose_old_connections()
+
     # Manage messages received by client
     async def receive(self, text_data):
         data = json.loads(text_data)
+        action = data.get("action")
 
-        if data.get("action") == "update":
+        if "question" in data and "options" in data:
+            # Correctly received question, update UI
+            await self.send(text_data=json.dumps(data))
+        else:
+            # Debug: Message is missing question/options
+            print("Received message missing question/options:", data)
+
+        if action == "update":
             await self.send_updated_participants()
 
-        if data.get("action") == "start_quiz":
-    # Assuming you have a method that fetches the first question
+        elif action == "start_quiz":
             room = await sync_to_async(Room.objects.get)(join_code=self.join_code)
-            quiz = room.quiz  # Assuming quiz is linked with the room
 
             first_question = await sync_to_async(self.get_next_question)(quiz)
 
@@ -63,16 +71,26 @@ class QuizConsumer(AsyncWebsocketConsumer):
                 }
             )
 
+        # Handle student actions like submitting an answer
+        elif action == "submit_answer":
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "request_next_question",
+                    "sender": self.channel_name
+                }
+            )
+
             
 
     
 
         # WHEN CREATING REAL QUESTIONS FUNCTIONALITY ADDED REPLACE THE MOCK DATA WITH BELOW CODE i.e. UNCOMMENT IT
 
-        if data.get("action") == "next_question":
+        elif data.get("action") == "next_question":
             # Get the current quiz based on the join_code (or room_code)
             room = await sync_to_async(Room.objects.get)(join_code=self.join_code)
-            quiz = room.quiz  # (assuming the Room model has a ForeignKey to the Quiz model)
+            quiz = room.quiz
 
             # Get the next question for the quiz dynamically
             current_question = quiz.questions.first()  # Or fetch based on some logic
@@ -150,9 +168,15 @@ class QuizConsumer(AsyncWebsocketConsumer):
     
     async def quiz_update(self, event):
         message = event["message"]
-        print(f"Tutor sending quiz update: {message}")
+        print(f"Quiz was updated: {message}")
 
-        await self.send(text_data=json.dumps(message))
+        # Send the new question to the student's browser
+        await self.send(text_data=json.dumps({
+            "question": message["question"],
+            "options": message["options"],
+            "question_number": message["question_number"],
+        }))
+        await aclose_old_connections()
 
 
         # # Send the updated question to the client

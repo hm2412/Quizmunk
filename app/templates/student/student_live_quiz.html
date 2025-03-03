@@ -63,7 +63,7 @@
 <script>
     $(document).ready(function() {
         const roomCode = "{{ room.join_code }}";  // Get the room code from the template
-        const ws = new WebSocket(`ws://${window.location.host}/ws/student/${roomCode}/`);
+        const ws = new WebSocket(`ws://${window.location.host}/ws/live-quiz/${roomCode}/`);
 
         // Handle WebSocket connection
         ws.onopen = () => {
