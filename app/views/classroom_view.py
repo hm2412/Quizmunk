@@ -6,7 +6,7 @@ from app.models.classroom import Classroom, ClassroomStudent, ClassroomInvitatio
 from app.models.user import User
 from django.contrib import messages
 
-@login_required
+@redirect_unauthenticated_to_homepage
 @is_student
 def accept_classroom_invite(request, invite_id):
     invite = get_object_or_404(ClassroomInvitation, id=invite_id, student=request.user, status='pending')
@@ -19,6 +19,7 @@ def accept_classroom_invite(request, invite_id):
         
         return redirect('student_classroom_view')
 
+@redirect_unauthenticated_to_homepage
 @is_student
 def decline_classroom_invite(request, invite_id):
     invite = get_object_or_404(ClassroomInvitation, id=invite_id, student=request.user, status='pending')
@@ -27,8 +28,8 @@ def decline_classroom_invite(request, invite_id):
         invite.save()
         
         return redirect('student_classroom_view')
-    
-@login_required
+
+@redirect_unauthenticated_to_homepage
 @is_student
 def student_classroom_view(request):
     # classrooms = ClassroomStudent.objects.filter(student=request.user)
@@ -42,7 +43,7 @@ def student_classroom_view(request):
         invite.tutor_name = invite.classroom.tutor.first_name + ' ' + invite.classroom.tutor.last_name
     return render(request, 'student/classrooms.html', {'classrooms': classrooms, 'invites':invites})
 
-@login_required
+@redirect_unauthenticated_to_homepage
 @is_student
 def student_classroom_detail_view(request, classroom_id):
     if ClassroomStudent.objects.filter(classroom_id=classroom_id, student=request.user).exists():
@@ -51,7 +52,7 @@ def student_classroom_detail_view(request, classroom_id):
         raise Http404("Classroom not found or you are not a student in it.")
     return render(request, 'student/classroom_detail.html', {'classroom':classroom})
 
-@login_required
+@redirect_unauthenticated_to_homepage
 @is_tutor
 def tutor_classroom_view(request):
     classrooms = Classroom.objects.filter(tutor=request.user)
@@ -68,11 +69,11 @@ def tutor_classroom_view(request):
                 tutor=request.user
             )
             new_classroom.save()
-            return redirect('classroom_view')
+            return redirect('tutor_classroom_view')
     
     return render(request, 'tutor/classroom_view.html', {'classrooms': classrooms})
 
-@login_required
+@redirect_unauthenticated_to_homepage
 @is_tutor
 def tutor_classroom_detail_view(request, classroom_id):
     classroom = get_object_or_404(Classroom, id=classroom_id, tutor=request.user)
