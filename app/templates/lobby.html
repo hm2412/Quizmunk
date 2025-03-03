@@ -22,6 +22,15 @@
                         <li>{{ participant }}</li>
                     {% endfor %}
                 </ul>
+
+                {% if room.quiz %}
+                    <form method="POST" action="{% url 'tutor_live_quiz' join_code %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Start Quiz</button>
+                    </form>
+                {% else %}
+                    <p>No quiz associated with this room.</p>
+                {% endif %}
             </section>
         </main>
         {% include 'partials/footer.html' %}

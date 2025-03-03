@@ -6,28 +6,42 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Create Quiz</title>
    <link rel="stylesheet" href="{% static 'css/quiz_form.css' %}">
+   <link rel="stylesheet" href="{% static 'css/style.css' %}">
  </head>
 
 
+<body>
 <div class="modal">
-    <div class="modal-content" id="customQuizModal">
-        <div class="modal-header">
-            <h2>Create Quiz</h2>
-            <span class="close" onclick="closeModal()">&times;</span>
-        </div>
-        <form hx-post="{% url 'create_quiz' %}" hx-target="#quiz-form-container" hx-swap="innerHTML">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Submit</button>
-        </form>
-    </div>
+   <div class="modal-content" id="customQuizModal">
+       <div class="modal-header">
+           <h2>Create Quiz</h2>
+           <span class="close" onclick="closeModal()">&times;</span>
+       </div>
+       <form method="post" hx-post="{% url 'create_quiz' %}" hx-target="#quiz-form-container" hx-swap="innerHTML">
+           {% csrf_token %}
+           {{ form.as_p }}
+           <button type="submit">Submit</button>
+       </form>
+   </div>
 </div>
-
+{% if form.errors %}
+   <div class="alert alert-danger">
+       <strong>Form submission failed:</strong>
+       <ul>
+           {% for field, errors in form.errors.items %}
+               <li>{{ field }}: {{ errors|join:", " }}</li>
+           {% endfor %}
+       </ul>
+   </div>
+{% endif %}
 <script>
-    function closeModal() {
-        let modal = document.getElementById("customQuizModal");
-        if (modal) {
-            modal.parentNode.remove(); 
-        }
-    }
+   document.body.addEventListener('htmx:configRequest', (event) => {
+       event.detail.headers['X-CSRFToken'] = document.querySelector('[name=csrfmiddlewaretoken]').value;
+   });
+   
+   function closeModal() {
+        window.location.href = "{% url 'tutor_dashboard' %}";
+   }
 </script>
+</body>
+</html>

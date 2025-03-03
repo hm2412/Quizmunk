@@ -1,0 +1,12 @@
+<h2>{{ question.text }}</h2>
+<p class="timer">⏳ Time left: <span id="timer">{{ question.time_limit }}</span> seconds</p>
+
+<ul class="answer-choices">
+    {% for choice in question.choices.all %}
+        <li class="choice">{{ choice.text }}</li>
+    {% empty %}
+        <li>No answer choices available.</li>
+    {% endfor %}
+</ul>
+
+<input type="hidden" name="current_question_id" value="{{ question.id }}">

@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -70,19 +71,25 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'quizsite.wsgi.application'
 
 ASGI_APPLICATION = 'quizsite.asgi.application'
 
+
+WSGI_APPLICATION = 'quizsite.wsgi.application'
+
+
+
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
 
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 DATABASES = {
     'default': {
