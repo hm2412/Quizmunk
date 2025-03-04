@@ -116,8 +116,8 @@ class MultipleChoiceQuestion(Question):
     
 class NumericalRangeQuestion(Question):
     #this can be changed
-    min_value = models.DecimalField(max_digits=10, decimal_places=10)
-    max_value = models.DecimalField(max_digits=10, decimal_places=10)
+    min_value = models.FloatField()
+    max_value = models.FloatField()
 
     quiz = models.ForeignKey(
         Quiz,
