@@ -24,6 +24,7 @@ from app.views.join_quiz_view import join_quiz
 from app.views.lobby_view import lobby
 from app.views.dashboard_view import student_dashboard, tutor_dashboard
 from app.views.profile_view import student_profile, tutor_profile
+from app.views.password_reset_view import password_reset
 from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_view, get_question_view, your_quizzes_view, delete_quiz_view, teacher_live_quiz_view, start_quiz,next_question,end_quiz,get_live_responses
 
 
