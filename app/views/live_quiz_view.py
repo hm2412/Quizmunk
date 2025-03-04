@@ -1,5 +1,5 @@
 from django.shortcuts import redirect,render, get_object_or_404
-from app.models import Quiz, RoomParticipant, Room
+from app.models import Quiz, RoomParticipant, Room, GuestAccess
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from app.helpers.decorators import is_tutor
@@ -65,4 +65,21 @@ def end_quiz(request):
 
 def student_live_quiz(request, room_code):
     room = get_object_or_404(Room, join_code=room_code)
+
+    if request.user.is_authenticated:
+        participant, created = RoomParticipant.objects.get_or_create(room=room, user=request.user)
+    else:
+        guest_session = request.session.session_key
+        if not guest_session:
+            request.session.save()
+            guest_session = request.session.session_key
+        guest_access, _ = GuestAccess.objects.get_or_create(session_id=guest_session)
+        participant, created = RoomParticipant.objects.get_or_create(room=room, guest_access=guest_access)
+
+    participants = RoomParticipant.objects.filter(room=room)
+    context = {
+        'room': room,
+        'participants': participants
+    }
+
     return render(request, 'student/student_live_quiz.html', {'room': room})
