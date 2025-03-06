@@ -81,10 +81,6 @@ class QuizConsumer(AsyncWebsocketConsumer):
                 }
             )
 
-            
-
-    
-
         # WHEN CREATING REAL QUESTIONS FUNCTIONALITY ADDED REPLACE THE MOCK DATA WITH BELOW CODE i.e. UNCOMMENT IT
 
         elif data.get("action") == "next_question":
@@ -125,10 +121,6 @@ class QuizConsumer(AsyncWebsocketConsumer):
                 }
             )
 
-            
-
-
-
         # if data.get("action") == "next_question":
         #     mock_next_question = {
         #         'question': 'What is the capital of France?',
@@ -136,20 +128,19 @@ class QuizConsumer(AsyncWebsocketConsumer):
         #     }
         #     await self.send(text_data=json.dumps(mock_next_question))
 
-        
-        
-
     # Updating the participants in the channel
     async def send_updated_participants(self):
         try:
             room = await sync_to_async(Room.objects.get)(join_code=self.join_code)
             participants = await self.get_participants(room)
+            participantNumber = len(participants)
 
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     "type": "send_participants",
-                    "participants": participants
+                    "participants": participants,
+                    "participant_number": participantNumber,
                 }
             )
         except Room.DoesNotExist:
@@ -158,7 +149,8 @@ class QuizConsumer(AsyncWebsocketConsumer):
     # Adding participants to the channel
     async def send_participants(self, event):
         await self.send(text_data=json.dumps({
-            "participants": event["participants"]
+            "participants": event["participants"],
+            "participant_number": event["participant_number"]
         }))
 
     def get_next_question(self, quiz, current_question):

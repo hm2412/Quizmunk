@@ -77,9 +77,11 @@ def student_live_quiz(request, room_code):
         participant, created = RoomParticipant.objects.get_or_create(room=room, guest_access=guest_access)
 
     participants = RoomParticipant.objects.filter(room=room)
+    participant_number = participants.count()
     context = {
         'room': room,
-        'participants': participants
+        'participants': participants,
+        'participant_number': participant_number
     }
 
-    return render(request, 'student/student_live_quiz.html', {'room': room})
+    return render(request, 'student/student_live_quiz.html', context)

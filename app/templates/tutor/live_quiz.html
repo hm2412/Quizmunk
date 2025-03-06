@@ -67,21 +67,7 @@
 
         <!-- Ratio for students answered vs students joined  -->
         <div class="circle">
-          <div>
-            <script type="text/javascript">
-              const ws = new WebSocket(`ws://${window.location.host}/ws/live-quiz/{{join_code}}/`);
-
-              ws.onopen = () => {
-                console.log("Websocket connected!");
-              }
-
-              ws.onmessage = function(event) {
-                let data = JSON.parse(event.data);
-                console.log('Data:', data);
-              }
-            </script>
-            <p class="mb-0 h5">[no of students answered / {{ participant_number }}]</p>
-          </div>
+            <div class="mb-0 h5" id="student_answers">Placeholder text</div>
         </div>
 
         <div id="quiz-controls">
@@ -128,11 +114,15 @@
       const answerText = document.querySelector(".answer"); // Target answer field
       const quizControls = document.getElementById("quiz-controls"); // Controls section
 
-
+      const ws = new WebSocket(`ws://${window.location.host}/ws/live-quiz/{{join_code}}/`);
+  
+      ws.onopen = () => {
+        console.log("Websocket connected!");
+      }
 
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);
-            console.log('Received question data:', data);
+            console.log('Received data:', data);
 
             // Update the question text and options dynamically
             if (data.type === "quiz_update") {
@@ -140,6 +130,9 @@
                 questionText.textContent = data.message.question;
                 answerText.textContent = data.message.answer;  // Modify if you need multiple options
             }
+
+            // Update the ratio of received answers to students dynamically
+            document.querySelector('#student_answers').innerHTML = "0 / ".concat(data.participant_number);
         };
 
       function sendRequest(url, callback){
