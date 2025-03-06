@@ -15,7 +15,7 @@ class Quiz(models.Model):
     name = models.CharField(max_length=50)
     subject = models.CharField(blank=True, max_length=50)
     difficulty = models.CharField(blank=True, max_length=1, choices=DIFFICULTIES)
-    type = models.CharField(max_length=1, choices=TYPES)
+    type = models.CharField(max_length=1, choices=TYPES, blank=True)
     tutor = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -43,6 +43,7 @@ class Question(models.Model):
         help_text="The quiz this question belongs to."
     )
     mark = models.IntegerField()
+    image = models.ImageField(null=True, blank=True, upload_to='questions_images/')
 
     def __str__(self):
         return f"Quiz {self.quiz.id} Question {self.position}"
@@ -66,7 +67,7 @@ class IntegerInputQuestion(Question):
         return f"IntegerInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
 
 class TrueFalseQuestion(Question):
-    is_correct = models.BooleanField() 
+    is_correct = models.BooleanField()
 
     quiz = models.ForeignKey(
         Quiz,

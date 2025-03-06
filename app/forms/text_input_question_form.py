@@ -1,14 +1,15 @@
 from django import forms
-from app.models import TrueFalseQuestion
+from app.models.quiz import TextInputQuestion
 
-class TrueFalseQuestionForm(forms.ModelForm):
+class TextInputQuestionForm(forms.ModelForm):
     class Meta:
-        model = TrueFalseQuestion
-        fields = ['time', 'question_text', 'is_correct', 'mark', 'image']
+        model = TextInputQuestion
+        fields = ['time', 'question_text', 'correct_answer', 'mark', 'image']
         widgets = {
             'time': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
             'question_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter question text'}),
-            'is_correct': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            #maybe add a way to make the tutor check that the spilling is correct
+            'correct_answer': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter correct answer'}),
             'mark': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }

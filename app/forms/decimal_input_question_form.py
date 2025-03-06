@@ -1,18 +1,19 @@
 from django import forms
-from app.models import TrueFalseQuestion
+from app.models.quiz import DecimalInputQuestion
+from decimal import Decimal
 
-class TrueFalseQuestionForm(forms.ModelForm):
+class DecimalInputQuestionForm(forms.ModelForm):
     class Meta:
-        model = TrueFalseQuestion
-        fields = ['time', 'question_text', 'is_correct', 'mark', 'image']
+        model = DecimalInputQuestion
+        fields = ['time', 'question_text', 'mark', 'correct_answer', 'image']
         widgets = {
             'time': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
             'question_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter question text'}),
-            'is_correct': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'mark': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
+            'correct_answer': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter correct answer'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }
-
+    
     def clean_time(self):
         time = self.cleaned_data.get('time')
         if not isinstance(time, int):
@@ -24,3 +25,9 @@ class TrueFalseQuestionForm(forms.ModelForm):
         if not isinstance(mark, int):
             raise forms.ValidationError("Mark must be an integer.")
         return mark
+
+    def clean_correct_answer(self):
+        correct_answer = self.cleaned_data.get('correct_answer')
+        if not isinstance(correct_answer, Decimal):
+            raise forms.ValidationError("Correct answer must be a decimal.")
+        return correct_answer
