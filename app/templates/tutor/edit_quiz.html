@@ -127,6 +127,16 @@
           } else {
             $("#editor").find("#" + type + "-image-preview").hide();
           }
+
+          //to check if it should create or edit a question 
+          if(data.id) {
+            if ($("#editor").find("[name='question_id']").length === 0) {
+              $("#editor").find("form").append("<input type='hidden' name='question_id' value='" + data.id + "'>");
+            } else {
+              $("#editor").find("[name='question_id']").val(data.id);
+            }
+          }
+
           // add other types uniqe fields here
           if (type === "integer" || type == "text" || type == "decimal")  {
             $("#editor").find("[name='correct_answer']").val(data.correct_answer || "");

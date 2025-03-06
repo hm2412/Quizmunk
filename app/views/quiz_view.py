@@ -53,8 +53,14 @@ def edit_quiz_view(request, quiz_id):
                 form_type = key
                 break
         if form_type:
+            question_id = request.POST.get("question_id")
             form_class = QUESTION_FORMS.get(form_type)
-            form = form_class(request.POST, request.FILES)
+            if question_id:
+                model_class = QUESTION_MODELS.get(form_type)
+                instance = get_object_or_404(model_class, pk=question_id)
+                form = form_class(request.POST, request.FILES, instance=instance)
+            else:
+                form = form_class(request.POST, request.FILES)
             if form.is_valid():
                 question = form.save(commit=False)
                 question.quiz = quiz
