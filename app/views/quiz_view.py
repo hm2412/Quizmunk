@@ -1,6 +1,6 @@
 from django.shortcuts import redirect,render, get_object_or_404
-from app.forms import QuizForm, IntegerInputQuestionForm, TrueFalseQuestionForm
-from app.models import Quiz, IntegerInputQuestion, TrueFalseQuestion, Question
+from app.forms import QuizForm
+from app.models.quiz import Quiz, IntegerInputQuestion, TrueFalseQuestion, Question, TextInputQuestion, MultipleChoiceQuestion, DecimalInputQuestion, NumericalRangeQuestion
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from app.helpers.decorators import is_tutor, redirect_unauthenticated_to_homepage
@@ -37,7 +37,11 @@ def edit_quiz_view(request, quiz_id):
     #if new types are added add them here
     questions_int = list(IntegerInputQuestion.objects.filter(quiz=quiz))
     questions_tf = list(TrueFalseQuestion.objects.filter(quiz=quiz))
-    questions = questions_int + questions_tf
+    questions_ti = list(TextInputQuestion.objects.filter(quiz=quiz))
+    questions_mc = list(MultipleChoiceQuestion.objects.filter(quiz=quiz))
+    questions_dc = list(DecimalInputQuestion.objects.filter(quiz=quiz))
+    questions_nr = list(NumericalRangeQuestion.objects.filter(quiz=quiz))
+    questions = questions_int + questions_tf + questions_ti + questions_mc + questions_dc + questions_nr
     questions.sort(key=lambda q: (q.position if q.position is not None else float('inf')))
 
     form_type = None
@@ -59,6 +63,18 @@ def edit_quiz_view(request, quiz_id):
                 return redirect('edit_quiz', quiz_id=quiz.id)
             else:
                 print("Form validation failed:", form.errors)
+                question_forms = {}
+                for key, form_class in QUESTION_FORMS.items():
+                    if key == form_type:
+                        question_forms[key] = form
+                    else:
+                        question_forms[key] = form_class(initial={'quizID': str(quiz.id)})
+                return render(request, 'tutor/edit_quiz.html', {
+                    'quiz': quiz,
+                    'form': form,
+                    'questions': questions,
+                    'question_forms': question_forms,
+                })
 
     else:
         # Initialize form based on the selected form type
@@ -135,8 +151,14 @@ def get_question_view(request, quiz_id):
     }
 
     #add more types here with their uniqe fields
-    if question_type == "integer":
+    if question_type == "integer" or question_type == 'text' or question_type == "decimal":
         data["correct_answer"] = question.correct_answer
+    elif question_type == "multiple_choice":
+        data["options"] = question.options
+        data["correct_option"] = question.correct_option
+    elif question_type == "numerical_range":
+        data["min_value"] = question.min_value
+        data["max_value"] = question.max_value
     else:
         data["is_correct"] = question.is_correct
     return JsonResponse(data)

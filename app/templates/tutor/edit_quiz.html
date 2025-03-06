@@ -50,6 +50,18 @@
           <div class="question-type" data-type="true_false" aria-label="True/False question">
             <i class="fas fa-check-circle"></i>True/False Question
           </div>
+          <div class="question-type" data-type="text" aria-label="Text input question">
+            <i class="fas fa-keyboard"></i>Text input Question
+          </div>
+          <div class="question-type" data-type="multiple_choice" aria-label="Multiple choice question">
+            <i class="fas fa-list"></i>Multiple Choice Question
+          </div>
+          <div class="question-type" data-type="decimal" aria-label="Decimal input question">
+            <i class="fas fa-hashtag"></i>Decimal Input Question
+          </div>
+          <div class="question-type" data-type="numerical_range" aria-label="Numerical range question">
+            <i class="fas fa-sliders-h"></i>Numerical Range Question
+          </div>
         </div>
       </div>
     </div>
@@ -116,10 +128,16 @@
             $("#editor").find("#" + type + "-image-preview").hide();
           }
           // add other types uniqe fields here
-          if (type === "integer") {
+          if (type === "integer" || type == "text" || type == "decimal")  {
             $("#editor").find("[name='correct_answer']").val(data.correct_answer || "");
           } else if (type == "true_false") {
             $("#editor").find("[name='is_correct']").prop("checked", data.is_correct === true || data.is_correct === "True"); 
+          } else if (type == "multiple_choice") {
+            $("#editor").find("[name='options']").val(data.options || "");
+            $("#editor").find("[name='correct_option']").val(data.correct_option || "");
+          } else if (type === "numerical_range") {
+            $("#editor").find("[name='min_value']").val(data.min_value || "");
+            $("#editor").find("[name='max_value']").val(data.max_value || "");
           }
         }
       }
