@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from app.models import User, Quiz, TrueFalseQuestion, IntegerInputQuestion, TrueFalseResponse, IntegerInputResponse
+from app.models import User, Quiz, TrueFalseQuestion, IntegerInputQuestion, TrueFalseResponse, IntegerInputResponse, \
+    TextInputQuestion, TextInputResponse, Room, MultipleChoiceQuestion, MultipleChoiceResponse
+
 
 class ResponseTestCase(TestCase):
     def setUp(self):
@@ -26,10 +28,15 @@ class ResponseTestCase(TestCase):
             tutor=self.test_tutor
         )
 
+        self.room = Room.objects.create(
+            name="Test Room",
+            quiz=self.quiz
+        )
+
         self.true_false_question = TrueFalseQuestion.objects.create(
             quiz=self.quiz,
             question_text="Is this a true or false question?",
-            is_correct=True,
+            correct_answer=True,
             time=10,
             mark=5
         )
@@ -42,11 +49,30 @@ class ResponseTestCase(TestCase):
             mark=5
         )
 
+        self.text_input_question = TextInputQuestion.objects.create(
+            quiz=self.quiz,
+            question_text="Is the answer to this question yes?",
+            correct_answer="Yes",
+            time=10,
+            mark=5
+        )
+
+        self.multiple_choice_question = MultipleChoiceQuestion.objects.create(
+            quiz=self.quiz,
+            question_text="What is 2 + 2?",
+            options=["1", "2", "3", "4"],
+            correct_answer="4",
+            time=10,
+            mark=5
+        )
+
+
     def test_valid_true_false_question_response(self):
         response = TrueFalseResponse.objects.create(
             player=self.test_player,
             question=self.true_false_question,
-            answer=True
+            answer=True,
+            room=self.room
         )
         try:
             response.full_clean()
@@ -58,14 +84,16 @@ class ResponseTestCase(TestCase):
             response = TrueFalseResponse.objects.create(
                 player=self.test_player,
                 question=self.true_false_question,
-                answer=7
+                answer=7,
+                room=self.room
             )
 
     def test_valid_integer_question_response(self):
         response = IntegerInputResponse.objects.create(
             player=self.test_player,
             question=self.integer_input_question,
-            answer=7
+            answer=7,
+            room=self.room
         )
         try:
             response.full_clean()
@@ -77,5 +105,51 @@ class ResponseTestCase(TestCase):
             response = IntegerInputResponse.objects.create(
                 player=self.test_player,
                 question=self.integer_input_question,
-                answer=7.5
+                answer=7.5,
+                room=self.room
+            )
+
+    def test_valid_text_question_response(self):
+        response = TextInputResponse.objects.create(
+            player=self.test_player,
+            question=self.text_input_question,
+            answer="Yes",
+            room=self.room
+        )
+        try:
+            response.full_clean()
+        except ValidationError:
+            self.fail("ValidationError raised")
+
+    def test_invalid_text_question_response(self):
+        response = TextInputResponse.objects.create(
+            player=self.test_player,
+            question=self.text_input_question,
+            answer=5,
+            room=self.room
+        )
+        try:
+            response.full_clean()
+        except ValidationError:
+            self.fail("ValidationError raised")
+
+    def test_valid_multiple_choice_question_response(self):
+        response = MultipleChoiceResponse.objects.create(
+            player=self.test_player,
+            question=self.multiple_choice_question,
+            answer="4",
+            room=self.room
+        )
+        try:
+            response.full_clean()
+        except ValidationError:
+            self.fail("ValidationError raised")
+
+    def test_invalid_multiple_choice_question_response(self):
+        with self.assertRaises(ValidationError):
+            response = MultipleChoiceResponse.objects.create(
+                player=self.test_player,
+                question=self.multiple_choice_question,
+                answer="5",
+                room=self.room
             )
