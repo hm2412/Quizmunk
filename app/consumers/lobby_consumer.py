@@ -7,8 +7,6 @@ from channels.db import database_sync_to_async as sync_to_async, aclose_old_conn
 
 
 
-
-
 class LobbyConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.join_code = self.scope['url_route']['kwargs']['join_code']
@@ -39,16 +37,16 @@ class LobbyConsumer(AsyncWebsocketConsumer):
     def get_participants(self, room):
         from app.models.room import RoomParticipant
         participants = []
-        
+
         room_participants = RoomParticipant.objects.filter(room=room)
         for participant in room_participants:
             if participant.user:
-                participants.append(f"{participant.user.email_address} ")  
+                participants.append(f"{participant.user.email_address} ")
             elif participant.guest_access:
                 participants.append(f"Guest {participant.guest_access.id}")
-        
+
         return participants
-    
+
 
     async def send_updated_participants(self):
         from app.models.room import Room
