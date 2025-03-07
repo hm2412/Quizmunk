@@ -57,6 +57,14 @@ class MultipleChoiceResponse(Response):
     question = models.ForeignKey(MultipleChoiceQuestion, on_delete=models.CASCADE)
     answer = models.CharField(max_length=255)
 
+    def clean(self):
+        if self.answer not in self.question.options:
+            raise ValidationError("Answer must be one of the following options: '{}'".format(self.question.options))
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"Multiple Choice Answer by {self.player} for question {self.question}"
 
