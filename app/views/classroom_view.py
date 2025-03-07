@@ -11,11 +11,11 @@ from django.contrib import messages
 def accept_classroom_invite(request, invite_id):
     invite = get_object_or_404(ClassroomInvitation, id=invite_id, student=request.user, status='pending')
     if request.method == 'POST' and request.POST.get('action') == 'accept':
-        #create the classroom student object
+        # Create the classroom student object
         ClassroomStudent.objects.create(classroom=invite.classroom, student=request.user)
 
-        invite.status = 'accepted'
-        invite.save()
+        # Delete the invitation after accepting
+        invite.delete()
         
         return redirect('student_classroom_view')
 
@@ -24,8 +24,8 @@ def accept_classroom_invite(request, invite_id):
 def decline_classroom_invite(request, invite_id):
     invite = get_object_or_404(ClassroomInvitation, id=invite_id, student=request.user, status='pending')
     if request.method == 'POST' and request.POST.get('action') == 'decline':
-        invite.status = 'declined'
-        invite.save()
+        
+        invite.delete()
         
         return redirect('student_classroom_view')
 
@@ -81,10 +81,10 @@ def tutor_classroom_detail_view(request, classroom_id):
         classroom=classroom,
         status='pending'
     ).select_related('student')
-    
+
     if request.method == 'POST':
         action = request.POST.get('action', '')
-        
+
         if action == 'remove_student':
             student_id = request.POST.get('student_id')
             try:
@@ -93,6 +93,13 @@ def tutor_classroom_detail_view(request, classroom_id):
                     student_id=student_id
                 )
                 student_enrollment.delete()
+                
+                
+                ClassroomInvitation.objects.filter(
+                    classroom=classroom,
+                    student_id=student_id
+                ).delete() 
+
                 return redirect('tutor_classroom_detail', classroom_id=classroom.id)
             except ClassroomStudent.DoesNotExist:
                 pass
@@ -105,7 +112,7 @@ def tutor_classroom_detail_view(request, classroom_id):
             return redirect('tutor_classroom_detail', classroom_id=classroom.id)
             
         else:
-            # Existing invite student logic
+          
             student_email = request.POST.get("student_email", "").strip()
             if not student_email:
                 messages.error(request, 'Please enter an email address')
@@ -113,7 +120,7 @@ def tutor_classroom_detail_view(request, classroom_id):
             
             try:
                 user = User.objects.get(email_address=student_email)
-                
+
                 if user.role != User.STUDENT:
                     messages.error(request, 'This email belongs to a tutor account')
                     return redirect('tutor_classroom_detail', classroom_id=classroom.id)
@@ -122,14 +129,15 @@ def tutor_classroom_detail_view(request, classroom_id):
                     messages.error(request, 'This student is already in your classroom')
                     return redirect('tutor_classroom_detail', classroom_id=classroom.id)
                 
-                if ClassroomInvitation.objects.filter(
-                    classroom=classroom, 
-                    student=user, 
-                    status="pending"
-                ).exists():
-                    messages.error(request, 'You have already invited this student')
-                    return redirect('tutor_classroom_detail', classroom_id=classroom.id)
                 
+                existing_invites = ClassroomInvitation.objects.filter(
+                    classroom=classroom, 
+                    student=user
+                )
+                if existing_invites.exists():
+                    messages.error(request, 'This student has an existing invitation to this classroom')
+                    return redirect('tutor_classroom_detail', classroom_id=classroom.id)
+
                 ClassroomInvitation.objects.create(classroom=classroom, student=user)
                 return redirect('tutor_classroom_detail', classroom_id=classroom.id)
                 
