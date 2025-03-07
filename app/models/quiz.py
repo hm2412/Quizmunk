@@ -34,7 +34,7 @@ class Quiz(models.Model):
 class Question(models.Model):
     question_text = models.CharField(max_length=255)
     position = models.IntegerField(blank=True, null=True)
-    time = models.PositiveIntegerField()
+    time = models.PositiveIntegerField(default=30)
     quiz = models.ForeignKey(
         Quiz,
         related_name="questions",  # Positional argument
@@ -42,7 +42,7 @@ class Question(models.Model):
         verbose_name="Related quiz",  # Keyword argument
         help_text="The quiz this question belongs to."
     )
-    mark = models.IntegerField()
+    mark = models.IntegerField(default=10)
 
     def __str__(self):
         return f"Quiz {self.quiz.id} Question {self.position}"
