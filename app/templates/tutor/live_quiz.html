@@ -67,7 +67,7 @@
 
         <!-- Ratio for students answered vs students joined  -->
         <div class="circle">
-            <div class="mb-0 h5" id="student_answers">Placeholder text</div>
+            <div class="mb-0 h5" id="student_answers">0 / 0</div>
         </div>
 
         <div id="quiz-controls">
@@ -132,7 +132,7 @@
             }
 
             // Update the ratio of received answers to students dynamically
-            document.querySelector('#student_answers').innerHTML = "0 / ".concat(data.participant_number);
+            document.querySelector('#student_answers').innerHTML = `0 / ${data.participant_number}`;
         };
 
       function sendRequest(url, callback){
