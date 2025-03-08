@@ -28,7 +28,7 @@ def lobby(request, join_code):
         guest_access, _ = GuestAccess.objects.get_or_create(session_id=guest_session)
         participant, created = RoomParticipant.objects.get_or_create(room=room, guest_access=guest_access)
 
-    participants = RoomParticipant.objects.filter(room=room)
+    participants = RoomParticipant.objects.filter(room=room).exclude(user__role="tutor")
     qr_code_path = "app/static/images/qr_code.png"
 
     try:
