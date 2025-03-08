@@ -5,6 +5,8 @@ from django.urls import reverse
 from app.helpers.decorators import is_tutor
 from app.helpers.helper_functions import getAllQuestions
 from django.views.decorators.csrf import csrf_exempt
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 
 '''Student Live Quiz'''
@@ -31,6 +33,16 @@ def tutor_live_quiz(request, join_code):
         'leaders': leaders,
         'participant_number': participantNumber,
     }
+
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f"lobby_{join_code}",
+        {
+            "type": "quiz_started",
+            "student_quiz_url": f"/student/live-quiz/{join_code}/",
+            "tutor_quiz_url": f"/live-quiz/{join_code}",
+        }
+    )
     return render(request, 'tutor/live_quiz.html', context)
 
 def start_quiz(request, join_code):

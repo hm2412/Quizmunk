@@ -157,16 +157,14 @@ def get_question_view(request, quiz_id):
     }
 
     #add more types here with their uniqe fields
-    if question_type == "integer" or question_type == 'text' or question_type == "decimal":
-        data["correct_answer"] = question.correct_answer
-    elif question_type == "multiple_choice":
+    if question_type == "multiple_choice":
         data["options"] = question.options
         data["correct_option"] = question.correct_option
     elif question_type == "numerical_range":
         data["min_value"] = question.min_value
         data["max_value"] = question.max_value
     else:
-        data["is_correct"] = question.is_correct
+        data["correct_answer"] = question.correct_answer
     return JsonResponse(data)
 
 
