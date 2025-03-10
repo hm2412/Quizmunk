@@ -30,7 +30,7 @@ from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_
 from app.views.live_quiz_view import tutor_live_quiz, start_quiz, next_question, end_quiz, student_live_quiz
 from app.views.password_reset_view import password_reset
 from app.views.classroom_view import tutor_classroom_view, tutor_classroom_detail_view, student_classroom_view, accept_classroom_invite, decline_classroom_invite, student_classroom_detail_view
-
+from app.views.stats_view import stats_view, stats_details, csv_download
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -63,4 +63,7 @@ urlpatterns = [
     path('accept-classroom-invite/<int:invite_id>/', accept_classroom_invite, name="accept_classroom_invite"),
     path('decline-classroom-invite/<int:invite_id>/', decline_classroom_invite, name="decline_classroom_invite"),
     path("student/live-quiz/<str:room_code>/", student_live_quiz, name="student_live_quiz"),
+    path("tutor-stats/", stats_view, name='stats'),
+    path("tutor-stats/<int:stats_id>/", stats_details, name='stats_details'),
+    path("tutor-stats/<int:stats_id>/download/", csv_download, name='stats_download'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
