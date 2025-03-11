@@ -10,10 +10,19 @@ def getAllQuestions(quiz):
 
 def isCorrectAnswer(response):
     if isinstance(response, NumericalRangeResponse):
-        return response.question.min_value <= response.answer <= response.question.max_value
-
+        if response.question.min_value <= response.answer <= response.question.max_value:
+            response.correct = True
+            return True
+        else:
+            response.correct = False
+            return False
     else:
-        return response.answer == response.question.correct_answer
+        if response.answer == response.question.correct_answer:
+            response.correct = True
+            return True
+        else:
+            response.correct = False
+            return False
 
 def calculate_user_score(user,room):
     if not user or not room:

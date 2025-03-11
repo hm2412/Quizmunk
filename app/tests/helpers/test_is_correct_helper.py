@@ -3,7 +3,8 @@ from decimal import Decimal
 from django.test import TestCase
 
 from app.helpers.helper_functions import isCorrectAnswer
-from app.models import User, TrueFalseQuestion, IntegerInputQuestion, NumericalRangeQuestion, TrueFalseResponse, Quiz
+from app.models import User, TrueFalseQuestion, IntegerInputQuestion, NumericalRangeQuestion, TrueFalseResponse, Quiz, \
+    Room, NumericalRangeResponse
 
 
 class TestIsCorrectHelper(TestCase):
@@ -23,6 +24,11 @@ class TestIsCorrectHelper(TestCase):
             difficulty="E",  # Easy
             type="L",  # Live
             tutor=self.tutor
+        )
+
+        self.room = Room.objects.create(
+            name="Sample Room",
+            quiz=self.quiz
         )
 
         # Create questions for the quiz
@@ -62,5 +68,11 @@ class TestIsCorrectHelper(TestCase):
         )
 
     def test_tf_correct_response(self):
-        self.tf_response = TrueFalseResponse.objects.create(question=self.tf_question, answer=True, player=self.player)
+        self.tf_response = TrueFalseResponse.objects.create(question=self.tf_question, answer=True, player=self.player, room=self.room)
         self.assertTrue(isCorrectAnswer(self.tf_response))
+        self.assertTrue(self.tf_response.correct)
+
+    def test_num_range_correct_response(self):
+        self.num_range_response = NumericalRangeResponse.objects.create(question=self.num_range_question, answer=13, player=self.player, room=self.room)
+        self.assertTrue(isCorrectAnswer(self.num_range_response))
+        self.assertTrue(self.num_range_response.correct)
