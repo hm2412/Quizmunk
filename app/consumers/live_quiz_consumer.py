@@ -11,7 +11,14 @@ class QuizConsumer(AsyncWebsocketConsumer):
 
     @sync_to_async
     def get_leaders(self, room):
-        return list(RoomParticipant.objects.filter(room=room).values_list('user__first_name').order_by('-score')[:10])
+        names = list(RoomParticipant.objects.filter(room=room).values_list('user__first_name', 'user__last_name').order_by('-score')[:10])
+        for i in range(0, len(names)):
+            if names[i] == (None, None):
+                names[i] = (RoomParticipant.objects.filter(room=room).order_by('-score')[:10][i]).__str__()
+            else:
+                names[i] = names[i][0] + " " + names[i][1]
+
+        return names
 
     @sync_to_async
     def get_leader_scores(self, room):
@@ -158,7 +165,7 @@ class QuizConsumer(AsyncWebsocketConsumer):
             room = await sync_to_async(Room.objects.get)(join_code=self.join_code)
             participants = await self.get_participants(room)
             participantNumber = len(participants)
-            leaders = await self.get_participants(room)
+            leaders = await self.get_leaders(room)
             leader_scores = await self.get_leader_scores(room)
 
             await self.channel_layer.group_send(
