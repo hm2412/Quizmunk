@@ -32,22 +32,7 @@
         <!-- Leaderboard -->
         <div class="leaderboard-container">
           <h2 class="h5">Leaderboard</h2>
-          <ul class="list-group mt-2">
-            {% for leader in leaders %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              {% if leader.user %}
-                {{ leader.user.first_name }}
-              {% elif leader.guest_access %}
-                Guest {{ leader.guest_access.session_id|slice:":8" }}
-              {% else %}
-                Guest
-              {% endif %}          
-              <span class="badge bg-primary rounded-pill">{{leader.score}} pts</span>
-            </li>
-            {% empty %}
-            <li class="list-group-item">No participants yet.</li>
-            {% endfor %}
-          </ul>
+          <ul class="list-group mt-2" id="leaderboard"></ul>
         </div>
         <!--Progress bar for questions-->
         <div class="progress" role="-question-progressbar" aria-label="example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
@@ -133,6 +118,28 @@
 
             // Update the ratio of received answers to students dynamically
             document.querySelector('#student_answers').innerHTML = `0 / ${data.participant_number}`;
+
+            // Update leaderboard dynamically
+            if (data.leaders) {
+              let leaders = data.leaders;
+              let leaderboard = "";
+              if (leaders.length > 0) {
+                let scores = data.leader_scores;
+                for (let i = 0; i < leaders.length; i++) {
+                  leaderboard += `
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    ${leaders[i]}
+                    <span class="badge bg-primary rounded-pill">${scores[i]} pts</span>
+                  </li>
+                  `;
+                };
+              }
+              else {
+                leaderboard = `<li class="list-group-item">No participants yet.</li>`;
+              }
+                
+              document.querySelector('#leaderboard').innerHTML = leaderboard;
+            }
         };
 
       function sendRequest(url, callback){

@@ -9,6 +9,14 @@ class QuizConsumer(AsyncWebsocketConsumer):
     def get_participants(self, room):
         return list(room.participants.values_list('user__email_address', flat=True))
 
+    @sync_to_async
+    def get_leaders(self, room):
+        return list(RoomParticipant.objects.filter(room=room).values_list('user__first_name').order_by('-score')[:10])
+
+    @sync_to_async
+    def get_leader_scores(self, room):
+        return list(RoomParticipant.objects.filter(room=room).values_list('score').order_by('-score')[:10])
+
     # Manage initial request when first connecting with client
     async def connect(self):
         self.join_code = self.scope['url_route']['kwargs']['join_code']
@@ -150,6 +158,8 @@ class QuizConsumer(AsyncWebsocketConsumer):
             room = await sync_to_async(Room.objects.get)(join_code=self.join_code)
             participants = await self.get_participants(room)
             participantNumber = len(participants)
+            leaders = await self.get_participants(room)
+            leader_scores = await self.get_leader_scores(room)
 
             await self.channel_layer.group_send(
                 self.room_group_name,
@@ -157,6 +167,22 @@ class QuizConsumer(AsyncWebsocketConsumer):
                     "type": "send_participants",
                     "participants": participants,
                     "participant_number": participantNumber,
+                    "leaders": leaders,
+                    "leader_scores": leader_scores,
+                }
+            )
+        except Room.DoesNotExist:
+            return
+
+    async def send_updated_leaders(self):
+        try:
+            room = await sync_to_async(Room.objects.get)(join_code=self.join_code)
+            leaders = await self.get_participants(room)
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "send_leaders",
+                    "leaders": leaders,
                 }
             )
         except Room.DoesNotExist:
@@ -166,7 +192,10 @@ class QuizConsumer(AsyncWebsocketConsumer):
     async def send_participants(self, event):
         await self.send(text_data=json.dumps({
             "participants": event["participants"],
-            "participant_number": event["participant_number"]
+            "participant_number": event["participant_number"],
+            "leaders": event["leaders"],
+            "participant_number": event["participant_number"],
+            "leader_scores": event["leader_scores"],
         }))
 
     def get_next_question(self, quiz, current_question):
