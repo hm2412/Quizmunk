@@ -3,7 +3,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from app.helpers.decorators import is_student, is_tutor, redirect_unauthenticated_to_homepage
 from app.models.classroom import Classroom, ClassroomStudent, ClassroomInvitation
+from app.models.room import Room
 from app.models.user import User
+from app.models.quiz import Quiz
 from django.contrib import messages
 
 @redirect_unauthenticated_to_homepage
@@ -48,9 +50,10 @@ def student_classroom_view(request):
 def student_classroom_detail_view(request, classroom_id):
     if ClassroomStudent.objects.filter(classroom_id=classroom_id, student=request.user).exists():
         classroom = get_object_or_404(Classroom, id=classroom_id)
+        room = Room.objects.filter(classroom=classroom).first()
     else:
         raise Http404("Classroom not found or you are not a student in it.")
-    return render(request, 'student/classroom_detail.html', {'classroom':classroom})
+    return render(request, 'student/classroom_detail.html', {'classroom':classroom, 'room': room})
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
@@ -62,7 +65,7 @@ def tutor_classroom_view(request):
         description = request.POST.get('description')
         
         if name and description:
-            new_classroom = Classroom(
+            new_classroom = Classroom.objects.create(
                 name=name,
                 description=description,
                 tutor=request.user
@@ -81,6 +84,7 @@ def tutor_classroom_detail_view(request, classroom_id):
         classroom=classroom,
         status='pending'
     ).select_related('student')
+    quizzes = Quiz.objects.filter(tutor=request.user).order_by("-id")
     
     if request.method == 'POST':
         action = request.POST.get('action', '')
@@ -141,5 +145,6 @@ def tutor_classroom_detail_view(request, classroom_id):
         'classroom': classroom,
         'student_count': classroom.students.count(),
         'students': students,
-        'pending_invites': pending_invites
+        'pending_invites': pending_invites,
+        'quizzes': quizzes
     })

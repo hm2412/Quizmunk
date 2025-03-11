@@ -89,14 +89,19 @@
             justify-content: center;
         }
 
-        #create-modal:not(:target) {
+        #create-invite-modal:not(:target) {
             display: none;
         }
+
+        #create-quiz-modal:not(:target) {
+            display: none;
+        }
+
         .modal-content {
             background: white;
             padding: 20px;
             border-radius: 8px;
-            width: 90%;
+            width: 90%; 
             max-width: 400px;
         }
 
@@ -204,8 +209,9 @@
                             <button type="submit" class="btn save">Save</button>
                         </div>
                     </form>
-                    <a href="#create-modal" class="add-student btn invite-btn">Invite</a>
-                    <a href="" class="btn assign-btn">Assign Quiz</a>
+                    <a href="#create-invite-modal" class="add-student btn invite-btn">Invite</a>
+                    {% comment %} <a href="{% url 'setup_classroom_quiz' classroom_id=classroom.id quiz_id=1  %}" class="btn assign-btn">Assign Quiz</a> {% endcomment %}
+                    <a href="#create-quiz-modal" class="create-quiz btn assign-btn">Assign Quiz</a>
                 </div>
 
                 <div class="classroom-actions">
@@ -248,7 +254,7 @@
             </section>
         </main>
         
-        <div id="create-modal" class="modal">
+        <div id="create-invite-modal" class="modal">
             <div class="modal-content">
                 <h2>Invite to Classroom</h2>
                 {% if messages %}
@@ -270,12 +276,43 @@
                 </form>
             </div>
         </div>
+        <div id="create-quiz-modal" class="modal">
+            <div class="modal-content">
+                <h2>Invite to Classroom</h2>
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.tags == 'error' %}
+                        <div class="alert alert-error">
+                            {{ message }}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                <h2>Your Quizzes</h2>
+
+                {% if quizzes %}
+                    <ul class="list-group">
+                        {% for quiz in quizzes %}
+                            <ul class="list-group-item d-flex justify-content-between align-items-center" id="quiz-{{ quiz.id }}">
+                                <span>
+                                    <strong>{{ quiz.name }}</strong> ({{ quiz.subject }})
+                                </span>
+                                <a href="{% url 'setup_classroom_quiz' classroom_id=classroom.id quiz_id=quiz.id  %}" class="btn assign-btn">Assign Quiz</a>
+                            </ul>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="alert alert-info">You have no draft quizzes.</p>
+                {% endif %}
+                <a href="#" class="btn cancel">Cancel</a>
+            </div>
+        </div>
         {% include 'partials/footer.html' %}
     </div>
 
     <script>
         {% if messages %}
-            window.location.hash = 'create-modal';
+            window.location.hash = 'create-invite-modal';
         {% endif %}
 
         document.querySelector('.cancel').addEventListener('click', function(e) {

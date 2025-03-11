@@ -108,12 +108,63 @@
             align-items: center; 
             gap: 10px; 
         }
+
+        .sidebar {
+            width: 250px; /* Adjust width as needed */
+            background-color: #398AA2;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0; /* Add some padding */
+            height: 100vh; /* Ensure sidebar stretches to full height */
+            position: fixed; /* Keep it fixed on the left */
+        }
+        
+        .sidebar nav ul {
+            display: flex;
+            flex-direction: column; /* Stack links vertically */
+            padding: 0;
+            margin-top: 50px;
+            list-style: none;
+            width: 100%;
+        }
+        
+        .sidebar nav ul li {
+            margin-bottom: 15px;
+        }
+        
+        .sidebar nav ul li a {
+            color: white;
+            font-size:35px;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+            width: 100%;
+            border-radius: 5px;
+        }
+        
+        .sidebar nav ul li a:hover {
+            background-color: #1E7590;
+        }
+
+        .page-content {
+            margin-left: 250px; /* Offset by the width of the sidebar */
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box; /* Ensures padding doesn't affect the overall width */
+            min-width: calc(100% - 250px); /* Prevents overflow */ 
+            overflow-x: hidden; /* Allow vertical scrolling */
+            overflow-y: scroll;
+        }
         
     </style>
 </head>
 <body>
     <div class="container">
-        {% include 'partials/navbar.html' %}
+        <div class="sidebar">
+            {% include 'partials/student_navbar.html' %}
+        </div>
         <div class="page-content">
             <h1>My Classrooms</h1>
             <div class="classroom-grid">
