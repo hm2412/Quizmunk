@@ -4,7 +4,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async as sync_to_async, aclose_old_connections
 
-
+from app.models import RoomParticipant, GuestAccess
 
 
 class LobbyConsumer(AsyncWebsocketConsumer):
@@ -20,12 +20,29 @@ class LobbyConsumer(AsyncWebsocketConsumer):
 
         await self.send_updated_participants()
 
+        self.user = self.scope.get("user")
+        self.session = self.scope["session"]
+
     
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
+
+        if self.user and self.user.is_authenticated:
+            # When user is logged in
+            participant = await sync_to_async(RoomParticipant.objects.get)(user_id=self.user.id)
+        else:
+            # When user is a guest
+            guest = await sync_to_async(GuestAccess.objects.get)(session_id=self.session.session_key)
+            participant = await sync_to_async(RoomParticipant.objects.get)(guest_access=guest)
+
+        await sync_to_async(lambda: RoomParticipant.objects.filter(id=participant.id).delete())() # Removing the user from the participants
+
+        await self.send_updated_participants()
+
+        await aclose_old_connections()
 
     async def receive(self, text_data):
         data = json.loads(text_data)
