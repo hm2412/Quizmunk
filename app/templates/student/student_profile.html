@@ -1,20 +1,14 @@
 <!DOCTYPE html>
-{% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Profile</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body>
-    <div class="container">
-        {% include 'partials/navbar.html' %}
+{% extends "base.html" %}
+{% block title %}Student Profile{% endblock %}
+{% block content %}
+    <div class="dashboard-container">
         <div class="dashboard-header">
-            <h1>Student Profile</h1>
+            <h1 class="text-center">Student Profile</h1>
         </div>
-        <main>
-            <section>
+        
+        <div class="dashboard-content">
+            <section class="profile-section">
                 <table class="profile-table">
                     <tr>
                         <th>Email Address:</th>
@@ -29,8 +23,6 @@
                     <a href="{% url 'password_reset' %}" class="btn btn-warning">Reset Password</a>
                 </div>
             </section>
-        </main>
-        {% include 'partials/footer.html' %}
+        </div>
     </div>
-</body>
-</html>
+{% endblock %}

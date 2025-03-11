@@ -1,32 +1,53 @@
 <!DOCTYPE html>
-{% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body>
-    <div class="container">
-        {% include 'partials/navbar.html' %}
+{% extends "base.html" %}
+{% block title %}Student Dashboard{% endblock %}
+{% block content %}
+    <div class="dashboard-container">
         <div class="dashboard-header">
-            <h1>Welcome, Student!</h1>
+            <h1>Welcome, {{ user.first_name }}!</h1>
             <div class="profile-dropdown">
-                <button class="dropdown-btn">Profile &#x25BC;</button>
+                <button class="dropdown-btn">
+                    <img src="https://www.gravatar.com/avatar/{{ user.gravatar_hash }}?s=200&d=identicon" alt="Profile Picture" class="gravatar">
+                </button>
                 <div class="dropdown-content">
                     <a href="{% url 'student_profile' %}">Profile</a>
                     <a href="{% url 'logout' %}">Log Out</a>
                 </div>
             </div>
         </div>
-        <main>
-            <section>
-                <h2>Your Dashboard</h2>
-                <p>Access your quizzes, view results, and track progress here.</p>
+
+        <div class="dashboard-content">
+            <div class="dashboard-top">
+                <div class="dashboard-info">
+                    <h2>Your Dashboard</h2>
+                    <p>Access your quizzes, view results, and track progress here.</p>
+                </div>
+            </div>
+
+            <section class="quiz-section">
+                <h3>Available Quizzes</h3>
+                <div class="quiz-list">
+                    {% for quiz in available_quizzes %}
+                        {% include 'partials/quiz_card.html' with quiz_img=quiz.quiz_img quiz_title=quiz.quiz_title quiz_description=quiz.quiz_description %}
+                    {% empty %}
+                        <p class="text-muted">No available quizzes at the moment.</p>
+                    {% endfor %}
+                </div>
             </section>
-        </main>
-        {% include 'partials/footer.html' %}
+
+            <section class="results-section">
+                <h3>Your Results</h3>
+                <div class="results-list">
+                    {% for result in student_results %}
+                        <div class="result-card">
+                            <h4>{{ result.quiz_title }}</h4>
+                            <p>Score: {{ result.score }}%</p>
+                        </div>
+                    {% empty %}
+                        <p class="text-muted">No results available yet.</p>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
     </div>
-</body>
-</html>
+{% endblock %}
