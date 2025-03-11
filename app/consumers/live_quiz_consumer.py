@@ -104,6 +104,7 @@ class QuizConsumer(AsyncWebsocketConsumer):
 
         # Handle student actions like submitting an answer
         elif action == "submit_answer":
+            await self.send_updated_leaders()
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -181,19 +182,29 @@ class QuizConsumer(AsyncWebsocketConsumer):
         except Room.DoesNotExist:
             return
 
+    # Updating only the leaders in the channel
     async def send_updated_leaders(self):
         try:
             room = await sync_to_async(Room.objects.get)(join_code=self.join_code)
             leaders = await self.get_participants(room)
+            leader_scores = await self.get_leader_scores(room)
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     "type": "send_leaders",
                     "leaders": leaders,
+                    "leader_scores": leader_scores,
                 }
             )
         except Room.DoesNotExist:
             return
+
+    # Sending only the leaders to the channel
+    async def send_leader(self, event):
+        await self.send(text_data=json.dumps({
+            "leaders": event["leaders"],
+            "leader_scores": event["leader_scores"],
+        }))
 
     # Adding participants to the channel
     async def send_participants(self, event):
@@ -201,7 +212,6 @@ class QuizConsumer(AsyncWebsocketConsumer):
             "participants": event["participants"],
             "participant_number": event["participant_number"],
             "leaders": event["leaders"],
-            "participant_number": event["participant_number"],
             "leader_scores": event["leader_scores"],
         }))
 
