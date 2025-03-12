@@ -2,7 +2,6 @@ from django import forms
 from app.models.quiz import MultipleChoiceQuestion
 
 class MultipleChoiceQuestionForm(forms.ModelForm):
-
     options = forms.CharField(
         widget=forms.Textarea(attrs={
             'class': 'form-control',
@@ -11,28 +10,28 @@ class MultipleChoiceQuestionForm(forms.ModelForm):
         help_text="Enter at least two options, one per line."
     )
 
+    time = forms.IntegerField(
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
+        error_messages={'invalid': "Time must be an integer."}
+    )
+
+    mark = forms.IntegerField(
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
+        error_messages={'invalid': "Mark must be an integer."}
+    )
+
+    correct_answer = forms.CharField(
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter correct answer'}),
+        error_messages={'invalid': "Correct option must be a string."}
+    )
+
     class Meta:
         model = MultipleChoiceQuestion
         fields = ['time', 'question_text', 'mark', 'options', 'correct_answer', 'image']
         widgets = {
-            'time': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
             'question_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter question text'}),
-            'mark': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
-            'correct_answer': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter the correct option'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }
-    
-    def clean_time(self):
-        time = self.cleaned_data.get('time')
-        if not isinstance(time, int):
-            raise forms.ValidationError("Time must be an integer.")
-        return time
-
-    def clean_mark(self):
-        mark = self.cleaned_data.get('mark')
-        if not isinstance(mark, int):
-            raise forms.ValidationError("Mark must be an integer.")
-        return mark
 
     def clean_options(self):
         options = self.cleaned_data.get('options')

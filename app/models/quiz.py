@@ -12,7 +12,7 @@ class Quiz(models.Model):
         ("R", "Releasable"),
     ]
 
-    name = models.CharField(max_length=50)
+    name = models.CharField(blank=True, max_length=50)
     subject = models.CharField(blank=True, max_length=50)
     difficulty = models.CharField(blank=True, max_length=1, choices=DIFFICULTIES)
     type = models.CharField(max_length=1, choices=TYPES, blank=True)

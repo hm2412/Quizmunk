@@ -21,6 +21,7 @@ class PasswordResetFormTestCase(TestCase):
             'confirm_password': 'NewPassword123'
         }
 
+    # currently fails
     def test_valid_password_reset_form(self):
         form = PasswordResetForm(data=self.form_input, user=self.user)
         self.assertTrue(form.is_valid())

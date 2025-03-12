@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from app.helpers.decorators import is_student, redirect_unauthenticated_to_homepage
 from django.contrib import messages
 from app.models import Room
 
