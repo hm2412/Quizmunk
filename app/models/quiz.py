@@ -67,7 +67,7 @@ class IntegerInputQuestion(Question):
         return f"IntegerInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
 
 class TrueFalseQuestion(Question):
-    is_correct = models.BooleanField()
+    correct_answer = models.BooleanField()
 
     quiz = models.ForeignKey(
         Quiz,
@@ -76,7 +76,7 @@ class TrueFalseQuestion(Question):
     )
 
     def __str__(self):
-        return f"TrueFalseQuestion: {self.question_text}, Correct: {self.is_correct}"
+        return f"TrueFalseQuestion: {self.question_text}, Correct: {self.correct_answer}"
     
 class TextInputQuestion(Question): # Can also be used for a fill in the blanks question.
     correct_answer = models.TextField()
@@ -104,7 +104,7 @@ class DecimalInputQuestion(Question):
 
 class MultipleChoiceQuestion(Question):
     options = models.JSONField() # Supports more than 4 choices
-    correct_option = models.CharField(max_length=255)
+    correct_answer = models.CharField(max_length=255)
     
     quiz = models.ForeignKey(
         Quiz,
@@ -113,12 +113,12 @@ class MultipleChoiceQuestion(Question):
     )
     
     def __str__(self):
-        return f"MultipleChoiceQuestion: {self.question_text}, Correct: {self.correct_option}"
+        return f"MultipleChoiceQuestion: {self.question_text}, Correct: {self.correct_answer}"
     
 class NumericalRangeQuestion(Question):
     #this can be changed
-    min_value = models.DecimalField(max_digits=10, decimal_places=10)
-    max_value = models.DecimalField(max_digits=10, decimal_places=10)
+    min_value = models.FloatField()
+    max_value = models.FloatField()
 
     quiz = models.ForeignKey(
         Quiz,
@@ -133,7 +133,7 @@ class SortingQuestion(Question):
 
     items = models.TextField()
    
-    correct_order = models.CharField(max_length=200)
+    correct_answer = models.CharField(max_length=200)
 
     quiz = models.ForeignKey(
         Quiz,
@@ -150,5 +150,5 @@ class SortingQuestion(Question):
 
     def get_correct_order(self):
         
-        return [int(x) for x in self.correct_order.split(',')]
+        return [int(x) for x in self.correct_answer.split(',')]
 

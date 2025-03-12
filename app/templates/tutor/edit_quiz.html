@@ -141,10 +141,10 @@
           if (type === "integer" || type == "text" || type == "decimal")  {
             $("#editor").find("[name='correct_answer']").val(data.correct_answer || "");
           } else if (type == "true_false") {
-            $("#editor").find("[name='is_correct']").prop("checked", data.is_correct === true || data.is_correct === "True"); 
+            $("#editor").find("[name='correct_answer']").prop("checked", data.correct_answer === true || data.correct_answer === "True"); 
           } else if (type == "multiple_choice") {
             $("#editor").find("[name='options']").val(data.options || "");
-            $("#editor").find("[name='correct_option']").val(data.correct_option || "");
+            $("#editor").find("[name='correct_answer']").val(data.correct_option || "");
           } else if (type === "numerical_range") {
             $("#editor").find("[name='min_value']").val(data.min_value || "");
             $("#editor").find("[name='max_value']").val(data.max_value || "");

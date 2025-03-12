@@ -118,7 +118,7 @@ class QuestionTestCase(TestCase):
         question = TrueFalseQuestion.objects.create(
             quiz=self.quiz,
             question_text="Is Python a programming language?",
-            is_correct=True,
+            correct_answer=True,
             time=10,
             mark=10
         )
@@ -126,7 +126,7 @@ class QuestionTestCase(TestCase):
         self.assertIsNotNone(question.id)
         self.assertEqual(question.quiz, self.quiz)
         self.assertEqual(question.question_text, "Is Python a programming language?")
-        self.assertTrue(question.is_correct)
+        self.assertTrue(question.correct_answer)
 
     def test_question_time_choices(self):
         try:
@@ -148,7 +148,7 @@ class QuestionTestCase(TestCase):
             TrueFalseQuestion.objects.create(
                 quiz=self.quiz,
                 question_text="Test",
-                is_correct=True,
+                correct_answer=True,
                 time=10,
                 mark=10,
                 position=1
