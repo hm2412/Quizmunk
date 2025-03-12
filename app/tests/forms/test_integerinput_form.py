@@ -3,7 +3,6 @@ from app.forms.integer_input_question_form import IntegerInputQuestionForm
 
 class IntegerInputQuestionFormTestCase(TestCase):
     def test_valid_integer_input_form(self):
-        """Test that valid data makes the form valid."""
         data = {
             'time': 15,
             'question_text': 'What is 7+8?',
@@ -17,7 +16,6 @@ class IntegerInputQuestionFormTestCase(TestCase):
         self.assertEqual(form.cleaned_data['correct_answer'], 15)
     
     def test_invalid_time(self):
-        """Test that a non-integer time produces an error."""
         data = {
             'time': 'abc',
             'question_text': 'What is 7+8?',
@@ -27,11 +25,9 @@ class IntegerInputQuestionFormTestCase(TestCase):
         form = IntegerInputQuestionForm(data=data)
         self.assertFalse(form.is_valid())
         self.assertIn('time', form.errors)
-        # Expect our custom message:
         self.assertEqual(form.errors['time'][0], "Time must be an integer.")
     
     def test_invalid_mark(self):
-        """Test that a non-integer mark produces an error."""
         data = {
             'time': 15,
             'question_text': 'What is 7+8?',
@@ -44,7 +40,6 @@ class IntegerInputQuestionFormTestCase(TestCase):
         self.assertEqual(form.errors['mark'][0], "Mark must be an integer.")
     
     def test_invalid_correct_answer(self):
-        """Test that a non-integer correct answer produces an error."""
         data = {
             'time': 15,
             'question_text': 'What is 7+8?',

@@ -9,7 +9,7 @@ class MultipleChoiceQuestionFormTest(TestCase):
             'question_text': 'What is 2 + 2?',
             'mark': 5,
             'options': '4\n3\n5\n2',
-            'correct_option': '4',
+            'correct_answer': '4',
         }
         form = MultipleChoiceQuestionForm(data=form_data)
         self.assertTrue(form.is_valid())
@@ -20,7 +20,7 @@ class MultipleChoiceQuestionFormTest(TestCase):
             'question_text': 'What is 2 + 2?',
             'mark': 5,
             'options': '4\n3\n5\n2',
-            'correct_option': '4',
+            'correct_answer': '4',
         }
         form = MultipleChoiceQuestionForm(data=form_data)
         self.assertFalse(form.is_valid())
@@ -33,7 +33,7 @@ class MultipleChoiceQuestionFormTest(TestCase):
             'question_text': 'What is 2 + 2?',
             'mark': 'abc',
             'options': '4\n3\n5\n2',
-            'correct_option': '4',
+            'correct_answer': '4',
         }
         form = MultipleChoiceQuestionForm(data=form_data)
         self.assertFalse(form.is_valid())
@@ -46,7 +46,7 @@ class MultipleChoiceQuestionFormTest(TestCase):
             'question_text': 'What is 2 + 2?',
             'mark': 5,
             'options': '4',  # Only one option
-            'correct_option': '4',
+            'correct_answer': '4',
         }
         form = MultipleChoiceQuestionForm(data=form_data)
         self.assertFalse(form.is_valid())
@@ -58,11 +58,11 @@ class MultipleChoiceQuestionFormTest(TestCase):
             'question_text': 'What is 2 + 2?',
             'mark': 5,
             'options': '4\n3\n5\n2',
-            'correct_option': '6',
+            'correct_answer': '6',
         }
         form = MultipleChoiceQuestionForm(data=form_data)
         self.assertFalse(form.is_valid())
-        self.assertIn('correct_option', form.errors)
+        self.assertIn('correct_answer', form.errors)
 
     def test_correct_option_with_whitespace(self):
         form_data = {
@@ -70,7 +70,7 @@ class MultipleChoiceQuestionFormTest(TestCase):
             'question_text': 'What is 2 + 2?',
             'mark': 5,
             'options': '4\n3\n5\n2',
-            'correct_option': ' 4 ',  # Extra whitespace
+            'correct_answer': ' 4 ',  # Extra whitespace
         }
         form = MultipleChoiceQuestionForm(data=form_data)
         self.assertTrue(form.is_valid())

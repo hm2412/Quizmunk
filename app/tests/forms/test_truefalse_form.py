@@ -7,21 +7,21 @@ class TrueFalseQuestionFormTestCase(TestCase):
         data = {
             'time': 10,
             'question_text': 'Is the sky blue?',
-            'is_correct': True,
+            'correct_answer': True,
             'mark': 5,
         }
         form = TrueFalseQuestionForm(data=data)
         self.assertTrue(form.is_valid(), form.errors)
         self.assertEqual(form.cleaned_data['time'], 10)
         self.assertEqual(form.cleaned_data['mark'], 5)
-        self.assertTrue(form.cleaned_data['is_correct'])
+        self.assertTrue(form.cleaned_data['correct_answer'])
     
     def test_invalid_time_in_true_false(self):
         """Test that non-integer time triggers an error in the true/false form."""
         data = {
             'time': 'not an integer',
             'question_text': 'Is the sky blue?',
-            'is_correct': True,
+            'correct_answer': True,
             'mark': 5,
         }
         form = TrueFalseQuestionForm(data=data)
@@ -34,7 +34,7 @@ class TrueFalseQuestionFormTestCase(TestCase):
         data = {
             'time': 10,
             'question_text': 'Is the sky blue?',
-            'is_correct': True,
+            'correct_answer': True,
             'mark': 'not an integer',
         }
         form = TrueFalseQuestionForm(data=data)

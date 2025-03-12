@@ -2,7 +2,6 @@ from django import forms
 from app.models.quiz import MultipleChoiceQuestion
 
 class MultipleChoiceQuestionForm(forms.ModelForm):
-
     options = forms.CharField(
         widget=forms.Textarea(attrs={
             'class': 'form-control',
@@ -21,14 +20,14 @@ class MultipleChoiceQuestionForm(forms.ModelForm):
         error_messages={'invalid': "Mark must be an integer."}
     )
 
-    correct_option = forms.CharField(
+    correct_answer = forms.CharField(
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter correct answer'}),
         error_messages={'invalid': "Correct option must be a string."}
     )
 
     class Meta:
         model = MultipleChoiceQuestion
-        fields = ['time', 'question_text', 'mark', 'options', 'correct_option', 'image']
+        fields = ['time', 'question_text', 'mark', 'options', 'correct_answer', 'image']
         widgets = {
             'question_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter question text'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
@@ -44,8 +43,8 @@ class MultipleChoiceQuestionForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         options_list = cleaned_data.get('options')
-        correct_option = cleaned_data.get('correct_option')
-        if options_list and correct_option:
-            if correct_option.strip() not in options_list:
-                self.add_error('correct_option', 'the answer should match one of the options')
+        correct_answer = cleaned_data.get('correct_answer')
+        if options_list and correct_answer:
+            if correct_answer.strip() not in options_list:
+                self.add_error('correct_answer', 'the answer should match one of the options')
         return cleaned_data
