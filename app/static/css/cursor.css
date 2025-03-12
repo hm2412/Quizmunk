@@ -1,0 +1,30 @@
+a {
+  color: #232323;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+.circle {
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(to top left, #34829a, #398AA2);
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: -20px 0 0 -20px;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  z-index: 10;
+  transition: all 0.1s ease;  /* Smooth transition for the shadow effect */
+}
+
+body {
+  cursor: none; /* Hide the default cursor */
+}
+
+a, button, input, textarea, select, label, [role="button"], .clickable {
+  cursor: none !important; /* Ensure cursor stays hidden */
+}
