@@ -63,47 +63,138 @@
 </html>
 <script>
     $(document).ready(function() {
-        const roomCode = "{{ room.join_code }}";  // Get the room code from the template
-        const ws = new WebSocket(`ws://${window.location.host}/ws/student/${roomCode}/`);
+        let currentQuestionNumber = 0; 
+        const joinCode = "{{ room.join_code }}";
+        const ws = new WebSocket(`ws://${window.location.host}/ws/student/${joinCode}/`);
 
-        // Handle WebSocket connection
-        ws.onopen = () => {
-            console.log("WebSocket connected!");
-        };
-
-        // Handle incoming messages (e.g., new questions)
+        // Handle WebSocket messages
         ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            console.log("Message received:", data);
+        const data = JSON.parse(event.data);
+        console.log("Question type", data.type);
 
-            // Update the question and options
+        
+        if(data.type === "question_update") {
+            currentQuestionNumber = data.question_number;
             $("#question-text").text(data.question);
-            const answerButtons = $(".answer-box");
-            data.options.forEach((option, index) => {
-                $(answerButtons[index]).text(`${String.fromCharCode(65 + index)}. ${option}`);
-            });
-        };
+            $(".quiz-header p").text(`Question ${data.question_number} of ${data.total_questions}`);
+            
+            const $answerContainer = $(".answer-container");
+            $answerContainer.empty();
 
-        // Handle WebSocket errors
-        ws.onerror = (error) => {
-            console.error("WebSocket error:", error);
-        };
+            if (data.question_type) {
+            
+                switch(data.question_type) {
+                    case "multiple_choice":
+                    case "true_false":
+                        data.options.forEach((option, index) => {
+                            $answerContainer.append(`
+                                <button class="answer-box btn btn-outline-primary px-5 py-3">
+                                    ${String.fromCharCode(65 + index)}. ${option}
+                                </button>
+                            `);
+                        });
+                        break;
+                    case "integer":
+                    case "decimal":
+                        $answerContainer.html(`
+                            <div class="form-group w-100">
+                                <input type="number" class="form-control" placeholder="Enter your answer">
+                            </div>
+                        `);
+                        break;
+                    case "text":
+                        $answerContainer.html(`
+                            <div class="form-group w-100">
+                                <textarea class="form-control" rows="3" placeholder="Type your answer here..."></textarea>
+                            </div>
+                        `);
+                        break;
+                    case "numerical_range":
+                        $answerContainer.html(`
+                            <div class="form-group w-100">
+                                <input type="number" class="form-control" placeholder="Enter a number within the range">
+                            </div>
+                        `);
+                        break;
+                    case "sorting":
+                        const $sortableList = $('<ul class="list-group sortable">');
+                        data.items.forEach(item => {
+                            $sortableList.append(`<li class="list-group-item">${item}</li>`);
+                        });
+                        $answerContainer.html($sortableList);
+                        $(".sortable").sortable();
+                        break;
+                    
+                    default:
+                        console.error("Unknown question type:", data.question_type);
+                }}
+            else {
+                console.error("Question type is undefined:", data);
+        }
+        }
+        else if (data.type === "answer_received") {
+            console.log("✅ Answer received by server:", data);
+        
+            // Optionally, provide UI feedback (e.g., highlight answer)
+            $(".answer-box").removeClass("btn-success");  // Remove previous highlight
+            $(".answer-box").filter(function() {
+                return $(this).text().includes(data.answer);
+            }).addClass("btn-success");  // Highlight submitted answer
+        }
+};
+        
+    
 
-        // Handle WebSocket disconnection
-        ws.onclose = () => {
-            console.log("WebSocket disconnected!");
-        };
+        // Handle answer submission
+    $(document).on('click', '.answer-box', function () {
+        // For multiple-choice or true/false questions
+        const answer = $(this).text().split('. ')[1]; // Extract the selected option
+        ws.send(JSON.stringify({
+            action: "submit_answer",
+            answer: answer,
+            question_number: currentQuestionNumber
+        }));
+        $(".answer-box").removeClass("active btn-primary");
+        $(this).addClass("active btn-primary");
+    });
 
-        // Handle answer selection
-        $(".answer-box").click(function() {
-            $(".answer-box").removeClass("selected btn-primary").addClass("btn-outline-primary");
-            $(this).removeClass("btn-outline-primary").addClass("selected btn-primary");
+    // Handle text-based answers (e.g., text, integer, decimal)
+    $(document).on('blur', 'textarea, input[type="number"]', function () {
+        // When the user leaves the input field, send their answer
+        const answer = $(this).val(); // Get the value from the input field
+        ws.send(JSON.stringify({
+            action: "submit_answer",
+            answer: answer,
+            question_number: currentQuestionNumber
+        }));
+    });
+
+    // Handle sorting-type answers
+    $(document).on('sortupdate', '.sortable', function () {
+        // When the user finishes sorting, send the new order
+        const sortedItems = [];
+        $('.sortable li').each(function () {
+            sortedItems.push($(this).text()); // Collect the sorted items
         });
+        ws.send(JSON.stringify({
+            action: "submit_answer",
+            answer: sortedItems,
+            question_number: currentQuestionNumber
+        }));
+    });
+        // // Handle answer submission
+        // $(document).on('click', '.answer-box', function() {
+        //     const answer = $(this).text().split('. ')[1];
+        //     ws.send(JSON.stringify({
+        //         action: "submit_answer",
+        //         answer: answer,
+        //         question_number: currentQuestionNumber
+        //     }));
+        //     $(".answer-box").removeClass("active btn-primary");
+        //     $(this).addClass("active btn-primary");
+        // });
 
-        // Handle "Next Question" button
-        $("#next-question").click(function() {
-            // Send a message to the tutor to request the next question
-            ws.send(JSON.stringify({ action: "next_question" }));
-        });
+        // Remove next question button - students shouldn't control progression
+        $("#next-question").remove();
     });
 </script>

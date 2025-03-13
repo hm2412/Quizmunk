@@ -24,7 +24,7 @@
                 </ul>
 
                 {% if room.quiz %}
-                    <form method="POST" action="{% url 'tutor_live_quiz' join_code %}">
+                    <form method="POST" action="{% url 'tutor_live_quiz' quiz_id=room.quiz.id join_code=join_code %}">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-primary">Start Quiz</button>
                     </form>
@@ -47,13 +47,15 @@
 
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);
+
+            
             if (data.action && data.action == "quiz_started"){
                 if(userRole == "tutor"){
                     window.location.href = data.tutor_quiz_url;
                 }else{
                     window.location.href = data.student_quiz_url;
                 }
-            }else if (data.participents) {
+            }else if (data.participants) {
                 const participantsList = document.getElementById("participants-list");
                 participantsList.innerHTML = "";
                 data.participants.forEach(participant => {

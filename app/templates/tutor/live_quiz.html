@@ -10,7 +10,6 @@
   <!-- Link to your custom stylesheet -->
   <link rel="stylesheet" href="{% static 'css/live_quiz.css' %}">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
-
   <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
 <body>
@@ -20,18 +19,30 @@
       <div class="content-area">
         <!-- Current Question -->
         <div class="question-container">
-          <h2 class="h4">Question 1</h2>  
-          <p class="question">Press "Start Quiz" to begin!</p>
+          <h2 class="h4">
+            {% if first_question %}
+              Question 1
+            {% else %}
+              No Questions
+            {% endif %}
+          </h2>
+          <p class="question">
+            {% if first_question %}
+              Press "Start Quiz" to begin!
+            {% else %}
+              Press "Start Quiz" to begin!
+            {% endif %}
+          </p>
         </div>
          <!-- Correct Answer -->
-         <div class="row">
+         <div class="row d-flex justify-content-center">
           <div class="col-sm-6">
             <h2 class="h4">Correct Answer</h2>
             <p class="answer">Answer will be displayed here.</p>
           </div>
         </div>
         <!-- Leaderboard -->
-        <div class="leaderboard-container">
+        <div class="leaderboard-container" style="width: 600px; margin: 0 auto;">
           <h2 class="h5">Leaderboard</h2>
           <ul class="list-group mt-2">
             {% for leader in leaders %}
@@ -42,7 +53,7 @@
                 Guest {{ leader.guest_access.session_id|slice:":8" }}
               {% else %}
                 Guest
-              {% endif %}          
+              {% endif %}
               <span class="badge bg-primary rounded-pill">{{leader.score}} pts</span>
             </li>
             {% empty %}
@@ -59,28 +70,16 @@
       <!-- Sidebar -->
       <div class="sidebar">
         <!-- Time Left -->
-        <div class="circle">
+        <div class="circle" style="color: black;">
           <div>
-            <p class="mb-0 h5">[time]</p>
-            <p class="small">seconds</p>
+            <p class="mb-0 h5 time-text">[time]</p>
+            <p class="small seconds-text">seconds</p>
           </div>
         </div>
 
         <!-- Ratio for students answered vs students joined  -->
-        <div class="circle">
+        <div class="circle" style="color: black;">
           <div>
-            <script type="text/javascript">
-              const ws = new WebSocket(`ws://${window.location.host}/ws/live-quiz/{{ join_code }}/`);
-
-              ws.onopen = () => {
-                console.log("Websocket connected!");
-              }
-
-              ws.onmessage = function(event) {
-                let data = JSON.parse(event.data);
-                console.log('Data:', data);
-              }
-            </script>
             <p class="mb-0 h5">[no of students answered / {{ participant_number }}]</p>
           </div>
         </div>
@@ -91,12 +90,12 @@
             </button>
 
                 <!-- Next Question Button -->
-            <button id="next-question-btn" class="btn btn-primary">
+            <button id="next-question-btn" class="btn btn-primary" style="display: none;">
                 ⏭ Next Question
             </button>
 
              <!-- End Question Button -->
-            <button id="end-question-btn" class="btn btn-primary">
+            <button id="end-question-btn" class="btn btn-primary" style="display: none;">
               ⏭ End Question
           </button>
 
@@ -129,60 +128,101 @@
       const answerText = document.querySelector(".answer"); // Target answer field
       const quizControls = document.getElementById("quiz-controls"); // Controls section
 
-      function sendRequest(url, callback){
-        fetch(url,{
-          method:"POST",
-          headers:{
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken()
-          },
-          body: JSON.stringify({})
-        })
-        .then(response=>response.json())
-        .then(data=>{
-          callback(data);
-        })
-        .catch(error=>console.error("Error:",error));
+      let countdown;
+      let questionTime = 0;
+      let currentQuestionNumber = 0;
+      let totalQuestions = 0;
+
+
+      const ws = new WebSocket(`ws://${window.location.host}/ws/live-quiz/{{ join_code }}/`);
+
+      ws.onopen = () => {
+        console.log("Websocket connected!");
       }
+
+      ws.onclose = () => {
+        console.log("WebSocket disconnected!");
+      };
+
+      ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
+
+      ws.onmessage = function(event) {
+            let data = JSON.parse(event.data);
+            if (data.type === 'question_update') {
+                // Update question display
+                document.querySelector(".question").textContent = data.question;
+                document.querySelector(".answer").textContent = data.answer;
+                document.querySelector(".question-container h2").textContent = 
+                    `Question ${data.question_number}`;
+                startQuizBtn.style.display = 'none';
+                nextQuestionBtn.style.display = 'inline-block'; // Show "Next Question"
+            }
+
+        };
+
+      function updateQuestionDisplay(data) {
+        document.querySelector('.question').textContent = data.question;
+        document.querySelector('.answer').textContent = "Answer will be revealed...";
+        document.querySelector('.question-container h2').textContent = 
+            `Question ${data.question_number}/${data.total_questions}`;
+
+        // Update progress bar
+        const progress = (data.question_number / data.total_questions) * 100;
+        document.querySelector('.progress-bar').style.width = `${progress}%`;
+      }
+
+      function startTimer(seconds) {
+        const timerElement = document.querySelector('.circle .h5');
+        let remaining = seconds;
+
+        const timer = setInterval(() => {
+            remaining--;
+            timerElement.textContent = remaining;
+
+            if(remaining <= 0) {
+                clearInterval(timer);
+                timerElement.textContent = "0";
+            }
+        }, 1000);
+    }
+
+      function updateParticipantsList(participants) {
+        document.getElementById('total-participants').textContent = participants.length;
+        // You can implement more detailed leaderboard updates here
+      }
+
       startQuizBtn.addEventListener("click", function() {
-        let joinCode = "{{ join_code }}";
-        sendRequest(`/start-quiz/${joinCode}`, function(data) {
-          if (data.message) {
-            startQuizBtn.textContent = "Quiz Started ✅";
-            startQuizBtn.disabled = true; // Disable after starting
-            nextQuestionBtn.style.display = "inline-block"; // Show "Next Question"
-          }
-        });
+        ws.send(JSON.stringify({action: "start_quiz"}));
       });
 
-      nextQuestionBtn.addEventListener("click", function () {
-        let joinCode = "{{ join_code }}";
-        sendRequest(`/next-question/${joinCode}`, function(data) {
-            if (data.question && data.answer) {
-                questionNumber.textContent = `Question ${data.question_number}`;
-                questionText.textContent = data.question;
-                answerText.textContent = data.answer;
-            }
-        });
-    });
+      nextQuestionBtn.addEventListener("click", function() {
+        ws.send(JSON.stringify({action: "next_question"}));
+      });
 
-    endQuizBtn.addEventListener("click", function () {
-        let joinCode = "{{ join_code }}";
-        sendRequest(`/end-quiz/${joinCode}`, function(data) {
-            quizControls.innerHTML = `<h2 class="text-danger">Quiz Ended 🚀</h2>`;
-            questionText.textContent = "";
-            answerText.textContent = "";
-            nextQuestionBtn.style.display = "none"; // Hide Next Question button
-        });
-    });
-    
-      function getCSRFToken() {
-          return document.cookie.split('; ')
-              .find(row => row.startsWith('csrftoken='))
-              ?.split('=')[1];
+      endQuestionBtn.addEventListener("click", function() {
+        endQuestion();
+      });
+
+      function endQuestion() {
+        ws.send(JSON.stringify({action: "end_question"}));
       }
-  });
-</script>
+
+      endQuizBtn.addEventListener("click", function() {
+        if (confirm("Are you sure you want to end the quiz?")) {
+          ws.send(JSON.stringify({action: "end_quiz"}));
+        }
+      });
+
+    function getCSRFToken() {
+        return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+      }
+
+      if (!ws || ws.readyState === WebSocket.CLOSED) {
+        initializeWebSocket(); // Initialize WebSocket connection on page load
+      }
+    });
+  </script>
 </body>
 </html>
-
