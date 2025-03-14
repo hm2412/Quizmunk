@@ -1,9 +1,9 @@
-# Original implementation by @your_friend
-# Refactored by @your_username on [date]
+# Original implementation by Areeb and Kyran
+# Refactored by Tameem on 14/3/2025
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async as sync_to_async, aclose_old_connections
-from app.models import RoomParticipant, GuestAccess
+from app.models import RoomParticipant, GuestAccess, Room
 
 
 class LobbyConsumer(AsyncWebsocketConsumer):
@@ -19,54 +19,45 @@ class LobbyConsumer(AsyncWebsocketConsumer):
 
         await self.send_updated_participants()
 
-        self.user = self.scope.get("user")
-        self.session = self.scope["session"]
 
-    
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
 
-        if self.user and self.user.is_authenticated:
-            # When user is logged in
-            participant = await sync_to_async(RoomParticipant.objects.get)(user_id=self.user.id)
-        else:
-            # When user is a guest
-            guest = await sync_to_async(GuestAccess.objects.get)(session_id=self.session.session_key)
-            participant = await sync_to_async(RoomParticipant.objects.get)(guest_access=guest)
-
-        await sync_to_async(lambda: RoomParticipant.objects.filter(id=participant.id).delete())() # Removing the user from the participants
-
-        await self.send_updated_participants()
-
-        await aclose_old_connections()
 
     async def receive(self, text_data):
         data = json.loads(text_data)
         
         if data.get("action") == "update":
             await self.send_updated_participants()
+        elif data.get("action") == "quiz_started":
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "action": "quiz_started",
+                    "student_quiz_url": data.get("student_quiz_url"),
+                    "tutor_quiz_url": data.get("tutor_quiz_url"),
+                }
+            )
+        else:
+            await self.send(text_data=json.dumps({"error": "Unknown action in lobby"}))
+
 
     @sync_to_async
     def get_participants(self, room):
-        from app.models.room import RoomParticipant
-        participants = []
-
-        room_participants = RoomParticipant.objects.filter(room=room)
-        for participant in room_participants:
-            if participant.user:
-                participants.append(f"{participant.user.email_address} ")
-            elif participant.guest_access:
-                participants.append(f"Guest {participant.guest_access.id}")
-
-        return participants
+        participants = room.participants.exclude(user__role="tutor")
+        result = []
+        for participant in participants:
+            if participant.guest_access:
+                result.append(f"Guest ({participant.guest_access.session_id[:8]})")
+            else:
+                result.append(participant.user.email_address)
+        return result
 
 
     async def send_updated_participants(self):
-        from app.models.room import Room
-
         try:
             room = await sync_to_async(Room.objects.get)(join_code=self.join_code)
             participants = await self.get_participants(room)
@@ -81,8 +72,9 @@ class LobbyConsumer(AsyncWebsocketConsumer):
         except Room.DoesNotExist:
             return
 
-    async def send_participants(self, event):
+    async def participants_update(self, event):
         await self.send(text_data=json.dumps({
+            "action": "update_participants",
             "participants": event["participants"]
         }))
     
@@ -92,8 +84,3 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             "student_quiz_url": event.get("student_quiz_url"),
             "tutor_quiz_url": event.get("tutor_quiz_url")
         }))
-
-
-
-
-
