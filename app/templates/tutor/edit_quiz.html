@@ -169,7 +169,9 @@
           } else if (type == "true_false") {
             $("#editor").find("[name='is_correct']").prop("checked", data.is_correct === true || data.is_correct === "True"); 
           } else if (type == "multiple_choice") {
-            $("#editor").find("[name='options']").val(data.options || "");
+            $("#editor").find("[name='options[]']").each(function(index) {
+              $(this).val(data.options ? data.options[index] : "");
+            });
             $("#editor").find("[name='correct_option']").val(data.correct_option || "");
           } else if (type === "numerical_range") {
             $("#editor").find("[name='min_value']").val(data.min_value || "");
@@ -203,7 +205,7 @@
                 var container = document.getElementById("multiple-choice-options-container");
                 var optionInputs = container.getElementsByClassName("option-input");
 
-                if (optionInputs.length > 2) { // Ensure minimum 2 options remain
+                if (optionInputs.length > 2) {
                     container.removeChild(optionInputs[optionInputs.length - 1]);
                 } else {
                     alert("You must have at least 2 options.");
