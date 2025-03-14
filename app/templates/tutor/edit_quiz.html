@@ -50,6 +50,18 @@
           <div class="question-type" data-type="true_false" aria-label="True/False question">
             <i class="fas fa-check-circle"></i>True/False Question
           </div>
+          <div class="question-type" data-type="text" aria-label="Text input question">
+            <i class="fas fa-keyboard"></i>Text input Question
+          </div>
+          <div class="question-type" data-type="multiple_choice" aria-label="Multiple choice question">
+            <i class="fas fa-list"></i>Multiple Choice Question
+          </div>
+          <div class="question-type" data-type="decimal" aria-label="Decimal input question">
+            <i class="fas fa-hashtag"></i>Decimal Input Question
+          </div>
+          <div class="question-type" data-type="numerical_range" aria-label="Numerical range question">
+            <i class="fas fa-sliders-h"></i>Numerical Range Question
+          </div>
         </div>
       </div>
     </div>
@@ -60,9 +72,12 @@
   <!-- Hidden form templates for question types -->
   {% for key, form in question_forms.items %}
     <div id="{{ key }}-form-template" style="display: none;">
-      <form id="{{ key }}-question-form" method="post" action="">
+      <form id="{{ key }}-question-form" method="post" action="" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
+        <div id="{{ key }}-image-preview-container" style="margin-top: 10px;">
+          <img id="{{ key }}-image-preview" src="" alt="No image uploaded" style="max-width: 100%; display: none;" />
+        </div>
         <input type="hidden" name="{{ key }}" value="true">
         <input type="hidden" name="quizID" value="{{ quiz.id }}"> 
         <button type="submit" class="btn btn-primary">Save {{ key|capfirst }} Question</button>
@@ -104,11 +119,35 @@
           $("#editor").find("[name='question_text']").val(data.question_text || "");
           $("#editor").find("[name='time']").val(data.time || "");
           $("#editor").find("[name='mark']").val(data.mark || "");
+          console.log("Image URL:", data.image);
+          if(data.image) {
+            $("#editor").find("#" + type + "-image-preview")
+                      .attr("src", data.image)
+                      .show();
+          } else {
+            $("#editor").find("#" + type + "-image-preview").hide();
+          }
+
+          //to check if it should create or edit a question 
+          if(data.id) {
+            if ($("#editor").find("[name='question_id']").length === 0) {
+              $("#editor").find("form").append("<input type='hidden' name='question_id' value='" + data.id + "'>");
+            } else {
+              $("#editor").find("[name='question_id']").val(data.id);
+            }
+          }
+
           // add other types uniqe fields here
-          if (type === "integer") {
+          if (type === "integer" || type == "text" || type == "decimal")  {
             $("#editor").find("[name='correct_answer']").val(data.correct_answer || "");
           } else if (type == "true_false") {
-            $("#editor").find("[name='is_correct']").prop("checked", data.is_correct === true || data.is_correct === "True"); 
+            $("#editor").find("[name='correct_answer']").prop("checked", data.correct_answer === true || data.correct_answer === "True"); 
+          } else if (type == "multiple_choice") {
+            $("#editor").find("[name='options']").val(data.options || "");
+            $("#editor").find("[name='correct_answer']").val(data.correct_option || "");
+          } else if (type === "numerical_range") {
+            $("#editor").find("[name='min_value']").val(data.min_value || "");
+            $("#editor").find("[name='max_value']").val(data.max_value || "");
           }
         }
       }
@@ -155,6 +194,19 @@
       $("#finish-quiz").click(function(){
         window.location.href = "/tutor-dashboard/";
       });
+    });
+
+    $("#editor").on("change", "input[type='file']", function() {
+        var fileInput = $(this);
+        if (this.files && this.files[0]) {
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            fileInput.closest("form").find("img[id$='-image-preview']")
+                    .attr("src", e.target.result)
+                    .show();
+          };
+          reader.readAsDataURL(this.files[0]);
+        }
     });
   </script>
   {% include 'partials/footer.html' %}

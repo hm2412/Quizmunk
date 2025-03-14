@@ -1,18 +1,19 @@
 from django import forms
-from app.models import TrueFalseQuestion
+from app.models.quiz import NumericalRangeQuestion
 
-class TrueFalseQuestionForm(forms.ModelForm):
+class NumericalRangeQuestionForm(forms.ModelForm):
     class Meta:
-        model = TrueFalseQuestion
-        fields = ['time', 'question_text', 'correct_answer', 'mark']
+        model = NumericalRangeQuestion
+        fields = ['time', 'question_text', 'mark', 'min_value', 'max_value', 'image']
         widgets = {
             'time': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
             'question_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter question text'}),
-            'correct_answer': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'mark': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
+            'min_value': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter minimum value'}),
+            'max_value': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter maximum value'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }
-
+    
     def clean_time(self):
         time = self.cleaned_data.get('time')
         if not isinstance(time, int):

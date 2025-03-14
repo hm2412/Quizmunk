@@ -1,11 +1,10 @@
-from django.urls import path, re_path
-from app.consumers.lobby_consumer import LobbyConsumer
-
-from app.consumers.live_quiz_consumer import QuizConsumer
-from app.consumers.student_quiz_consumer import StudentQuizConsumer
+from django.urls import path
+from app.consumers import LobbyConsumer, StudentQuizConsumer
 
 websocket_urlpatterns = [
     path('ws/lobby/<str:join_code>/', LobbyConsumer.as_asgi()),
-    path('ws/live-quiz/<str:join_code>/', QuizConsumer.as_asgi()),  # Replaced re_path with path
+    path('ws/student/<str:room_code>/', StudentQuizConsumer.as_asgi()),
+    #path('ws/tutor/<str:room_code>/', TutorQuizConsumer.as_asgi()),
+    
 ]
 

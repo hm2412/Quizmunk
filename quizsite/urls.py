@@ -17,6 +17,8 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from app.views.homepage_view import homepage
 from app.views.sign_up_view import sign_up_view
 from app.views.login_view import login_view, logout_view
@@ -47,14 +49,14 @@ urlpatterns = [
     path('join-quiz/', join_quiz, name='join_quiz'),
     path('setup_quiz/<int:quiz_id>/', setup_quiz, name='setup_quiz'),
     path('lobby/<str:join_code>', lobby, name='lobby'),
-    path("password-reset/", password_reset, name="password_reset"),
-    path("student/live-quiz/<str:room_code>/", student_live_quiz, name="student_live_quiz"),
-    path('live-quiz/<str:join_code>', tutor_live_quiz, name='tutor_live_quiz'),
+    #path('live-quiz/<str:join_code>', tutor_live_quiz, name='tutor_live_quiz'),
+    path('live-quiz/<int:quiz_id>/<str:join_code>/', tutor_live_quiz, name='tutor_live_quiz'),
+
     path('start-quiz/<str:join_code>', start_quiz, name='start_quiz'),
     path('next-question/<str:join_code>', next_question, name='next_question'),
     path('end-quiz/<str:join_code>', end_quiz, name='end_quiz'),
     path('your-quizzes/', your_quizzes_view, name='your_quizzes'),
-    path('delete-quiz/<str:join_code>', delete_quiz_view, name='delete_quiz'),
+    path('delete-quiz/<int:quiz_id>/', delete_quiz_view, name='delete_quiz'),
     # path("password-reset/", password_reset, name="password_reset"),
     path('tutor-classrooms/', tutor_classroom_view, name='tutor_classroom_view'),
     path('tutor-classrooms/<int:classroom_id>/', tutor_classroom_detail_view, name='tutor_classroom_detail'),
@@ -63,4 +65,4 @@ urlpatterns = [
     path('accept-classroom-invite/<int:invite_id>/', accept_classroom_invite, name="accept_classroom_invite"),
     path('decline-classroom-invite/<int:invite_id>/', decline_classroom_invite, name="decline_classroom_invite"),
     path("student/live-quiz/<str:room_code>/", student_live_quiz, name="student_live_quiz"),
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

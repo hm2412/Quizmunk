@@ -11,7 +11,7 @@ from app.views.live_quiz_view import tutor_live_quiz
 def setup_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
 
-    room = Room.objects.create(name=f"{quiz.name} Room", quiz=quiz)
+    room = Room.objects.create(name=f"{quiz.name} Room", quiz=quiz, quiz_started=False)
 
     return redirect(lobby, join_code=room.join_code)
 
@@ -28,7 +28,7 @@ def lobby(request, join_code):
         guest_access, _ = GuestAccess.objects.get_or_create(session_id=guest_session)
         participant, created = RoomParticipant.objects.get_or_create(room=room, guest_access=guest_access)
 
-    participants = RoomParticipant.objects.filter(room=room)
+    participants = RoomParticipant.objects.filter(room=room).exclude(user__role="tutor")
     qr_code_path = "app/static/images/qr_code.png"
 
     try:

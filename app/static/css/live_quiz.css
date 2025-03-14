@@ -47,9 +47,12 @@ html, body {
   }
   
   .leaderboard-container {
-    flex-grow: 1;
+    flex-grow: 0;  /* Prevent it from taking too much space */
+    max-width: 300px;  /* Adjust width */
+    width: 100%;  /* Make sure it doesn't exceed max-width */
     overflow-y: auto;
-  }
+    margin: 0 auto; /* Centers it */
+}
 
   .answer-container{
     text-align: center;
@@ -87,8 +90,20 @@ html, body {
     align-items: center;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
+    color: black;
   }
   
   .circle p {
     margin: 0;
+    color: black;
   }
+
+  .time-text {
+    color: black;  /* Change to any color */
+    font-weight: italic;
+}
+
+.seconds-text {
+    color: black;  /* Change to any color */
+    font-style: italic;
+}

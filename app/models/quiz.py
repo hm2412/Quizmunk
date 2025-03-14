@@ -1,3 +1,4 @@
+from itertools import chain
 from django.db import models
 from app.models.user import User
 
@@ -15,7 +16,7 @@ class Quiz(models.Model):
     name = models.CharField(max_length=50)
     subject = models.CharField(blank=True, max_length=50)
     difficulty = models.CharField(blank=True, max_length=1, choices=DIFFICULTIES)
-    type = models.CharField(max_length=1, choices=TYPES)
+    type = models.CharField(max_length=1, choices=TYPES, blank=True)
     tutor = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -26,6 +27,22 @@ class Quiz(models.Model):
     )
     # room = models.OneToOneField("Room", related_name="quiz_room", on_delete=models.SET_NULL, null=True, blank=True)
     # I believe this should be removed, as it's redundant? 
+
+    def get_all_questions(self):
+        # This method already uses specific question types
+        integer_qs = self.integer_questions.all()
+        true_false_qs = self.true_false_questions.all()
+        text_qs = self.text_questions.all()
+        decimal_qs = self.decimal_questions.all()
+        multiple_choice_qs = self.multiple_choice_questions.all()
+        numerical_range_qs = self.numerical_range_questions.all()
+        sorting_qs = self.sorting_questions.all()
+
+        # Combine all queries
+        all_questions = list(chain(integer_qs, true_false_qs, text_qs, decimal_qs, multiple_choice_qs, numerical_range_qs, sorting_qs))
+        
+        # Sort by position
+        return sorted(all_questions, key=lambda q: q.position if q.position is not None else float('inf'))
 
 
     def __str__(self):
@@ -42,7 +59,8 @@ class Question(models.Model):
         verbose_name="Related quiz",  # Keyword argument
         help_text="The quiz this question belongs to."
     )
-    mark = models.IntegerField(default=10)
+    mark = models.IntegerField()
+    image = models.ImageField(null=True, blank=True, upload_to='questions_images/')
 
     def __str__(self):
         return f"Quiz {self.quiz.id} Question {self.position}"
@@ -66,7 +84,7 @@ class IntegerInputQuestion(Question):
         return f"IntegerInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
 
 class TrueFalseQuestion(Question):
-    is_correct = models.BooleanField() 
+    correct_answer = models.BooleanField()
 
     quiz = models.ForeignKey(
         Quiz,
@@ -75,7 +93,7 @@ class TrueFalseQuestion(Question):
     )
 
     def __str__(self):
-        return f"TrueFalseQuestion: {self.question_text}, Correct: {self.is_correct}"
+        return f"TrueFalseQuestion: {self.question_text}, Correct: {self.correct_answer}"
     
 class TextInputQuestion(Question): # Can also be used for a fill in the blanks question.
     correct_answer = models.TextField()
@@ -103,7 +121,7 @@ class DecimalInputQuestion(Question):
 
 class MultipleChoiceQuestion(Question):
     options = models.JSONField() # Supports more than 4 choices
-    correct_option = models.CharField(max_length=255)
+    correct_answer = models.CharField(max_length=255)
     
     quiz = models.ForeignKey(
         Quiz,
@@ -112,12 +130,12 @@ class MultipleChoiceQuestion(Question):
     )
     
     def __str__(self):
-        return f"MultipleChoiceQuestion: {self.question_text}, Correct: {self.correct_option}"
+        return f"MultipleChoiceQuestion: {self.question_text}, Correct: {self.correct_answer}"
     
 class NumericalRangeQuestion(Question):
     #this can be changed
-    min_value = models.DecimalField(max_digits=10, decimal_places=10)
-    max_value = models.DecimalField(max_digits=10, decimal_places=10)
+    min_value = models.FloatField()
+    max_value = models.FloatField()
 
     quiz = models.ForeignKey(
         Quiz,
@@ -132,7 +150,7 @@ class SortingQuestion(Question):
 
     items = models.TextField()
    
-    correct_order = models.CharField(max_length=200)
+    correct_answer = models.CharField(max_length=200)
 
     quiz = models.ForeignKey(
         Quiz,
@@ -149,5 +167,5 @@ class SortingQuestion(Question):
 
     def get_correct_order(self):
         
-        return [int(x) for x in self.correct_order.split(',')]
+        return [int(x) for x in self.correct_answer.split(',')]
 

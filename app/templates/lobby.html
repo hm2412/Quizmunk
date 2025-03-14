@@ -24,7 +24,7 @@
                 </ul>
 
                 {% if room.quiz %}
-                    <form method="POST" action="{% url 'tutor_live_quiz' join_code %}">
+                    <form method="POST" action="{% url 'tutor_live_quiz' quiz_id=room.quiz.id join_code=join_code %}">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-primary">Start Quiz</button>
                     </form>
@@ -37,19 +37,33 @@
     </div>
 
     <script>
+        var userRole = "{{ request.user.role|default:'guest' }}";
+        console.log("User role:", userRole);
+    </script>    
+
+    <script>
         const ws = new WebSocket(`ws://${window.location.host}/ws/lobby/{{ join_code }}/`);
 
 
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);
-            const participantsList = document.getElementById("participants-list");
-            participantsList.innerHTML = "";  // Clear existing list
 
-            data.participants.forEach(participant => {
-                const li = document.createElement("li");
-                li.textContent = participant;
-                participantsList.appendChild(li);
-            });
+            
+            if (data.action && data.action == "quiz_started"){
+                if(userRole == "tutor"){
+                    window.location.href = data.tutor_quiz_url;
+                }else{
+                    window.location.href = data.student_quiz_url;
+                }
+            }else if (data.participants) {
+                const participantsList = document.getElementById("participants-list");
+                participantsList.innerHTML = "";
+                data.participants.forEach(participant => {
+                    const li = document.createElement("li");
+                    li.textContent = participant;
+                    participantsList.appendChild(li);
+                });
+            }
         };
 
         ws.onopen = function() {

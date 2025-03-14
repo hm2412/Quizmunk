@@ -105,8 +105,8 @@ class QuestionTestCase(TestCase):
             quiz=self.quiz,
             question_text="What is 2 + 2?",
             correct_answer=4,
-            time="10",
-            mark="10"
+            time=10,
+            mark=10
         )
         
         self.assertIsNotNone(question.id)
@@ -118,15 +118,15 @@ class QuestionTestCase(TestCase):
         question = TrueFalseQuestion.objects.create(
             quiz=self.quiz,
             question_text="Is Python a programming language?",
-            is_correct=True,
-            time="10",
-            mark="10"
+            correct_answer=True,
+            time=10,
+            mark=10
         )
         
         self.assertIsNotNone(question.id)
         self.assertEqual(question.quiz, self.quiz)
         self.assertEqual(question.question_text, "Is Python a programming language?")
-        self.assertTrue(question.is_correct)
+        self.assertTrue(question.correct_answer)
 
     def test_question_time_choices(self):
         try:
@@ -134,9 +134,9 @@ class QuestionTestCase(TestCase):
                 quiz=self.quiz,
                 question_text="Test",
                 correct_answer=0,
-                time="10",  
-                mark="10",
-                number=1
+                time=10,  
+                mark=10,
+                position=1
             )
         except ValidationError:
             self.fail("Unexpected validation error for valid input")
@@ -148,10 +148,10 @@ class QuestionTestCase(TestCase):
             TrueFalseQuestion.objects.create(
                 quiz=self.quiz,
                 question_text="Test",
-                is_correct=True,
-                time="10",
-                mark="10",
-                number=1
+                correct_answer=True,
+                time=10,
+                mark=10,
+                position=1
             )
         except ValidationError:
             self.fail("Unexpected validation error")
