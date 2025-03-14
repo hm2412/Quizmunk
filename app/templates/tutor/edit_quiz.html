@@ -176,6 +176,42 @@
             $("#editor").find("[name='max_value']").val(data.max_value || "");
           }
 
+          //This subroutine allows multiple choice questions to add or remove options
+          if (type === "multiple_choice") {
+            var addOptionBtn = document.getElementById("add-option");
+            var removeOptionBtn = document.getElementById("remove-option");
+
+            if (addOptionBtn) {
+              addOptionBtn.addEventListener("click", function(){
+                var container = document.getElementById("multiple-choice-options-container");
+                if (container) {
+                  var newDiv = document.createElement("div");
+                  newDiv.className = "option-input";
+                  var input = document.createElement("input");
+                  input.type = "text";
+                  input.name = "options";
+                  input.className = "form-control";
+                  input.placeholder = "Enter option";
+                  newDiv.appendChild(input);
+                  container.appendChild(newDiv);
+                }
+              });
+            }
+
+            if (removeOptionBtn) {
+              removeOptionBtn.addEventListener("click", function(){
+                var container = document.getElementById("multiple-choice-options-container");
+                var optionInputs = container.getElementsByClassName("option-input");
+
+                if (optionInputs.length > 2) { // Ensure minimum 2 options remain
+                    container.removeChild(optionInputs[optionInputs.length - 1]);
+                } else {
+                    alert("You must have at least 2 options.");
+                }
+              });
+            }
+          }
+
           // clear the image
           $("#clear-image").click(function(){
 

@@ -5,7 +5,7 @@ from app.models.quiz import MultipleChoiceQuestion
 class MultipleChoiceOptionsWidget(forms.Widget):
     def render(self, name, value, attrs=None, renderer=None):
         if value is None:
-            value = []
+            value = ["", ""]
         elif isinstance(value, str):
             value = value.splitlines()
 
@@ -17,7 +17,14 @@ class MultipleChoiceOptionsWidget(forms.Widget):
                 '</div>'
             )
         html += '</div>'
-        html += '<button type="button" id="add-option" class="btn btn-secondary mt-2">+</button>'
+        
+        html += '''
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+                <button type="button" id="add-option" class="btn btn-primary" style="width: 40px;">+</button>
+                <button type="button" id="remove-option" class="btn btn-danger" style="width: 40px;">-</button>
+            </div>
+            '''
+
         return mark_safe(html)
 
     def value_from_datadict(self, data, files, name):
@@ -25,8 +32,8 @@ class MultipleChoiceOptionsWidget(forms.Widget):
 
 class MultipleChoiceQuestionForm(forms.ModelForm):
     options = forms.CharField(
+        help_text="Use the + button to add options, and the - button to remove them",
         widget=MultipleChoiceOptionsWidget(),
-        help_text="Enter at least two options by clicking the + button to add new fields."
     )
 
     class Meta:
