@@ -1,25 +1,20 @@
-# Original implementation by Areeb and Kyran
-# Refactored by Tameem on 14/3/2025
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async as sync_to_async, aclose_old_connections
-from app.models import RoomParticipant, GuestAccess, Room
-
+from app.models import Room, RoomParticipant
 
 class LobbyConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.join_code = self.scope['url_route']['kwargs']['join_code']
         self.room_group_name = f"lobby_{self.join_code}"
-
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
         await self.accept()
-
         await self.send_updated_participants()
 
-
+    
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.room_group_name,
@@ -65,12 +60,13 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
-                    "type": "send_participants",
+                    "type": "participants_update",
                     "participants": participants
                 }
             )
         except Room.DoesNotExist:
             return
+
 
     async def participants_update(self, event):
         await self.send(text_data=json.dumps({
@@ -78,6 +74,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             "participants": event["participants"]
         }))
     
+
     async def quiz_started(self, event):
         await self.send(text_data=json.dumps({
             "action": "quiz_started",
