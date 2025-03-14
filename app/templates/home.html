@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
-    <div class="main-content">
-        <h1 style="font-weight:800">Welcome to QuizMunk</h1>
+    <div class="home-box">
+        <h1>Welcome to <span class="highlight">QuizMunk</span></h1>
+        <img src="{% static 'images/chipmunk.svg' %}">
         <p>
-            Enhance your teaching experience with interactive quizzes and real-time student engagement.
-            Teachers can create quizzes, assign them to rooms, and track student responses in real-time.
-            Students can participate in live or pre-assigned quizzes seamlessly on any device.
+            insert cool slogan
         </p>
-        
         <div class="button-group">
-            <a href="{% url 'login' %}" class="btn">Login / Sign Up</a>
-            <a href="{% url 'join_quiz' %}" class="btn">Join Room as Guest</a>
+            <a href="{% url 'login' %}" class="inverse-btn">Login / Sign Up</a>
+            <a href="{% url 'join_quiz' %}" class="inverse-btn">Join Room as Guest</a>
         </div>
     </div>
 {% endblock %}

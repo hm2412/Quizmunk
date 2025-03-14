@@ -1,8 +1,8 @@
+{% load static %}
 <div class="sidebar">
+    <img src="{% static 'images/chipmunk.svg' %}">
     <h2>QuizMunk</h2>
     <ul>
-        <li><a href="{% url 'homepage' %}">Home</a></li>
-
         {% if user.is_authenticated %}
             {% if user.role == "tutor" %}
                 <li><a href="{% url 'tutor_dashboard' %}">Dashboard</a></li>
@@ -15,7 +15,8 @@
             {% endif %}
             <li><a href="{% url 'logout' %}">Logout</a></li>
         {% else %}
-            <li><a href="#">About Us</a></li>
+            <li><a href="{% url 'homepage' %}">Home</a></li>
+            <li><a href="{% url 'about_us' %}">About Us</a></li>
             <li><a href="{% url 'login' %}">Login</a></li>
             <li><a href="{% url 'sign_up' %}">Sign Up</a></li>
         {% endif %}

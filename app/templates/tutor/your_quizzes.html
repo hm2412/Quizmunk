@@ -10,8 +10,7 @@
     <script src="https://unpkg.com/htmx.org@1.9.2"></script> <!-- HTMX -->
 </head>
 <body class="container mt-4">
-{% include 'partials/tutor_navbar.html' %}
-{% block content %}
+{% include 'partials/navbar.html' %}
     <h2>Your Quizzes</h2>
 
     {% if drafts %}
@@ -34,9 +33,7 @@
     {% else %}
         <p class="alert alert-info">You have no draft quizzes.</p>
     {% endif %}
-
-{% endblock %}
-
+{% include 'partials/footer.html' %}
 <script>
     function deleteQuiz(quizId) {
       if (!confirm("Are you sure you want to delete this quiz?")) {

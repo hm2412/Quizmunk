@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from app.views.homepage_view import homepage
+from app.views.homepage_view import homepage, about_us
 from app.views.sign_up_view import sign_up_view
 from app.views.login_view import login_view, logout_view
 from app.views.join_quiz_view import join_quiz
@@ -35,6 +35,7 @@ from app.views.classroom_view import tutor_classroom_view, tutor_classroom_detai
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', homepage, name='homepage'),
+    path('about_us/', about_us, name='about_us'),
     path('sign-up/', sign_up_view, name='sign_up'),
     path('login/', login_view, name='login'), 
     path('logout/', logout_view, name='logout'),
