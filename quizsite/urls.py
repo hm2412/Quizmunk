@@ -51,7 +51,6 @@ urlpatterns = [
     path('lobby/<str:join_code>', lobby, name='lobby'),
     #path('live-quiz/<str:join_code>', tutor_live_quiz, name='tutor_live_quiz'),
     path('live-quiz/<int:quiz_id>/<str:join_code>/', tutor_live_quiz, name='tutor_live_quiz'),
-
     path('start-quiz/<str:join_code>', start_quiz, name='start_quiz'),
     path('next-question/<str:join_code>', next_question, name='next_question'),
     path('end-quiz/<str:join_code>', end_quiz, name='end_quiz'),
