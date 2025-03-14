@@ -67,6 +67,12 @@
     overflow-y: scroll;
 }
 
+.dashboard-header h1 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+}
+
 .dashboard_summary {
     flex: 1;
     text-align: center;
@@ -74,10 +80,17 @@
     overflow-x: hidden;
 }
 
+.dashboard_summary h2 {
+    text-align: center;
+    text-decoration: underline;
+    font-size: 22px;
+}
+
 .dashboard-top {
     display: flex;
     justify-content: space-between; /* This will push content to the left and right */
     align-items: center; /* This ensures that items are vertically centered */
+    padding: 15px 40px; 
 }
 
 button.btn-primary {
@@ -92,6 +105,19 @@ button.btn-primary {
     gap: 15px;
 }
 
+.btn-primary {
+    background: #007BFF;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background 0.3s ease-in-out;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
 .btn {
     display: inline-block;
     padding: 10px 20px;
@@ -104,6 +130,29 @@ button.btn-primary {
 .btn:hover {
     background-color: #1E7590;
     transition: 0.3s;
+}
+
+.create-quiz-container {
+    text-align: center;
+    margin-top: 10px;
+    width: 100%; /* Ensures it takes the full width */
+}
+.create-quiz-btn {
+    background: #007BFF;
+    color: white;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+    display: inline-block;
+    margin-right: 30px; 
+}
+
+.create-quiz-btn:hover {
+    background: #0056b3;
+    transform: scale(1.05);
 }
 
 footer {
@@ -163,17 +212,96 @@ footer {
 }
 
 .card {
-    border-radius: 100px; /* Adjust the radius as needed */
+    border-radius: 12px; /* Adjust the radius as needed */
+    overflow: hidden;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+    text-align: center;
+    background: white;
 }
 
-.card-img-top {
-    width: 100%; /* Ensure the image takes up the full width of the card */
-    height: 200px; /* Fixed height for the image */
-    object-fit: cover; /* Ensure the image covers the area without distortion */
-    border-radius: 10px; /* Adjust the radius as needed */
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card img {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 10px;
+}
+
+.btn-start {
+    width: 100%;
+    background: #007BFF;
+    color: white;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background 0.3s ease-in-out;
+}
+
+.btn-start:hover {
+    background: #0056b3;
 }
 
 .card-group {
     gap: 1rem; /* Adjust the value to control the spacing */
+    display: flex;
+    flex-wrap: nowrap; /* Ensures horizontal scrolling */
+    gap: 15px; /* Adds space between cards */
+}
+.quiz-scroll-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
 }
 
+.quiz-scroll-container {
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 10px;
+    max-width: 80%; /* Adjust if necessary */
+    white-space: nowrap;
+}
+
+.quiz-scroll-container .card-group {
+    display: flex;
+    flex-wrap: nowrap; /* Keeps cards in a row */
+    gap: 20px; /* Space between cards */
+}
+
+.quiz-scroll-container::-webkit-scrollbar {
+    display: none; /* Hides scrollbar */
+}
+
+.scroll-btn {
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    font-size: 20px;
+    border-radius: 50%;
+    opacity: 0.7;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.scroll-btn:hover {
+    opacity: 1;
+}
+.scroll-btn.left {
+    left: 5px;
+}
+
+.scroll-btn.right {
+    right: 5px;
+}

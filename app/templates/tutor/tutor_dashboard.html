@@ -36,18 +36,39 @@
                     <p>Create quizzes, manage rooms, and view student results here.</p>
                 </section>
             </div>
-            <a href="{% url 'create_quiz' %}" class="btn btn-primary">Create Quiz</a>
+            <div class="create-quiz-container">
+                <a href="{% url 'create_quiz' %}" class="btn btn-primary create-quiz-btn">Create Quiz</a>
+            </div>
         </div>
-            <section>
-                <h3>My Quizzes</h3>
-                <div class="card-group">
-                    {% for quiz in quizzes %}
+        <section>
+            <h3>My Quizzes</h3>
+            <div class="quiz-scroll-wrapper">
+                <button class="scroll-btn left" onclick="scrollQuizzes(-1)">&#10094;</button>
+                <button class="scroll-btn right" onclick="scrollQuizzes(1)">&#10095;</button>
+                <div class="quiz-scroll-container">
+                    <div class="card-group">
+                        {% for quiz in quizzes %}
                             {% include 'partials/quiz_card.html' with quiz_img=quiz.quiz_img quiz_title=quiz.quiz_title quiz_description=quiz.quiz_description %}
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 </div>
-            </section>
+                
+            </div>
+        </section>        
             {% include 'partials/footer.html' %}
         </div>
     </div>
 </body>
 </html>
+<script>
+    function scrollQuizzes(direction) {
+        const container = document.querySelector('.quiz-scroll-container');
+        if (!container) return; // Safety check
+    
+        const scrollAmount = 300; // Adjust based on card width
+        container.scrollBy({
+            left: direction * scrollAmount,
+            behavior: 'smooth'
+        });
+    }
+</script>

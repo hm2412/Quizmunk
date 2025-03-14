@@ -10,12 +10,16 @@ from app.question_registry import QUESTION_FORMS, QUESTION_MODELS
 @redirect_unauthenticated_to_homepage
 @is_tutor
 def create_quiz_view(request):
-    form = QuizForm(request.POST or None)
+    form = QuizForm(request.POST or None, request.FILES or None)
     
     if request.method == 'POST':
         if form.is_valid():
             quiz = form.save(commit=False)
             quiz.tutor = request.user
+
+            if 'quiz_img' in request.FILES:
+                quiz.quiz_img = request.FILES['quiz_img']
+                
             quiz.save()
             if request.headers.get('HX-Request'):
                 response = HttpResponse()

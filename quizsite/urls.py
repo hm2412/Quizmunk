@@ -66,4 +66,7 @@ urlpatterns = [
     path("tutor-stats/", stats_view, name='stats'),
     path("tutor-stats/<int:stats_id>/", stats_details, name='stats_details'),
     path("tutor-stats/<int:stats_id>/download/", csv_download, name='stats_download'),
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
