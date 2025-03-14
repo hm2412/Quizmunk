@@ -1,3 +1,5 @@
+# Original implementation by @your_friend
+# Refactored by @your_username on [date]
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async as sync_to_async, aclose_old_connections
