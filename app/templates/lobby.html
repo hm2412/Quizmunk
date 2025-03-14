@@ -42,7 +42,7 @@
     </script>    
 
     <script>
-        const ws = new WebSocket(`ws://${window.location.host}/ws/lobby/{{ join_code }}/`);
+        const ws = new WebSocket(`ws://${window.location.host}/ws/lobby/{{ room.join_code }}/`);
 
 
         ws.onmessage = function(event) {

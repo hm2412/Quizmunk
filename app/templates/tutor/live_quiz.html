@@ -5,262 +5,167 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Live Quiz: {{ room.name }}</title>
-  <!-- Include Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Link to your custom stylesheet -->
   <link rel="stylesheet" href="{% static 'css/live_quiz.css' %}">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
 <body>
   <div class="page-container">
-    <!-- Main Content -->
     <div class="main-content">
       <div class="content-area">
-        <!-- Current Question -->
         <div class="question-container">
-          <h2 class="h4">
-            {% if first_question %}
-              Question 1
-            {% else %}
-              No Questions
-            {% endif %}
-          </h2>
-          <p class="question">
-            {% if first_question %}
-              Press "Start Quiz" to begin!
-            {% else %}
-              Press "Start Quiz" to begin!
-            {% endif %}
-          </p>
+          <h2 id="question-number" class="h4">Question 1</h2>
+          <p id="question-text" class="question">Press "Start Quiz" to begin!</p>
         </div>
-         <!-- Correct Answer -->
-         <div class="row d-flex justify-content-center">
+        <div class="row d-flex justify-content-center">
           <div class="col-sm-6">
             <h2 class="h4">Correct Answer</h2>
-            <p class="answer">Answer will be displayed here.</p>
+            <p id="answer-text" class="answer">Answer will be revealed here.</p>
           </div>
         </div>
-        <!-- Leaderboard -->
         <div class="leaderboard-container" style="width: 600px; margin: 0 auto;">
           <h2 class="h5">Leaderboard</h2>
-          <ul class="list-group mt-2">
-            {% for leader in leaders %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              {% if leader.user %}
-                {{ leader.user.first_name }}
-              {% elif leader.guest_access %}
-                Guest {{ leader.guest_access.session_id|slice:":8" }}
-              {% else %}
-                Guest
-              {% endif %}
-              <span class="badge bg-primary rounded-pill">{{leader.score}} pts</span>
-            </li>
-            {% empty %}
-            <li class="list-group-item">No participants yet.</li>
-            {% endfor %}
-          </ul>
+          <ul id="leaderboard" class="list-group mt-2"></ul>
         </div>
-        <!--Progress bar for questions-->
-        <div class="progress" role="-question-progressbar" aria-label="example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-          <div class="progress-bar" style="width: 25%">Question Progress</div>
+        <div class="progress mt-3">
+          <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%">0%</div>
         </div>
       </div>
-
-      <!-- Sidebar -->
       <div class="sidebar">
-        <!-- Time Left -->
         <div class="circle" style="color: black;">
           <div>
-            <p class="mb-0 h5 time-text">[time]</p>
-            <p class="small seconds-text">seconds</p>
+            <p id="timer" class="mb-0 h5">[time]</p>
+            <p class="small">seconds</p>
           </div>
         </div>
-
-        <!-- Ratio for students answered vs students joined  -->
-        <div class="circle">
-            <div class="mb-0 h5" id="student_answers">0 / 0</div>
+        <div class="circle" style="color: black;">
+          <div>
+            <p id="participants-count" class="mb-0 h5">0 / {{ participant_number }}</p>
+          </div>
         </div>
-
         <div id="quiz-controls">
-            <button id="start-quiz-btn" class="btn btn-success">
-                ▶ Start Quiz
-            </button>
-
-                <!-- Next Question Button -->
-            <button id="next-question-btn" class="btn btn-primary" style="display: none;">
-                ⏭ Next Question
-            </button>
-
-             <!-- End Question Button -->
-            <button id="end-question-btn" class="btn btn-primary" style="display: none;">
-              ⏭ End Question
-          </button>
-
-                <!-- End Quiz Button -->
-            <button id="end-quiz-btn" class="btn btn-danger">
-                ⏹ End Quiz
-            </button>
+          <button id="start-quiz-btn" class="btn btn-success">▶ Start Quiz</button>
+          <button id="end-question-btn" class="btn btn-primary" style="display: none;">⏭ End Question</button>
+          <button id="next-question-btn" class="btn btn-primary" style="display: none;">⏭ Next Question</button>
+          <button id="end-quiz-btn" class="btn btn-danger">⏹ End Quiz</button>
         </div>
       </div>
     </div>
-
-    <!-- Footer -->
-    <footer>
-      {% include 'partials/footer.html' %}
-    </footer>
+    <footer>{% include 'partials/footer.html' %}</footer>
   </div>
-
-  <!-- Include Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- JS for action buttons -->
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const startQuizBtn = document.getElementById("start-quiz-btn");
-      const nextQuestionBtn = document.getElementById("next-question-btn");
-      const endQuestionBtn = document.getElementById("end-question-btn");
-      const endQuizBtn = document.getElementById("end-quiz-btn");
-
-      const questionText = document.querySelector(".question"); // Target question text
-      const questionNumber = document.querySelector(".question-container h2"); // Target question number
-      const answerText = document.querySelector(".answer"); // Target answer field
-      const quizControls = document.getElementById("quiz-controls"); // Controls section
-
-      const ws = new WebSocket(`ws://${window.location.host}/ws/live-quiz/{{join_code}}/`);
-  
-      ws.onopen = () => {
-        console.log("Websocket connected!");
-      }
-
-        ws.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            console.log('Received data:', data);
-
-            // Update the question text and options dynamically
-            if (data.type === "quiz_update") {
-                questionNumber.textContent = `Question ${data.message.question_number}`;
-                questionText.textContent = data.message.question;
-                answerText.textContent = data.message.answer;  // Modify if you need multiple options
-            }
-
-            // Update the ratio of received answers to students dynamically
-            document.querySelector('#student_answers').innerHTML = `0 / ${data.participant_number}`;
-
-            // Update leaderboard dynamically
-            if (data.leaders) {
-              let leaders = data.leaders;
-              let leaderboard = "";
-              if (leaders.length > 0) {
-                let scores = data.leader_scores;
-                for (let i = 0; i < leaders.length; i++) {
-                  leaderboard += `
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    ${leaders[i]}
-                    <span class="badge bg-primary rounded-pill">${scores[i]} pts</span>
-                  </li>
-                  `;
-                };
-              }
-              else {
-                leaderboard = `<li class="list-group-item">No participants yet.</li>`;
-              }
-                
-              document.querySelector('#leaderboard').innerHTML = leaderboard;
-            }
-        };
-
-      let countdown;
-      let questionTime = 0;
-      let currentQuestionNumber = 0;
-      let totalQuestions = 0;
-
-      ws.onopen = () => {
-        console.log("Websocket connected!");
-      }
-
-      ws.onclose = () => {
-        console.log("WebSocket disconnected!");
-      };
-
-      ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
-      };
-
-      ws.onmessage = function(event) {
-            let data = JSON.parse(event.data);
-            if (data.type === 'question_update') {
-                // Update question display
-                document.querySelector(".question").textContent = data.question;
-                document.querySelector(".answer").textContent = data.answer;
-                document.querySelector(".question-container h2").textContent = 
-                    `Question ${data.question_number}`;
-                startQuizBtn.style.display = 'none';
-                nextQuestionBtn.style.display = 'inline-block'; // Show "Next Question"
-            }
-
-        };
-
-      function updateQuestionDisplay(data) {
-        document.querySelector('.question').textContent = data.question;
-        document.querySelector('.answer').textContent = "Answer will be revealed...";
-        document.querySelector('.question-container h2').textContent = 
-            `Question ${data.question_number}/${data.total_questions}`;
-
-        // Update progress bar
-        const progress = (data.question_number / data.total_questions) * 100;
-        document.querySelector('.progress-bar').style.width = `${progress}%`;
-      }
-
-      function startTimer(seconds) {
-        const timerElement = document.querySelector('.circle .h5');
-        let remaining = seconds;
-
-        const timer = setInterval(() => {
-            remaining--;
-            timerElement.textContent = remaining;
-
-            if(remaining <= 0) {
-                clearInterval(timer);
-                timerElement.textContent = "0";
-            }
-        }, 1000);
+    let questionActive = false;
+    let currentTimer = null;
+    let ws;
+    
+    function startTimer(seconds) {
+      const timerEl = document.getElementById("timer");
+      if (currentTimer) { clearInterval(currentTimer); }
+      let remaining = seconds;
+      questionActive = true;
+      timerEl.textContent = remaining;
+      currentTimer = setInterval(() => {
+        remaining--;
+        timerEl.textContent = remaining;
+        // Only trigger end_question if the question is still open.
+        if (remaining <= 0 && questionActive) {
+          clearInterval(currentTimer);
+          ws.send(JSON.stringify({ action: "end_question" }));
+          document.getElementById("end-question-btn").style.display = "none";
+          questionActive = false;
+        }
+      }, 1000);
     }
-
-      function updateParticipantsList(participants) {
-        document.getElementById('total-participants').textContent = participants.length;
-        // You can implement more detailed leaderboard updates here
-      }
-
-
-      startQuizBtn.addEventListener("click", function() {
-        ws.send(JSON.stringify({action: "start_quiz"}));
+    
+    document.addEventListener("DOMContentLoaded", function() {
+      const startBtn = document.getElementById("start-quiz-btn");
+      const endQuestionBtn = document.getElementById("end-question-btn");
+      const nextQuestionBtn = document.getElementById("next-question-btn");
+      const endQuizBtn = document.getElementById("end-quiz-btn");
+      const questionTextEl = document.getElementById("question-text");
+      const questionNumberEl = document.getElementById("question-number");
+      const answerTextEl = document.getElementById("answer-text");
+      const timerEl = document.getElementById("timer");
+      const participantsCountEl = document.getElementById("participants-count");
+      const progressBarEl = document.getElementById("progress-bar");
+      let currentQuestionNumber = 0;
+      
+      ws = new WebSocket(`ws://${window.location.host}/ws/live-quiz/{{ room.join_code }}/`);
+      
+      ws.onopen = () => console.log("WebSocket connected!");
+      
+      ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        if (data.type === "quiz_update") {
+          const msg = data.message;
+          questionActive = true;
+          currentQuestionNumber = msg.question_number;
+          questionNumberEl.textContent = `Question ${msg.question_number} of ${msg.total_questions}`;
+          questionTextEl.textContent = msg.question;
+          answerTextEl.textContent = msg.answer ? msg.answer : "Answer will be revealed...";
+          // Only start the timer if time > 0 and no answer is revealed.
+          if (msg.time && !msg.answer) {
+            startTimer(msg.time);
+          } else {
+            $(".answer-box, input, textarea").prop("disabled", true);
+          }
+          startBtn.style.display = "none";
+          endQuestionBtn.style.display = "inline-block";
+          nextQuestionBtn.style.display = "inline-block";
+          const progressPercent = (msg.question_number / msg.total_questions) * 100;
+          progressBarEl.style.width = `${progressPercent}%`;
+          progressBarEl.textContent = `${Math.round(progressPercent)}%`;
+        }
+        else if (data.type === "leaderboard_update") {
+          const leaderboardEl = document.getElementById("leaderboard");
+          leaderboardEl.innerHTML = "";
+          data.leaderboard.forEach(entry => {
+            let li = document.createElement("li");
+            li.className = "list-group-item";
+            li.textContent = `#${entry.rank} ${entry.participant}: ${entry.score}`;
+            leaderboardEl.appendChild(li);
+          });
+        }
+        else if (data.type === "quiz_ended") {
+          questionActive = false;
+          if (currentTimer) { clearInterval(currentTimer); }
+          questionTextEl.textContent = data.message;
+          startBtn.style.display = "none";
+          endQuestionBtn.style.display = "none";
+          nextQuestionBtn.style.display = "none";
+          setTimeout(() => {
+            window.location.href = "/dashboard/"; // Change to valid URL
+          }, 2000);
+        }
+        else if (data.action === "update_participants") {
+          participantsCountEl.textContent = `${data.participant_number} / {{ participant_number }}`;
+        }
+      };
+      
+      startBtn.addEventListener("click", function() {
+        ws.send(JSON.stringify({ action: "start_quiz" }));
       });
-
-      nextQuestionBtn.addEventListener("click", function() {
-        ws.send(JSON.stringify({action: "next_question"}));
-      });
-
+      
       endQuestionBtn.addEventListener("click", function() {
-        endQuestion();
+        ws.send(JSON.stringify({ action: "end_question" }));
+        if (currentTimer) { clearInterval(currentTimer); }
+        endQuestionBtn.style.display = "none";
+        questionActive = false;
       });
-
-      function endQuestion() {
-        ws.send(JSON.stringify({action: "end_question"}));
-      }
-
+      
+      nextQuestionBtn.addEventListener("click", function() {
+        ws.send(JSON.stringify({ action: "next_question" }));
+      });
+      
       endQuizBtn.addEventListener("click", function() {
         if (confirm("Are you sure you want to end the quiz?")) {
-          ws.send(JSON.stringify({action: "end_quiz"}));
+          ws.send(JSON.stringify({ action: "end_quiz" }));
+          if (currentTimer) { clearInterval(currentTimer); }
+          questionActive = false;
         }
       });
-
-    function getCSRFToken() {
-        return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-      }
-
-      if (!ws || ws.readyState === WebSocket.CLOSED) {
-        initializeWebSocket(); // Initialize WebSocket connection on page load
-      }
     });
   </script>
 </body>
