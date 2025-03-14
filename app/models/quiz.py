@@ -1,5 +1,7 @@
 from django.db import models
 from app.models.user import User
+from django.core.files.storage import default_storage
+from django.core.exceptions import ObjectDoesNotExist
 
 class Quiz(models.Model):
     DIFFICULTIES = [
@@ -44,6 +46,25 @@ class Question(models.Model):
     )
     mark = models.IntegerField()
     image = models.ImageField(null=True, blank=True, upload_to='questions_images/')
+
+    def save(self, *args, **kwargs):
+        """ Delete the associated image file when the image is updated """
+        if self.pk:
+            try:
+                old_instance = self.__class__.objects.get(pk=self.pk)
+                if old_instance.image and self.image != old_instance.image:
+                    if default_storage.exists(old_instance.image.name):
+                        default_storage.delete(old_instance.image.name)
+            except ObjectDoesNotExist:
+                pass
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        """ Delete the associated image file when the question is deleted. """
+        if self.image:
+            if default_storage.exists(self.image.name):
+                default_storage.delete(self.image.name)
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return f"Quiz {self.quiz.id} Question {self.position}"

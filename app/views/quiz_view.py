@@ -5,6 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from app.helpers.decorators import is_tutor, redirect_unauthenticated_to_homepage
 from django.views.decorators.http import require_POST
+from django.core.files.storage import default_storage
 from app.question_registry import QUESTION_FORMS, QUESTION_MODELS
 
 @redirect_unauthenticated_to_homepage
@@ -122,6 +123,28 @@ def delete_question_view(request, question_id):
     
     quiz_id = question.quiz.id
     question.delete()
+    return redirect('edit_quiz', quiz_id=quiz_id)
+
+@redirect_unauthenticated_to_homepage
+@is_tutor
+def delete_question_image_view(request, question_id):
+    question = None
+    for key, model in QUESTION_MODELS.items():
+        try:
+            question = model.objects.get(pk=question_id)
+            break
+        except model.DoesNotExist:
+            continue
+
+    if not question:
+        return HttpResponse("Question not found", status=404)
+    
+    quiz_id = question.quiz.id
+    if question.image:
+        if default_storage.exists(question.image.name):
+            default_storage.delete(question.image.name)
+        question.image = None
+        question.save()
     return redirect('edit_quiz', quiz_id=quiz_id)
 
 

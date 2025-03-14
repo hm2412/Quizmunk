@@ -1,14 +1,32 @@
 from django import forms
+from django.utils.safestring import mark_safe
 from app.models.quiz import MultipleChoiceQuestion
 
-class MultipleChoiceQuestionForm(forms.ModelForm):
+class MultipleChoiceOptionsWidget(forms.Widget):
+    def render(self, name, value, attrs=None, renderer=None):
+        if value is None:
+            value = []
+        elif isinstance(value, str):
+            value = value.splitlines()
 
+        html = '<div id="multiple-choice-options-container">'
+        for option in value:
+            html += (
+                '<div class="option-input">'
+                f'<input type="text" name="{name}" value="{option}" class="form-control" placeholder="Enter option" />'
+                '</div>'
+            )
+        html += '</div>'
+        html += '<button type="button" id="add-option" class="btn btn-secondary mt-2">+</button>'
+        return mark_safe(html)
+
+    def value_from_datadict(self, data, files, name):
+        return data.getlist(name)
+
+class MultipleChoiceQuestionForm(forms.ModelForm):
     options = forms.CharField(
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter one option per line'
-        }),
-        help_text="Enter at least two options, one per line."
+        widget=MultipleChoiceOptionsWidget(),
+        help_text="Enter at least two options by clicking the + button to add new fields."
     )
 
     class Meta:
