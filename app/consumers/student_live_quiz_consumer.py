@@ -1,3 +1,5 @@
+# Original implementation by Kyran and Areeb
+#refactored by Tameem 14/3/2025
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
@@ -30,6 +32,7 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
                 return
             self.answered_questions.add(question_id)
             user = self.scope.get("user")
+            #this will need better handling
             if user and question_id:
                 await self.save_true_false_response(user, question_id, answer)
             await self.channel_layer.group_send(
@@ -39,6 +42,7 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
         elif action == "update":
             pass
     
+    #this will need better handling
     @database_sync_to_async
     def save_true_false_response(self, user, question_id, answer):
         room = Room.objects.get(join_code=self.join_code)
@@ -66,4 +70,10 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             "type": "leaderboard_update",
             "leaderboard": event.get("leaderboard")
+        }))
+    
+    async def quiz_ended(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "quiz_ended",
+            "message": event.get("message")
         }))

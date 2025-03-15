@@ -1,9 +1,12 @@
+# Original implementation by Kyran and Areeb
+#refactored by Tameem 14/3/2025
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async, aclose_old_connections
 from app.models import Room, RoomParticipant, QuizState
 from app.models.quiz import MultipleChoiceQuestion, TrueFalseQuestion, IntegerInputQuestion, DecimalInputQuestion, TextInputQuestion, NumericalRangeQuestion, SortingQuestion
 from app.helpers import helper_functions
+
 
 class TutorQuizConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
@@ -118,13 +121,27 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
             await self.send_question_update(question_data)
             await self.send_student_question(question_data)
         else:
-            await self.send_quiz_ended("No more questions!")
+            message = "No more questions!"
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {"type": "quiz_ended", "message": message}
+            )
+            await self.channel_layer.group_send(
+                f"student_{self.join_code}",
+                {"type": "quiz_ended", "message": message}
+            )
     
+
     async def handle_end_quiz(self):
         room = await self.get_room(self.join_code)
         await self.update_quiz_state(room, current_question_index=-1, quiz_started=False)
         await self.send_quiz_ended("Quiz ended! Redirecting...")
+        await self.channel_layer.group_send(
+            f"student_{self.join_code}",
+            {"type": "quiz_ended", "message": "Quiz ended! Redirecting..."}
+        )
     
+
     async def send_quiz_ended(self, message):
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -233,10 +250,13 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
     
 
     async def quiz_ended(self, event):
-        await self.send(text_data=json.dumps({
-            "type": "quiz_ended",
-            "message": event.get("message")
-        }))
+        try:
+            await self.send(text_data=json.dumps({
+                "type": "quiz_ended",
+                "message": event.get("message")
+            }))
+        except Exception:
+            pass
     
 
     async def leaderboard_update(self, event):

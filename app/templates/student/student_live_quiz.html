@@ -30,7 +30,7 @@
   <script>
     $(document).ready(function() {
       let currentQuestionNumber = 0;
-      let currentQuestionId = null; // Store current question ID
+      let currentQuestionId = null;
       const joinCode = "{{ room.join_code }}";
       const ws = new WebSocket(`ws://${window.location.host}/ws/student/${joinCode}/`);
       
@@ -48,7 +48,7 @@
           const $answerContainer = $(".answer-container");
           $answerContainer.empty();
           
-          // Render answer options or input fields based on question type.
+          // render the questions (might be temporiry)
           if(data.question_type === "multiple_choice" || data.question_type === "true_false") {
             data.options.forEach((option, index) => {
               $answerContainer.append(`<button class="answer-box btn btn-outline-primary px-5 py-3">${String.fromCharCode(65+index)}. ${option}</button>`);
@@ -85,8 +85,9 @@
         else if(data.type === "quiz_ended") {
           $(".answer-box, input, textarea").prop("disabled", true);
           alert(data.message);
+          ws.close();
           setTimeout(() => {
-            window.location.href = "/dashboard/"; // Adjust as needed.
+            window.location.href = "/student-dashboard/"; 
           }, 2000);
         }
         else if(data.type === "leaderboard_update") {
@@ -103,7 +104,7 @@
           question_number: currentQuestionNumber,
           question_id: currentQuestionId
         }));
-        // Disable further submissions after one click.
+        // only one submittion per question
         $(".answer-box, input, textarea").prop("disabled", true);
         $(".answer-box").removeClass("active btn-primary");
         $(this).addClass("active btn-primary");
@@ -118,7 +119,7 @@
           question_number: currentQuestionNumber,
           question_id: currentQuestionId
         }));
-        // Disable further changes.
+        // only one submittion per question
         $(".answer-box, input, textarea").prop("disabled", true);
       });
       
