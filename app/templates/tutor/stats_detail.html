@@ -16,40 +16,89 @@
     <p><strong>Mean Score:</strong> {{ stats.mean_score|floatformat:2 }}</p>
     <p><strong>Median Score:</strong> {{ stats.median_score|floatformat:2 }}</p>
 
-    <h3>Participants</h3>
-    {% if participants %}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Participant</th>
-                    <th>Joined At</th>
-                    <th>Score</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for participant in participants %}
-                <tr>
-                    <td>
-                        {% if participant.user %}
-                            {{ participant.user.email_address }}
-                        {% else %}
-                            Guest ({{ participant.guest_access.session_id|slice:":8" }})
-                        {% endif %}
-                    </td>
-                    <td>{{ participant.joined_at }}</td>
-                    <td>{{ participant.score }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p class="alert alert-warning">No participants for this quiz.</p>
-    {% endif %}
+    <!-- Bootstrap Tabs -->
+    <ul class="nav nav-tabs" id="statsTabs">
+        <li class="nav-item">
+            <a class="nav-link active" id="participants-tab" data-bs-toggle="tab" href="#participants">Participants</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="questions-tab" data-bs-toggle="tab" href="#questions">Questions</a>
+        </li>
+    </ul>
 
+    <div class="tab-content mt-3">
+        <!-- Participants Tab -->
+        <div class="tab-pane fade show active" id="participants">
+            
+            {% if participants %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Participant</th>
+                            <th>Joined At</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for participant in participants %}
+                        <tr>
+                            <td>
+                                {% if participant.user %}
+                                    {{ participant.user.email_address }}
+                                {% else %}
+                                    Guest ({{ participant.guest_access.session_id|slice:":8" }})
+                                {% endif %}
+                            </td>
+                            <td>{{ participant.joined_at }}</td>
+                            <td>{{ participant.score }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="alert alert-warning">No participants for this quiz.</p>
+            {% endif %}
+        </div>
+
+        <!-- Questions Tab -->
+        <div class="tab-pane fade" id="questions">
+            <h3>Question Statistics</h3>
+            {% if questions_stats %}
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Question</th>
+                            <th>Total Responses</th>
+                            <th>Correct Responses</th>
+                            <th>Incorrect Responses</th>
+                            <th>Average Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for question_stat in questions_stats %}
+                        <tr>
+                            <td>{{ question_stat.question_text }}</td>
+                            <td>{{ question_stat.responses_received }}</td>
+                            <td>{{ question_stat.correct_responses }}</td>
+                            <td>{{ question_stat.wrong_responses }}</td>
+                            <td>{{ question_stat.avg_score|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="alert alert-warning">No question data available.</p>
+            {% endif %}
+        </div>
+    </div>
+    
     <a href="{% url 'stats_download' stats.id %}" class="btn btn-secondary mt-3">Download CSV</a>
     <a href="{% url 'stats' %}" class="btn btn-outline-primary mt-3">Back to Stats List</a>
 
     {% endblock %}
+    <!-- Bootstrap JS (Required for Tab Functionality) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
 

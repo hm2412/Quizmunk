@@ -24,9 +24,9 @@ def stats_details(request, stats_id):
     """show the stats for the live quiz"""
     stats_obj = get_object_or_404(Stats, id=stats_id, quiz__tutor=request.user)
     participants = RoomParticipant.objects.filter(room=stats_obj.room)
-    
-    """# Fake quizzes mapped by ID
-        fake_stats_data = {
+    """
+    # Fake quizzes mapped by ID
+    fake_stats_data = {
         1: {"id": 1, "quiz": {"title": "Python Basics Quiz"}, "date_played": datetime.datetime(2025, 3, 11, 14, 30), "num_participants": 3, "mean_score": 85.67, "median_score": 90.00},
         2: {"id": 2, "quiz": {"title": "Django Fundamentals"}, "date_played": datetime.datetime(2025, 3, 10, 10, 15), "num_participants": 5, "mean_score": 78.45, "median_score": 80.00},
         3: {"id": 3, "quiz": {"title": "Machine Learning Concepts"}, "date_played": datetime.datetime(2025, 3, 9, 16, 45), "num_participants": 4, "mean_score": 88.75, "median_score": 85.50},
