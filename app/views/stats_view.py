@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
-from app.models.stats import Stats
+from app.models.stats import Stats, Room, User
 from app.models.room import RoomParticipant
 from app.helpers.decorators import is_tutor
 import csv
 import datetime
+from app.helpers.helper_functions import get_responses_by_player_in_room, get_all_responses_question
 
 
 @is_tutor
@@ -137,3 +138,28 @@ def csv_download(request, stats_id):
             identifier = participant.guest_access.session_id[:8]
         writer.writerow([identifier, participant.joined_at, participant.score])
 
+def player_responses(request, room_id,player_id):
+    room = get_object_or_404(Room, id=room_id)
+    player = get_object_or_404(User, id = player_id)
+
+    responses = get_responses_by_player_in_room(player,room)
+
+    context={
+        'room':room,
+        'player':player,
+        'responses':responses,
+    }
+    return render(request, 'player_responses.html',context)
+
+def player_responses(request, room_id,question_id):
+    room = get_object_or_404(Room, id=room_id)
+    question = get_object_or_404(User, id = question_id)
+
+    responses = get_responses_by_player_in_room(question,room)
+
+    context={
+        'room':room,
+        'question':question,
+        'responses':responses,
+    }
+    return render(request, 'question_responses.html',context)

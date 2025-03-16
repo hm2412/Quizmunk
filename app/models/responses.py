@@ -14,7 +14,7 @@ class Response(models.Model):
 
     class Meta:
         abstract = True
-
+        
 class TrueFalseResponse(Response):
     question = models.ForeignKey(TrueFalseQuestion, on_delete=models.CASCADE)
     answer = models.BooleanField()
