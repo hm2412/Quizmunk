@@ -1,7 +1,9 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError
 from django.test import TestCase
 from app.models import Room, RoomParticipant, User, GuestAccess, Quiz, Stats, IntegerInputQuestion, TrueFalseQuestion, \
-    TextInputQuestion
+    TextInputQuestion, IntegerInputResponse, Question
+from app.models.stats import QuestionStats
 
 
 class StatsModelTests(TestCase):
@@ -27,7 +29,7 @@ class StatsModelTests(TestCase):
         # Create questions for the quiz
 
         # Integer Input Question
-        int_question = IntegerInputQuestion.objects.create(
+        self.int_question = IntegerInputQuestion.objects.create(
             question_text="What is 2 + 2?",
             position=1,
             time=30,
@@ -80,6 +82,31 @@ class StatsModelTests(TestCase):
             password="password123"
         )
 
+        IntegerInputResponse.objects.create(
+            player=self.user1,
+            room=self.room,
+            question=self.int_question,
+            answer=4,
+            correct=True
+        )
+
+        IntegerInputResponse.objects.create(
+            player=self.user2,
+            room=self.room,
+            question=self.int_question,
+            answer=4,
+            correct=True
+        )
+
+        IntegerInputResponse.objects.create(
+            player=self.user3,
+            room=self.room,
+            question=self.int_question,
+            answer=5,
+            correct=False
+        )
+
+
     def test_valid_stats(self):
         self.participant1 = RoomParticipant.objects.create(room=self.room, user=self.user1, score=80)
         self.participant2 = RoomParticipant.objects.create(room=self.room, user=self.user2, score=90)
@@ -102,4 +129,17 @@ class StatsModelTests(TestCase):
             )
         except IntegrityError:
             self.fail("Stats creation failed")
+
+    def test_question_stats(self):
+        try:
+            self.intStats = QuestionStats.objects.create(
+                room=self.room,
+                question_type=ContentType.objects.get_for_model(self.int_question),
+                question_id=self.int_question.id,
+            )
+        except IntegrityError:
+            self.fail("Question stats creation failed")
+        self.assertEqual(self.intStats.responses_received,3)
+        self.assertEqual(self.intStats.correct_responses,2)
+        self.assertEqual(self.intStats.percentage_correct, (2/3)*100)
 

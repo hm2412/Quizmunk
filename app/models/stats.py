@@ -1,9 +1,12 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.aggregates import Avg
 from django.db.models.expressions import result
 
-from app.models import Room, RoomParticipant
-from app.models.quiz import Quiz
+from app.models import Room, RoomParticipant, Response, Quiz, Question, IntegerInputResponse, TrueFalseResponse, \
+    TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, NumericalRangeResponse, SortingResponse
+
 
 class Stats(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
@@ -39,3 +42,32 @@ class Stats(models.Model):
         return f"Stats for Room {self.room} and Quiz {self.quiz} on {self.date_played.strftime('%Y-%m-%d %H:%M:%S')}"
 
 
+class QuestionStats(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    question_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    question_id = models.PositiveIntegerField()
+    question = GenericForeignKey('question_type', 'question_id')
+    responses_received = models.IntegerField()
+    correct_responses = models.IntegerField()
+    percentage_correct = models.DecimalField(max_digits=5, decimal_places=2)
+
+    def get_response_model_class(self):
+        response_model_mapping = {
+            'integerinputquestion': IntegerInputResponse,
+            'truefalsequestion': TrueFalseResponse,
+            'textinputquestion': TextInputResponse,
+            'decimalinputquestion': DecimalInputResponse,
+            'multiplechoicequestion': MultipleChoiceResponse,
+            'numericalrangequestion': NumericalRangeResponse,
+            'sortingquestion': SortingResponse,
+        }
+        response_model = response_model_mapping.get(self.question_type.model)
+        if not response_model:
+            raise ValueError("Unknown Response model")
+        return response_model
+
+    def save(self, *args, **kwargs):
+        response_model = self.get_response_model_class()
+        self.responses_received = response_model.objects.filter(room=self.room, question=self.question).count()
+        self.correct_responses = response_model.objects.filter(room=self.room, question=self.question, correct=True).count()
+        self.percentage_correct = (self.correct_responses / self.responses_received) * 100
