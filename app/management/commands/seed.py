@@ -140,6 +140,7 @@ class Command(BaseCommand):
             quiz = sample_quiz,
             question_text = f"The answer to this sample question is {integer_answer}",
             correct_answer = integer_answer
+            
         )
 
         TrueFalseQuestion.objects.create(
