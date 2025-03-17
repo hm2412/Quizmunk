@@ -103,7 +103,7 @@
         <div id="create-modal" class="modal">
             <div class="modal-content">
                 <h2>New Classroom</h2>
-                <form method="POST">
+                <form method="POST" id="createClassroomForm">
                     {% csrf_token %}
                     <input type="text" name="classroom_name" placeholder="Class Name" required>
                     <input type="text" name="description" placeholder="Description" required>
@@ -119,8 +119,10 @@
     </div>
 
     <script>
+       
         {% if messages %}
-            window.location.hash = 'create-modal';
+           
+            history.replaceState(null, document.title, window.location.pathname);
         {% endif %}
 
         document.querySelector('.cancel').addEventListener('click', function(e) {
@@ -128,10 +130,17 @@
             window.location.hash = '';
         });
 
-        document.getElementById('inviteForm').addEventListener('submit', function(e) {
-            const email = document.getElementById('student_email').value;
-            // Add any additional logic here if needed
+       
+        document.getElementById('createClassroomForm').addEventListener('submit', function(e) {
+        
+            sessionStorage.setItem('formSubmitted', 'true');
         });
+
+        
+        if (sessionStorage.getItem('formSubmitted') === 'true') {
+            history.replaceState(null, document.title, window.location.pathname);
+            sessionStorage.removeItem('formSubmitted');
+        }
 
         function showEditDescription() {
             document.getElementById('description-text').style.display = 'none';
@@ -147,4 +156,3 @@
     </script>
 </body>
 </html>
-    
