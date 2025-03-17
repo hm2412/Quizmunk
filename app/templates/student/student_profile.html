@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Student Profile{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
 {% block content %}
     <div class="dashboard-container">
         <div class="dashboard-header">
@@ -20,7 +24,7 @@
                     </tr>
                 </table>
                 <div class="button-group">
-                    <a href="{% url 'password_reset' %}" class="btn btn-warning">Reset Password</a>
+                    <a href="{% url 'password_reset' %}" class="btn">Reset Password</a>
                 </div>
             </section>
         </div>

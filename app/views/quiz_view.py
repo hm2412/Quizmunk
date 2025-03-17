@@ -6,6 +6,7 @@ from django.urls import reverse
 from app.helpers.decorators import is_tutor, redirect_unauthenticated_to_homepage
 from django.views.decorators.http import require_POST
 from app.question_registry import QUESTION_FORMS, QUESTION_MODELS
+from app.helpers.helper_functions import getAllQuestions
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
@@ -33,15 +34,8 @@ def create_quiz_view(request):
 @is_tutor
 def edit_quiz_view(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-    
-    #if new types are added add them here
-    questions_int = list(IntegerInputQuestion.objects.filter(quiz=quiz))
-    questions_tf = list(TrueFalseQuestion.objects.filter(quiz=quiz))
-    questions_ti = list(TextInputQuestion.objects.filter(quiz=quiz))
-    questions_mc = list(MultipleChoiceQuestion.objects.filter(quiz=quiz))
-    questions_dc = list(DecimalInputQuestion.objects.filter(quiz=quiz))
-    questions_nr = list(NumericalRangeQuestion.objects.filter(quiz=quiz))
-    questions = questions_int + questions_tf + questions_ti + questions_mc + questions_dc + questions_nr
+
+    questions = getAllQuestions(quiz=quiz)
     questions.sort(key=lambda q: (q.position if q.position is not None else float('inf')))
 
     form_type = None

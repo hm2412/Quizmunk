@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Student Dashboard{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
 {% block content %}
     <div class="dashboard-container">
         <div class="dashboard-header">

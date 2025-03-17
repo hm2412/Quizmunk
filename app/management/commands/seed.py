@@ -33,7 +33,7 @@ user_fixtures = [
 ]
 
 class Command(BaseCommand):
-    PASSWORD = "password123"
+    PASSWORD = "password123456"
     USER_COUNT = 100
     ROOM_COUNT = 4
     CLASSROOM_SIZE = 10

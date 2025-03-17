@@ -1,11 +1,24 @@
-from app.models import Quiz, IntegerInputQuestion, Response,TrueFalseQuestion, NumericalRangeResponse, RoomParticipant
+from app.models import (
+    Quiz, Response, RoomParticipant,
+    IntegerInputQuestion, 
+    TrueFalseQuestion, 
+    TextInputQuestion,
+    MultipleChoiceQuestion,
+    DecimalInputQuestion,
+    NumericalRangeQuestion,
+    NumericalRangeResponse,
+)
 
 
 def getAllQuestions(quiz):
     if isinstance(quiz, Quiz):
         questions_int = list(IntegerInputQuestion.objects.filter(quiz=quiz))
         questions_tf = list(TrueFalseQuestion.objects.filter(quiz=quiz))
-        return questions_int + questions_tf
+        questions_ti = list(TextInputQuestion.objects.filter(quiz=quiz))
+        questions_mc = list(MultipleChoiceQuestion.objects.filter(quiz=quiz))
+        questions_dc = list(DecimalInputQuestion.objects.filter(quiz=quiz))
+        questions_nr = list(NumericalRangeQuestion.objects.filter(quiz=quiz))
+        return questions_int + questions_tf + questions_ti + questions_mc + questions_dc + questions_nr
     return None
 
 def isCorrectAnswer(response):

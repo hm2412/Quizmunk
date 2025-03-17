@@ -1,0 +1,23 @@
+
+
+.your-quizzes {
+    font-weight: 800;
+    font-size: 50px;
+    padding-bottom: 20px;
+}
+
+.delete-quiz {
+    margin-left: 20px;
+    background-color: rgb(216, 55, 55) !important;
+}
+
+.start-quiz {
+    margin-left: auto;
+}
+
+.quiz-buttons{
+    padding-left: 50px;
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
