@@ -1,6 +1,5 @@
-
+from itertools import chain
 from django.contrib.contenttypes.models import ContentType
-
 from app.models import Quiz, IntegerInputQuestion, Response, TrueFalseQuestion, NumericalRangeResponse, RoomParticipant, \
     TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion, SortingQuestion, quiz, \
     Stats, IntegerInputResponse, TrueFalseResponse, TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, \
@@ -43,6 +42,14 @@ def isCorrectAnswer(response):
         else:
             response.correct = False
             return False
+
+def get_streak_bonus(streak_count, base_points):
+    """Calculate the streak bonus based on the streak count."""
+    if streak_count%5==0:
+        return base_points
+    elif streak_count%3==0:
+        return int(0.5*base_points)
+    return 0
 
 def get_speed_bonus(position):
     """Calculate the bonus based on the response position."""
