@@ -1,5 +1,7 @@
 from django.db import models
 from django.forms import ValidationError
+
+from app.models import Classroom
 from app.models.user import User
 from app.models.guest import GuestAccess
 from app.models.quiz import Quiz
@@ -27,6 +29,7 @@ class Room(models.Model):
         help_text="The quiz this room is made from."
     )
     join_code = models.CharField(max_length=8, unique=True, editable=False, default=generate_join_code)
+    classroom = models.ForeignKey(Classroom, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"Room: {self.name} (Code: {self.join_code})"
