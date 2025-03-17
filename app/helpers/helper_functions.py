@@ -146,7 +146,7 @@ def get_response_model_class(question_type):
     return response_model
 
 
-def get_all_respones(room, question):
+def get_all_responses(room, question):
     question_type=ContentType.objects.get_for_model(question)
     responses = get_response_model_class(question_type).objects.filter(room=room, question=question)
     return responses
