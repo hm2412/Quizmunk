@@ -31,6 +31,8 @@ from app.views.live_quiz_view import tutor_live_quiz, start_quiz, next_question,
 from app.views.password_reset_view import password_reset
 from app.views.live_quiz_view import student_live_quiz, tutor_live_quiz, start_quiz, next_question, end_quiz
 from app.views.classroom_view import tutor_classroom_view, tutor_classroom_detail_view, student_classroom_view, accept_classroom_invite, decline_classroom_invite, student_classroom_detail_view
+from app.views.stats_view import stats_view, stats_details, csv_download
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -64,4 +66,10 @@ urlpatterns = [
     path('accept-classroom-invite/<int:invite_id>/', accept_classroom_invite, name="accept_classroom_invite"),
     path('decline-classroom-invite/<int:invite_id>/', decline_classroom_invite, name="decline_classroom_invite"),
     path("student/live-quiz/<str:room_code>/", student_live_quiz, name="student_live_quiz"),
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path("tutor-stats/", stats_view, name='stats'),
+    path("tutor-stats/<int:stats_id>/", stats_details, name='stats_details'),
+    path("tutor-stats/<int:stats_id>/download/", csv_download, name='stats_download'),
+]
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
