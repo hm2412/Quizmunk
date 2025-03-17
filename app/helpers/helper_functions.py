@@ -2,7 +2,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from app.models import Quiz, IntegerInputQuestion, Response, TrueFalseQuestion, NumericalRangeResponse, RoomParticipant, \
     TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion, SortingQuestion, quiz, \
-    Stats
+    Stats, IntegerInputResponse, TrueFalseResponse, TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, \
+    SortingResponse
 from app.models.stats import QuestionStats
 
 
@@ -128,5 +129,26 @@ def create_quiz_stats(room):
             question_type=ContentType.objects.get_for_model(question),
             question_id=question.id,
         )
+
+def get_response_model_class(question_type):
+    response_model_mapping = {
+        'integerinputquestion': IntegerInputResponse,
+        'truefalsequestion': TrueFalseResponse,
+        'textinputquestion': TextInputResponse,
+        'decimalinputquestion': DecimalInputResponse,
+        'multiplechoicequestion': MultipleChoiceResponse,
+        'numericalrangequestion': NumericalRangeResponse,
+        'sortingquestion': SortingResponse,
+    }
+    response_model = response_model_mapping.get(question_type.model)
+    if not response_model:
+        raise ValueError("Unknown Response model")
+    return response_model
+
+
+def get_all_respones(room, question):
+    question_type=ContentType.objects.get_for_model(question)
+    responses = get_response_model_class(question_type).objects.filter(room=room, question=question)
+    return responses
 
 

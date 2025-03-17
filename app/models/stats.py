@@ -51,23 +51,10 @@ class QuestionStats(models.Model):
     correct_responses = models.IntegerField()
     percentage_correct = models.DecimalField(max_digits=5, decimal_places=2)
 
-    def get_response_model_class(self):
-        response_model_mapping = {
-            'integerinputquestion': IntegerInputResponse,
-            'truefalsequestion': TrueFalseResponse,
-            'textinputquestion': TextInputResponse,
-            'decimalinputquestion': DecimalInputResponse,
-            'multiplechoicequestion': MultipleChoiceResponse,
-            'numericalrangequestion': NumericalRangeResponse,
-            'sortingquestion': SortingResponse,
-        }
-        response_model = response_model_mapping.get(self.question_type.model)
-        if not response_model:
-            raise ValueError("Unknown Response model")
-        return response_model
 
     def save(self, *args, **kwargs):
-        response_model = self.get_response_model_class()
+        from app.helpers.helper_functions import get_response_model_class
+        response_model = get_response_model_class(self.question_type)
         self.responses_received = response_model.objects.filter(room=self.room, question=self.question).count()
         self.correct_responses = response_model.objects.filter(room=self.room, question=self.question, correct=True).count()
         self.percentage_correct = (self.correct_responses / self.responses_received) * 100
