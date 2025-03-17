@@ -5,7 +5,7 @@ from app.models.room import RoomParticipant
 from app.helpers.decorators import is_tutor
 import csv
 import datetime
-from app.helpers.helper_functions import get_responses_by_player_in_room, get_all_responses_question
+from app.helpers.helper_functions import get_responses_by_player_in_room, get_all_responses_question, get_student_quiz_history, calculate_average_score, find_best_and_worst_scores
 
 
 @is_tutor
@@ -163,3 +163,20 @@ def player_responses(request, room_id,question_id):
         'responses':responses,
     }
     return render(request, 'question_responses.html',context)
+
+def student_stats(request,student_id):
+
+    student= get_object_or_404(User, id=student_id)
+    quiz_history= get_student_quiz_history(student)
+    average_score = calculate_average_score(quiz_history)
+    best_score, worst_score = find_best_and_worst_scores(quiz_history)
+
+    context={
+        'student': student,
+        'quiz_history': quiz_history,
+        'average_score': average_score,
+        'best_score': best_score,
+        'worst_score': worst_score,
+    }
+
+    return render(request, 'student_stats.html', context)

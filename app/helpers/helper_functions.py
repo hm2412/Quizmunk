@@ -200,3 +200,42 @@ def get_responses_by_player_in_room(player, room):
         return all_responses
     return None
 
+def get_student_quiz_history(student):
+    participations = RoomParticipant.objects.filter(User=student)
+    quiz_history=[]
+    
+    for participation in participations:
+
+        room = participation.room
+        stats=Stats.objects.filter(room=room).first()
+
+        if stats:
+            quiz_data = {
+                'quiz_title': stats.quiz.name,
+                'date_played': stats.date_played,
+                'score': participation.score,
+                'room_id': room.id,
+                'stats_id': stats.id,
+            }
+            quiz_history.append(quiz_data)
+
+    return quiz_history
+
+def calculate_average_score(quiz_history):
+    if not quiz_history:
+        return 0
+    total_score = sum(quiz['score'] for quiz in quiz_history)
+    length_score= len(quiz_history)
+    return total_score/length_score
+
+def find_best_and_worst_scores(quiz_history):
+    best_score = None
+    worst_score = None
+
+    for quiz in quiz_history:
+        if best_score is None or quiz['score'] > best_score['score']:
+            best_score = quiz
+        if worst_score is None or quiz['score'] < worst_score['score']:
+            worst_score = quiz
+
+    return best_score, worst_score
