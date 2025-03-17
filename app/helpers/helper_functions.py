@@ -1,12 +1,29 @@
-from app.models import Quiz, IntegerInputQuestion, Response,TrueFalseQuestion, NumericalRangeResponse, RoomParticipant
+from django.contrib.contenttypes.models import ContentType
+
+from app.models import Quiz, IntegerInputQuestion, Response, TrueFalseQuestion, NumericalRangeResponse, RoomParticipant, \
+    TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion, SortingQuestion, quiz, \
+    Stats
+from app.models.stats import QuestionStats
 
 
 def getAllQuestions(quiz):
     if isinstance(quiz, Quiz):
         questions_int = list(IntegerInputQuestion.objects.filter(quiz=quiz))
         questions_tf = list(TrueFalseQuestion.objects.filter(quiz=quiz))
-        return questions_int + questions_tf
+        questions_text = list(TextInputQuestion.objects.filter(quiz=quiz))
+        questions_decimal = list(DecimalInputQuestion.objects.filter(quiz=quiz))
+        questions_mcq = list(MultipleChoiceQuestion.objects.filter(quiz=quiz))
+        questions_num_range = list(NumericalRangeQuestion.objects.filter(quiz=quiz))
+        questions_sorting = list(SortingQuestion.objects.filter(quiz=quiz))
+
+        all_questions = (
+            questions_int + questions_tf + questions_text +
+            questions_decimal + questions_mcq + questions_num_range + questions_sorting
+        )
+
+        return all_questions
     return None
+
 
 def isCorrectAnswer(response):
     if isinstance(response, NumericalRangeResponse):
@@ -98,4 +115,18 @@ def get_leaderboard(room):
             'score':participant['score']
         })
     return leaderboard
+
+def create_quiz_stats(room):
+    Stats.objects.create(
+        room=room,
+        quiz=room.quiz
+    )
+    questions = getAllQuestions(room.quiz)
+    for question in questions:
+        QuestionStats.objects.create(
+            room=room,
+            question_type=ContentType.objects.get_for_model(question),
+            question_id=question.id,
+        )
+
 
