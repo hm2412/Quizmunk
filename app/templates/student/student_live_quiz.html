@@ -2,108 +2,141 @@
 {% load static %}
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Quiz - Room Code: {{ room.join_code }}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Live Quiz - Room Code: {{ room.join_code }}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <!-- Full-Width Navbar -->
-    <div class="container-fluid p-0">
-        {% include 'partials/navbar.html' %}
+  <div class="container-fluid p-0">
+    {% include 'partials/navbar.html' %}
+  </div>
+  <div class="container d-flex flex-column align-items-center justify-content-center mt-5">
+    <div class="quiz-header text-center my-3">
+      <h1 class="fw-bold">Live Quiz - Room Code: <span class="room-code">{{ room.join_code }}</span></h1>
+      <p class="text-muted">Answer the following question:</p>
     </div>
-
-    <div class="container d-flex flex-column align-items-center justify-content-center mt-5">
-        <!-- Quiz Header -->
-        <div class="quiz-header text-center my-3">
-            <h1 class="fw-bold">Live Quiz - Room Code: <span class="room-code">{{ room.join_code }}</span></h1>
-            <p class="text-muted">Answer the following question:</p>
-        </div>
-
-        <!-- Question Box -->
-        <div class="question-box p-4 shadow-lg rounded bg-light text-center my-4">
-            <h2 id="question-text" class="fw-bold">Loading question...</h2>
-        </div>
-
-        <!-- Answer Options -->
-        <div class="answer-container d-flex flex-wrap justify-content-center gap-3 mt-3">
-            <button class="answer-box btn btn-outline-primary px-5 py-3">A. Option 1</button>
-            <button class="answer-box btn btn-outline-primary px-5 py-3">B. Option 2</button>
-            <button class="answer-box btn btn-outline-primary px-5 py-3">C. Option 3</button>
-            <button class="answer-box btn btn-outline-primary px-5 py-3">D. Option 4</button>
-        </div>
-
-        <!-- Next Question Button -->
-        <div class="next-container mt-4">
-            <button id="next-question" class="btn btn-primary px-5 py-3 fw-bold">Next Question</button>
-        </div>
+    <div class="question-box p-4 shadow-lg rounded bg-light text-center my-4">
+      <h2 id="question-text" class="fw-bold">Loading question...</h2>
     </div>
-
-    <!-- Full-Width Footer -->
-    <div class="container-fluid p-0">
-        {% include 'partials/footer.html' %}
+    <div class="answer-container d-flex flex-wrap justify-content-center gap-3 mt-3">
+      <!-- Answer options or input will be injected here -->
     </div>
-
-    <!-- JavaScript for Interaction -->
-    <script>
-        $(document).ready(function() {
-            $(".answer-box").click(function() {
-                $(".answer-box").removeClass("selected btn-primary").addClass("btn-outline-primary");
-                $(this).removeClass("btn-outline-primary").addClass("selected btn-primary");
+  </div>
+  <div class="container-fluid p-0">
+    {% include 'partials/footer.html' %}
+  </div>
+  <script>
+    $(document).ready(function() {
+      let currentQuestionNumber = 0;
+      let currentQuestionId = null; // Store current question ID
+      const joinCode = "{{ room.join_code }}";
+      const ws = new WebSocket(`ws://${window.location.host}/ws/student/${joinCode}/`);
+      
+      ws.onopen = () => console.log("WebSocket connected!");
+      
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if(data.type === "question_update") {
+          // Update the current question info, including its ID.
+          currentQuestionNumber = data.question_number;
+          currentQuestionId = data.question_id;
+          $("#question-text").text(data.question);
+          $(".quiz-header p").text(`Question ${data.question_number} of ${data.total_questions}`);
+          
+          const $answerContainer = $(".answer-container");
+          $answerContainer.empty();
+          
+          // Render answer options or input fields based on question type.
+          if(data.question_type === "multiple_choice" || data.question_type === "true_false") {
+            data.options.forEach((option, index) => {
+              $answerContainer.append(`<button class="answer-box btn btn-outline-primary px-5 py-3">${String.fromCharCode(65+index)}. ${option}</button>`);
             });
-
-            $("#next-question").click(function() {
-                alert("Next Question Coming Soon...");
+          } else if(data.question_type === "integer" || data.question_type === "decimal") {
+            $answerContainer.html(`<div class="form-group w-100"><input type="number" class="form-control" placeholder="Enter your answer"></div>`);
+          } else if(data.question_type === "text") {
+            $answerContainer.html(`<div class="form-group w-100"><textarea class="form-control" rows="3" placeholder="Type your answer here..."></textarea></div>`);
+          } else if(data.question_type === "numerical_range") {
+            $answerContainer.html(`<div class="form-group w-100"><input type="number" class="form-control" placeholder="Enter a number within the range"></div>`);
+          } else if(data.question_type === "sorting") {
+            const $sortableList = $('<ul class="list-group sortable">');
+            data.items.forEach(item => {
+              $sortableList.append(`<li class="list-group-item">${item}</li>`);
             });
+            $answerContainer.html($sortableList);
+            $(".sortable").sortable();
+          }
+          
+          // If the answer is revealed (nonempty) or time is 0, disable inputs.
+          if(data.answer || data.time === 0) {
+            $(".answer-box, input, textarea").prop("disabled", true);
+          } else {
+            $(".answer-box, input, textarea").prop("disabled", false);
+          }
+        }
+        else if(data.type === "answer_received") {
+          // Optionally, highlight the selected answer if needed.
+          $(".answer-box").removeClass("btn-success");
+          $(".answer-box").filter(function() {
+            return $(this).text().includes(data.answer);
+          }).addClass("btn-success");
+        }
+        else if(data.type === "quiz_ended") {
+          $(".answer-box, input, textarea").prop("disabled", true);
+          alert(data.message);
+          setTimeout(() => {
+            window.location.href = "/dashboard/"; // Adjust as needed.
+          }, 2000);
+        }
+        else if(data.type === "leaderboard_update") {
+          // Optionally, update a leaderboard on the student page.
+        }
+      };
+      
+      // When an answer is clicked, send the answer with the current question ID.
+      $(document).on('click', '.answer-box', function () {
+        const answer = $(this).text().split('. ')[1];
+        ws.send(JSON.stringify({
+          action: "submit_answer",
+          answer: answer,
+          question_number: currentQuestionNumber,
+          question_id: currentQuestionId
+        }));
+        // Disable further submissions after one click.
+        $(".answer-box, input, textarea").prop("disabled", true);
+        $(".answer-box").removeClass("active btn-primary");
+        $(this).addClass("active btn-primary");
+      });
+      
+      // For input fields, when focus is lost, submit the answer.
+      $(document).on('blur', 'textarea, input[type="number"]', function () {
+        const answer = $(this).val();
+        ws.send(JSON.stringify({
+          action: "submit_answer",
+          answer: answer,
+          question_number: currentQuestionNumber,
+          question_id: currentQuestionId
+        }));
+        // Disable further changes.
+        $(".answer-box, input, textarea").prop("disabled", true);
+      });
+      
+      // For sortable lists, send the sorted order.
+      $(document).on('sortupdate', '.sortable', function () {
+        const sortedItems = [];
+        $('.sortable li').each(function () {
+          sortedItems.push($(this).text());
         });
-    </script>
+        ws.send(JSON.stringify({
+          action: "submit_answer",
+          answer: sortedItems,
+          question_number: currentQuestionNumber,
+          question_id: currentQuestionId
+        }));
+        $(".answer-box, input, textarea").prop("disabled", true);
+      });
+    });
+  </script>
 </body>
 </html>
-<script>
-    $(document).ready(function() {
-        const roomCode = "{{ room.join_code }}";  // Get the room code from the template
-        const ws = new WebSocket(`ws://${window.location.host}/ws/student/${roomCode}/`);
-
-        // Handle WebSocket connection
-        ws.onopen = () => {
-            console.log("WebSocket connected!");
-        };
-
-        // Handle incoming messages (e.g., new questions)
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            console.log("Message received:", data);
-
-            // Update the question and options
-            $("#question-text").text(data.question);
-            const answerButtons = $(".answer-box");
-            data.options.forEach((option, index) => {
-                $(answerButtons[index]).text(`${String.fromCharCode(65 + index)}. ${option}`);
-            });
-        };
-
-        // Handle WebSocket errors
-        ws.onerror = (error) => {
-            console.error("WebSocket error:", error);
-        };
-
-        // Handle WebSocket disconnection
-        ws.onclose = () => {
-            console.log("WebSocket disconnected!");
-        };
-
-        // Handle answer selection
-        $(".answer-box").click(function() {
-            $(".answer-box").removeClass("selected btn-primary").addClass("btn-outline-primary");
-            $(this).removeClass("btn-outline-primary").addClass("selected btn-primary");
-        });
-
-        // Handle "Next Question" button
-        $("#next-question").click(function() {
-            // Send a message to the tutor to request the next question
-            ws.send(JSON.stringify({ action: "next_question" }));
-        });
-    });
-</script>
