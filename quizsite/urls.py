@@ -17,6 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from django.shortcuts import render
 from django.conf import settings
 from django.conf.urls.static import static
 from app.views.homepage_view import homepage, about_us
@@ -65,4 +66,5 @@ urlpatterns = [
     path('accept-classroom-invite/<int:invite_id>/', accept_classroom_invite, name="accept_classroom_invite"),
     path('decline-classroom-invite/<int:invite_id>/', decline_classroom_invite, name="decline_classroom_invite"),
     path("student/live-quiz/<str:room_code>/", student_live_quiz, name="student_live_quiz"),
+    path('preview/questions/', lambda request: render(request, 'question_preview.html'), name='question_preview'), #TEST PURPOSES DELETE LATER
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
