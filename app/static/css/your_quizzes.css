@@ -1,4 +1,7 @@
-
+.list-group {
+    width: 100%;
+    top: 0;
+}
 
 .your-quizzes {
     font-weight: 800;
@@ -21,3 +24,9 @@
     gap: 10px;
     width: 100%;
 }
+
+.main-content {
+    justify-content: flex-start !important;
+    align-items: flex-start !important; 
+    text-align: left !important; 
+} /* overrides base styling */
