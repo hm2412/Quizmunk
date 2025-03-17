@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from app.models import Quiz, IntegerInputQuestion, Response, TrueFalseQuestion, NumericalRangeResponse, RoomParticipant, \
     TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion, SortingQuestion, quiz, \
     Stats, IntegerInputResponse, TrueFalseResponse, TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, \
-    SortingResponse
+    SortingResponse, User, Room
 from app.models.stats import QuestionStats
 
 
@@ -124,7 +124,7 @@ def create_quiz_stats(room):
     )
     questions = getAllQuestions(room.quiz)
     for question in questions:
-        QuestionStats.objects.create(
+         QuestionStats.objects.create(
             room=room,
             question_type=ContentType.objects.get_for_model(question),
             question_id=question.id,
@@ -146,9 +146,26 @@ def get_response_model_class(question_type):
     return response_model
 
 
-def get_all_responses(room, question):
+def get_all_responses_question(room, question):
     question_type=ContentType.objects.get_for_model(question)
     responses = get_response_model_class(question_type).objects.filter(room=room, question=question)
     return responses
 
+def get_responses_by_player_in_room(player, room):
+    if isinstance(player, User) and isinstance(room, Room):
+        responses_tf = list(TrueFalseResponse.objects.filter(player=player, room=room))
+        responses_int = list(IntegerInputResponse.objects.filter(player=player, room=room))
+        responses_text = list(TextInputResponse.objects.filter(player=player, room=room))
+        responses_decimal = list(DecimalInputResponse.objects.filter(player=player, room=room))
+        responses_mcq = list(MultipleChoiceResponse.objects.filter(player=player, room=room))
+        responses_num_range = list(NumericalRangeResponse.objects.filter(player=player, room=room))
+        responses_sorting = list(SortingResponse.objects.filter(player=player, room=room))
+
+        all_responses = (
+            responses_tf + responses_int + responses_text +
+            responses_decimal + responses_mcq + responses_num_range + responses_sorting
+        )
+
+        return all_responses
+    return None
 
