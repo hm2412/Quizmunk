@@ -11,7 +11,7 @@ from app.views.live_quiz_view import tutor_live_quiz
 def setup_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
 
-    room = Room.objects.create(name=f"{quiz.name} Room", quiz=quiz)
+    room = Room.objects.create(name=f"{quiz.name} Room", quiz=quiz, quiz_started=False)
 
     return redirect(lobby, join_code=room.join_code)
 
