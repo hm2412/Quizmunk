@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
-from app.models.stats import Stats, Room, User
+from app.models import Stats, Room, User, Classroom
 from app.models.room import RoomParticipant
 from app.helpers.decorators import is_tutor
 import csv
@@ -180,3 +180,14 @@ def student_stats(request,student_id):
     }
 
     return render(request, 'student_stats.html', context)
+
+@is_tutor
+def classroom_stats_view(request, classroom_id):
+    """show the list of the quizzes started by the tutor for a classroom"""
+    classroom= get_object_or_404(Classroom, id=classroom_id)
+    stats_list = Stats.objects.filter(room__classroom=classroom,quiz__tutor=request.user).order_by('-date_played')
+    context={
+        "classroom": classroom,
+        "stats_list":stats_list
+    }
+    return render(request, "tutor/classroom_stats.html", context)
