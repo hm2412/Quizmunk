@@ -21,9 +21,11 @@
     <div class="question-box p-4 shadow-lg rounded bg-light text-center my-4">
       <h2 id="question-text" class="fw-bold">Loading question...</h2>
     </div>
-    <div class="answer-container d-flex flex-wrap justify-content-center gap-3 mt-3">
+    <div class="answer-container d-flex flex-column align-items-center gap-3 mt-3">
       <!-- Answer options or input will be injected here -->
     </div>
+    <!-- Leaderboard container for students -->
+    <div id="student-leaderboard" class="mt-3 w-50"></div>
   </div>
   <div class="container-fluid p-0">
     {% include 'partials/footer.html' %}
@@ -51,31 +53,56 @@
           const $answerContainer = $(".answer-container");
           $answerContainer.empty();
           
-          // Render answer options or input fields based on question type.
+          // For multiple choice and true/false, render answer buttons.
           if(data.question_type === "multiple_choice" || data.question_type === "true_false") {
             data.options.forEach((option, index) => {
-              $answerContainer.append(`<button class="answer-box btn btn-outline-primary px-5 py-3">${String.fromCharCode(65+index)}. ${option}</button>`);
+              $answerContainer.append(
+                `<button class="answer-box btn btn-outline-primary px-5 py-3">
+                   ${String.fromCharCode(65+index)}. ${option}
+                 </button>`
+              );
             });
-          } else if(data.question_type === "integer" || data.question_type === "decimal") {
-            $answerContainer.html(`<div class="form-group w-100"><input type="number" class="form-control" placeholder="Enter your answer"></div>`);
-          } else if(data.question_type === "text") {
-            $answerContainer.html(`<div class="form-group w-100"><textarea class="form-control" rows="3" placeholder="Type your answer here..."></textarea></div>`);
-          } else if(data.question_type === "numerical_range") {
-            $answerContainer.html(`<div class="form-group w-100"><input type="number" class="form-control" placeholder="Enter a number within the range"></div>`);
-          } else if(data.question_type === "sorting") {
+          }
+          // For input-based questions, render an input field and a submit button.
+          else if(data.question_type === "integer" || data.question_type === "decimal") {
+            $answerContainer.html(
+              `<div class="form-group w-100">
+                  <input type="number" class="form-control" placeholder="Enter your answer">
+               </div>
+               <button class="btn btn-primary submit-answer-btn mt-2">Submit Answer</button>`
+            );
+          }
+          else if(data.question_type === "text") {
+            $answerContainer.html(
+              `<div class="form-group w-100">
+                  <textarea class="form-control" rows="3" placeholder="Type your answer here..."></textarea>
+               </div>
+               <button class="btn btn-primary submit-answer-btn mt-2">Submit Answer</button>`
+            );
+          }
+          else if(data.question_type === "numerical_range") {
+            $answerContainer.html(
+              `<div class="form-group w-100">
+                  <input type="number" class="form-control" placeholder="Enter a number within the range">
+               </div>
+               <button class="btn btn-primary submit-answer-btn mt-2">Submit Answer</button>`
+            );
+          }
+          else if(data.question_type === "sorting") {
             const $sortableList = $('<ul class="list-group sortable">');
             data.items.forEach(item => {
               $sortableList.append(`<li class="list-group-item">${item}</li>`);
             });
             $answerContainer.html($sortableList);
+            $answerContainer.append('<button class="btn btn-primary submit-answer-btn mt-2">Submit Order</button>');
             $(".sortable").sortable();
           }
           
-          // Disable inputs if an answer is revealed or time is 0.
+          // Enable inputs if answer not yet revealed.
           if(data.answer || data.time === 0) {
-            $(".answer-box, input, textarea").prop("disabled", true);
+            $(".answer-box, input, textarea, .submit-answer-btn").prop("disabled", true);
           } else {
-            $(".answer-box, input, textarea").prop("disabled", false);
+            $(".answer-box, input, textarea, .submit-answer-btn").prop("disabled", false);
           }
         }
         else if(data.type === "answer_received") {
@@ -85,21 +112,32 @@
             return $(this).text().includes(data.answer);
           }).addClass("btn-success");
         }
+        else if(data.type === "leaderboard_update") {
+          // Update the student leaderboard container.
+          const $lb = $("#student-leaderboard");
+          $lb.empty();
+          if(data.leaderboard && data.leaderboard.length) {
+            let html = '<h4>Leaderboard</h4><ul class="list-group">';
+            data.leaderboard.forEach(entry => {
+              html += `<li class="list-group-item">#${entry.rank} ${entry.participant}: ${entry.score}</li>`;
+            });
+            html += '</ul>';
+            $lb.html(html);
+          }
+        }
         else if(data.type === "quiz_ended") {
-          $(".answer-box, input, textarea").prop("disabled", true);
+          $(".answer-box, input, textarea, .submit-answer-btn").prop("disabled", true);
           alert(data.message);
           setTimeout(() => {
             window.location.href = "/dashboard/"; // Adjust as needed.
           }, 2000);
         }
-        else if(data.type === "leaderboard_update") {
-          // Optionally, update a leaderboard on the student page.
-        }
       };
       
-      // When an answer button is clicked, send the answer along with question type.
+      // Handler for clickable answer boxes (multiple choice/true-false).
       $(document).on('click', '.answer-box', function () {
         const answer = $(this).text().split('. ')[1];
+        console.log("Submitting answer from button:", answer);
         ws.send(JSON.stringify({
           action: "submit_answer",
           answer: answer,
@@ -107,15 +145,24 @@
           question_id: currentQuestionId,
           question_type: currentQuestionType
         }));
-        // Disable further submissions after one click.
-        $(".answer-box, input, textarea").prop("disabled", true);
+        $(".answer-box, input, textarea, .submit-answer-btn").prop("disabled", true);
         $(".answer-box").removeClass("active btn-primary");
         $(this).addClass("active btn-primary");
       });
       
-      // For input fields, when focus is lost, submit the answer along with question type.
-      $(document).on('blur', 'textarea, input[type="number"]', function () {
-        const answer = $(this).val();
+      // Handler for the explicit submit button (for input-based or sorting questions).
+      $(document).on('click', '.submit-answer-btn', function () {
+        let answer;
+        if(currentQuestionType === "sorting") {
+          let sortedItems = [];
+          $('.sortable li').each(function () {
+            sortedItems.push($(this).text());
+          });
+          answer = sortedItems;
+        } else {
+          answer = $(".answer-container input, .answer-container textarea").val();
+        }
+        console.log("Submitting answer via button:", answer);
         ws.send(JSON.stringify({
           action: "submit_answer",
           answer: answer,
@@ -123,24 +170,7 @@
           question_id: currentQuestionId,
           question_type: currentQuestionType
         }));
-        // Disable further changes.
-        $(".answer-box, input, textarea").prop("disabled", true);
-      });
-      
-      // For sortable lists, send the sorted order along with question type.
-      $(document).on('sortupdate', '.sortable', function () {
-        const sortedItems = [];
-        $('.sortable li').each(function () {
-          sortedItems.push($(this).text());
-        });
-        ws.send(JSON.stringify({
-          action: "submit_answer",
-          answer: sortedItems,
-          question_number: currentQuestionNumber,
-          question_id: currentQuestionId,
-          question_type: currentQuestionType
-        }));
-        $(".answer-box, input, textarea").prop("disabled", true);
+        $(".answer-box, input, textarea, .submit-answer-btn").prop("disabled", true);
       });
     });
   </script>
