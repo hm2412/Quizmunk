@@ -61,7 +61,7 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         self.room_group_name = f"live_quiz_{self.join_code}"
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
-        await self.send_updated_participants()
+        #await self.send_updated_participants()
     
 
     async def disconnect(self, close_code):

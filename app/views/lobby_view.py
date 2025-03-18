@@ -5,7 +5,7 @@ from django.contrib import messages
 import qrcode
 from app.models import Room, RoomParticipant, Quiz, GuestAccess
 from app.helpers.decorators import is_tutor
-from app.views.live_quiz_view import tutor_live_quiz
+from app.views.live_quiz_view import tutor_live_quiz, start_quiz
 
 @is_tutor
 def setup_quiz(request, quiz_id):
@@ -51,9 +51,9 @@ def lobby(request, join_code):
     #if not room.quiz:
     #    messages.error(request, 'Invalid code!')
     #    return redirect('join_quiz')
-    if request.method == 'POST':
-        # Redirect to start quiz functionality
-        return redirect(tutor_live_quiz, join_code=room.join_code, )
+    # if request.method == 'POST':
+    #     # Redirect to start quiz functionality
+    #     return redirect(start_quiz, join_code=room.join_code)
     
     context = {
         'room': room,
