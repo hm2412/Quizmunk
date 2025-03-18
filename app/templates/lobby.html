@@ -11,7 +11,7 @@
                      {% if in_classroom %}
                          <p>Room Code: <strong>{{ join_code }}</strong></p>
                          <img src="{% static 'images/qr_code.png' %}" alt="Room QR Code"  width="200px" height="200px">
-                         
+
                          <h3>Participants:</h3>
                          <ul id="participants-list">
                              {% for participant in participants %}
@@ -33,7 +33,7 @@
                 {% else %}
                     <p>Room Code: <strong>{{ join_code }}</strong></p>
                     <img src="{% static 'images/qr_code.png' %}" alt="Room QR Code"  width="200px" height="200px">
-                    
+
                     <h3>Participants:</h3>
                     <ul id="participants-list">
                         {% for participant in participants %}
@@ -48,7 +48,7 @@
                     {% else %}
                     <p>No quiz associated with this room.</p>
                     {% endif %}
-                {% endif %}     
+                {% endif %}
         </section>
     </main>
 

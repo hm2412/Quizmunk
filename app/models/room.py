@@ -1,5 +1,6 @@
 from django.db import models
 from django.forms import ValidationError
+from app.models import Classroom
 from app.models.user import User
 from app.models.guest import GuestAccess
 from app.models.quiz import Quiz
@@ -28,6 +29,42 @@ class Room(models.Model):
         help_text="The quiz this room is made from."
     )
     join_code = models.CharField(max_length=8, unique=True, editable=False, default=generate_join_code)
+    classroom = models.ForeignKey(Classroom, on_delete=models.SET_NULL, null=True, blank=True)
+    quiz_started = models.BooleanField(default=False)
+    current_question_index = models.PositiveIntegerField(default=0)
+    is_quiz_active = models.BooleanField(default=False)
+
+    def get_questions(self):
+        """Combine all question types safely"""
+        if not self.quiz:
+            return []
+
+        questions = []
+        question_types = [
+            'integer_questions',
+            'true_false_questions',
+            'text_questions',
+            'multiple_choice_questions',
+            'decimal_questions',
+            'numerical_range_questions',
+            'sorting_questions'
+        ]
+
+        for q_type in question_types:
+            questions += list(getattr(self.quiz, q_type).all())
+
+        return sorted(questions, key=lambda q: q.position if q.position else 0)
+
+    def get_current_question(self):
+        questions = self.get_questions()
+        if 0 <= self.current_question_index < len(questions):
+            return questions[self.current_question_index]
+        return None
+
+    def next_question(self):
+        self.current_question_index += 1
+        self.save()
+        return self.get_current_question()
 
     classroom = models.ForeignKey(
          Classroom,

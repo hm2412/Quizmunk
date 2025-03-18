@@ -14,12 +14,16 @@ from app.helpers.helper_functions import getAllQuestions
 @redirect_unauthenticated_to_homepage
 @is_tutor
 def create_quiz_view(request):
-    form = QuizForm(request.POST or None)
+    form = QuizForm(request.POST or None, request.FILES or None)
     
     if request.method == 'POST':
         if form.is_valid():
             quiz = form.save(commit=False)
             quiz.tutor = request.user
+
+            if 'quiz_img' in request.FILES:
+                quiz.quiz_img = request.FILES['quiz_img']
+
             quiz.save()
             if request.headers.get('HX-Request'):
                 response = HttpResponse()
@@ -211,7 +215,7 @@ def teacher_live_quiz_view(request, quiz_id):
 
 #     if first_question:
 #         return render(request, "partials/current_question.html", {"question": first_question})
-    
+
 #     return JsonResponse({"message": "No questions available"}, status=404)
 
 
@@ -235,12 +239,12 @@ def start_quiz(request, join_code):
     room.is_quiz_active = True
     room.current_question_index = 0
     room.save()
-    
+
     first_question = room.get_current_question()
     answer = get_correct_answer(first_question)
     return JsonResponse({
         'question': first_question.question_text,
-        'answer': answer,  
+        'answer': answer,
         'question_number': 1,
         'total_questions': room.quiz.questions.count()
     })
@@ -249,7 +253,7 @@ def start_quiz(request, join_code):
 #     room = Room.objects.get(join_code=join_code)
 #     next_q = room.next_question()
 #     answer = get_correct_answer(next_q)
-    
+
 #     if next_q:
 #         return JsonResponse({
 #             'question': next_q.question_text,
@@ -262,7 +266,7 @@ def start_quiz(request, join_code):
 def next_question(request, join_code):
     room = get_object_or_404(Room, join_code=join_code)
     current_q = room.get_current_question()
-    
+
     if current_q:
         # Broadcast to WebSocket group
         channel_layer = get_channel_layer()
@@ -299,16 +303,16 @@ def get_correct_answer(question):
 def tutor_live_quiz(request, join_code):
     """View for the tutor to conduct a live quiz"""
     room = get_object_or_404(Room, join_code=join_code)
-    
+
     # Get participants excluding tutors
     participants = RoomParticipant.objects.filter(room=room).exclude(user__role="tutor")
     participant_count = participants.count()
-    
+
     # If the quiz hasn't started, make sure it's ready
     if not room.is_quiz_active:
         room.current_question_index = 0
         room.save()
-    
+
     context = {
         'room': room,
         'quiz': room.quiz,
@@ -316,5 +320,5 @@ def tutor_live_quiz(request, join_code):
         'participants': participants,
         'participant_count': participant_count,
     }
-    
+
     return render(request, 'tutor/live_quiz.html', context)

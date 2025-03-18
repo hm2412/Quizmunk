@@ -25,25 +25,32 @@ class Quiz(models.Model):
         verbose_name="Related tutor",
         help_text="The tutor that creates this quiz."
     )
+    quiz_img = models.ImageField(
+        upload_to='quiz_images/',
+        default='quiz_images/default_quiz.png',  # Default image
+        null=True,
+        blank=True
+    )
     # room = models.OneToOneField("Room", related_name="quiz_room", on_delete=models.SET_NULL, null=True, blank=True)
     # I believe this should be removed, as it's redundant? 
 
     def get_all_questions(self):
-         # This method already uses specific question types
-         integer_qs = self.integer_questions.all()
-         true_false_qs = self.true_false_questions.all()
-         text_qs = self.text_questions.all()
-         decimal_qs = self.decimal_questions.all()
-         multiple_choice_qs = self.multiple_choice_questions.all()
-         numerical_range_qs = self.numerical_range_questions.all()
-         sorting_qs = self.sorting_questions.all()
- 
-         # Combine all queries
-         all_questions = list(chain(integer_qs, true_false_qs, text_qs, decimal_qs, multiple_choice_qs, numerical_range_qs, sorting_qs))
-         
-         # Sort by position
-         return sorted(all_questions, key=lambda q: q.position if q.position is not None else float('inf'))
-    
+        # This method already uses specific question types
+        integer_qs = self.integer_questions.all()
+        true_false_qs = self.true_false_questions.all()
+        text_qs = self.text_questions.all()
+        decimal_qs = self.decimal_questions.all()
+        multiple_choice_qs = self.multiple_choice_questions.all()
+        numerical_range_qs = self.numerical_range_questions.all()
+        sorting_qs = self.sorting_questions.all()
+
+        # Combine all queries
+        all_questions = list(chain(integer_qs, true_false_qs, text_qs, decimal_qs, multiple_choice_qs, numerical_range_qs, sorting_qs))
+
+        # Sort by position
+        return sorted(all_questions, key=lambda q: q.position if q.position is not None else float('inf'))
+
+
     def __str__(self):
         return (f"Quiz: {self.id}, {self.name} - made by tutor {self.tutor}")
 

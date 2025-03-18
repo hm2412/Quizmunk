@@ -1,13 +1,13 @@
-from decimal import Decimal
-
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
-
-from app.helpers.helper_functions import isCorrectAnswer
+from app.helpers.helper_functions import isCorrectAnswer, create_quiz_stats, get_response_model_class, \
+    get_all_responses_question, get_responses_by_player_in_room
 from app.models import User, TrueFalseQuestion, IntegerInputQuestion, NumericalRangeQuestion, TrueFalseResponse, Quiz, \
-    Room, NumericalRangeResponse
+    Room, NumericalRangeResponse, Stats, IntegerInputResponse
+from app.models.stats import QuestionStats
 
 
-class TestIsCorrectHelper(TestCase):
+class TestStatsHelpers(TestCase):
     def setUp(self):
         # Creating a test user (a tutor)
         self.tutor = User.objects.create_user(
@@ -66,13 +66,43 @@ class TestIsCorrectHelper(TestCase):
             last_name='User',
             role = User.STUDENT
         )
-
-    def test_tf_correct_response(self):
         self.tf_response = TrueFalseResponse.objects.create(question=self.tf_question, answer=True, player=self.player, room=self.room)
-        self.assertTrue(isCorrectAnswer(self.tf_response))
-        self.assertTrue(self.tf_response.correct)
-
-    def test_num_range_correct_response(self):
         self.num_range_response = NumericalRangeResponse.objects.create(question=self.num_range_question, answer=13, player=self.player, room=self.room)
-        self.assertTrue(isCorrectAnswer(self.num_range_response))
-        self.assertTrue(self.num_range_response.correct)
+
+    def test_create_quiz_stats(self):
+        create_quiz_stats(self.room)
+
+        stats = Stats.objects.get(room=self.room)
+        self.assertEqual(stats.quiz, self.quiz)
+
+        question_stats = QuestionStats.objects.filter(room=self.room)
+        print(question_stats)
+
+    def test_get_response_model_class(self):
+        tf_content_type = ContentType.objects.get_for_model(self.tf_question)
+        int_content_type = ContentType.objects.get_for_model(self.int_question)
+        num_range_content_type = ContentType.objects.get_for_model(self.num_range_question)
+
+        self.assertEqual(get_response_model_class(tf_content_type), TrueFalseResponse)
+        self.assertEqual(get_response_model_class(int_content_type), IntegerInputResponse)
+        self.assertEqual(get_response_model_class(num_range_content_type), NumericalRangeResponse)
+
+        with self.assertRaises(ValueError):
+            get_response_model_class(ContentType.objects.get_for_model(Quiz))
+
+    def test_get_all_responses_question(self):
+        responses = get_all_responses_question(self.room, self.tf_question)
+        self.assertIn(self.tf_response, responses)
+        self.assertEqual(responses.count(), 1)
+
+        responses = get_all_responses_question(self.room, self.num_range_question)
+        self.assertIn(self.num_range_response, responses)
+        self.assertEqual(responses.count(), 1)
+
+    def test_get_responses_by_player_in_room(self):
+        responses = get_responses_by_player_in_room(self.player, self.room)
+
+        self.assertIn(self.tf_response, responses)
+        self.assertIn(self.num_range_response, responses)
+
+        self.assertEqual(len(responses), 2)

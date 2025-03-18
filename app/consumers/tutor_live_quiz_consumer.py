@@ -5,8 +5,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async, aclose_old_connections
 from app.models import Room, RoomParticipant, QuizState
 from app.models.quiz import MultipleChoiceQuestion, TrueFalseQuestion, IntegerInputQuestion, DecimalInputQuestion, TextInputQuestion, NumericalRangeQuestion, SortingQuestion
-from app.helpers import helper_functions
-
+from app.helpers.helper_functions import create_quiz_stats, calculate_user_score
 
 class TutorQuizConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
@@ -30,7 +29,7 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         participants = RoomParticipant.objects.filter(room=room).exclude(user__role__iexact="tutor")
         for participant in participants:
             if participant.user:
-                participant.score = helper_functions.calculate_user_score(participant.user, room)
+                participant.score = calculate_user_score(participant.user, room)
         RoomParticipant.objects.bulk_update(participants, ['score'])
         leaderboard_data = (
             participants.order_by('-score', 'joined_at')
@@ -121,6 +120,7 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
             await self.send_question_update(question_data)
             await self.send_student_question(question_data)
         else:
+            await database_sync_to_async(create_quiz_stats)(room)
             message = "No more questions!"
             await self.channel_layer.group_send(
                 self.room_group_name,
@@ -130,11 +130,12 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
                 f"student_{self.join_code}",
                 {"type": "quiz_ended", "message": message}
             )
-    
+
 
     async def handle_end_quiz(self):
         room = await self.get_room(self.join_code)
         await self.update_quiz_state(room, current_question_index=-1, quiz_started=False)
+        await database_sync_to_async(create_quiz_stats)(room)
         await self.send_quiz_ended("Quiz ended! Redirecting...")
         await self.channel_layer.group_send(
             f"student_{self.join_code}",
