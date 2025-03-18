@@ -173,7 +173,7 @@ class Command(BaseCommand):
         ClassroomStudent.objects.create(classroom=classroom, student=john)
 
         classroom_count = ClassroomStudent.objects.filter(classroom=classroom).count()
-        students = list(User.objects.filter(role=User.STUDENT)) 
+        students = list(User.objects.filter(role=User.STUDENT).exclude(email_address="Jane.Doe@example.org")) 
 
         while classroom_count < Command.CLASSROOM_SIZE:
             if students: #check if students in empty
