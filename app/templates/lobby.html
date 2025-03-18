@@ -1,31 +1,68 @@
 <!DOCTYPE html>
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Quiz Lobby{% endblock %}
-{% block content %}
-    <main>
-        <section>
-            <h2>Lobby for {{ room.name }}</h2>
-            <p>Room Code: <strong>{{ join_code }}</strong></p>
-            <img src="{% static 'images/qr_code.png' %}" alt="Room QR Code"  width="200px" height="200px">
-            
-            <h3>Participants:</h3>
-            <ul id="participants-list">
-                {% for participant in participants %}
-                    <li>{{ participant }}</li>
-                {% endfor %}
-            </ul>
-
-            {% if room.quiz %}
-                <form method="POST" action="{% url 'tutor_live_quiz' quiz_id=room.quiz.id join_code=join_code %}">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        {% include 'partials/navbar.html' %}
+        <main>
+            <section>
+                <h2>Lobby for {{ room.name }}</h2>
+                {% if room.classroom %}
+                    {% if in_classroom %}
+                        <p>Room Code: <strong>{{ join_code }}</strong></p>
+                        <img src="{% static 'images/qr_code.png' %}" alt="Room QR Code"  width="200px" height="200px">
+                        
+                        <h3>Participants:</h3>
+                        <ul id="participants-list">
+                            {% for participant in participants %}
+                            <li>{{ participant }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% if room.quiz %}
+                        <form method="POST" action="{% url 'tutor_live_quiz' join_code %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Start Quiz</button>
+                        </form>
+                        {% else %}
+                        <p>No quiz associated with this room.</p>
+                        {% endif %}
+                    {% else %}
+                        <h2>This is a locked room</h2>
+                        <h3>Only students in this classroom can join!</h3>
+                    {% endif %}
+                {% else %}
+                    <p>Room Code: <strong>{{ join_code }}</strong></p>
+                    <img src="{% static 'images/qr_code.png' %}" alt="Room QR Code"  width="200px" height="200px">
+                    
+                    <h3>Participants:</h3>
+                    <ul id="participants-list">
+                        {% for participant in participants %}
+                        <li>{{ participant }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% if room.quiz %}
+                    <form method="POST" action="{% url 'tutor_live_quiz' join_code %}">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-primary">Start Quiz</button>
-                </form>
-            {% else %}
-                <p>No quiz associated with this room.</p>
-            {% endif %}
-        </section>
-    </main>
+                    </form>
+                    {% else %}
+                    <p>No quiz associated with this room.</p>
+                    {% endif %}
+                {% endif %}
+                
+                
+                    
+            </section>
+        </main>
+        {% include 'partials/footer.html' %}
+    </div>
 
 <script>
     var userRole = "{{ request.user.role|default:'guest' }}";

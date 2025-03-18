@@ -23,7 +23,7 @@ from app.views.homepage_view import homepage, about_us
 from app.views.sign_up_view import sign_up_view
 from app.views.login_view import login_view, logout_view
 from app.views.join_quiz_view import join_quiz
-from app.views.lobby_view import lobby, setup_quiz
+from app.views.lobby_view import lobby, setup_quiz, setup_classroom_quiz
 from app.views.dashboard_view import student_dashboard, tutor_dashboard
 from app.views.profile_view import student_profile, tutor_profile
 from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_view, get_question_view, your_quizzes_view, delete_quiz_view
@@ -49,6 +49,7 @@ urlpatterns = [
     path('tutor-profile/', tutor_profile, name='tutor_profile'),
     path('join-quiz/', join_quiz, name='join_quiz'),
     path('setup_quiz/<int:quiz_id>/', setup_quiz, name='setup_quiz'),
+    path('setup-classroom-quiz/<int:classroom_id>/<int:quiz_id>/', setup_classroom_quiz, name='setup_classroom_quiz'),
     path('lobby/<str:join_code>', lobby, name='lobby'),
     #path('live-quiz/<str:join_code>', tutor_live_quiz, name='tutor_live_quiz'),
     path('live-quiz/<int:quiz_id>/<str:join_code>/', tutor_live_quiz, name='tutor_live_quiz'),
