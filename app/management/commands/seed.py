@@ -1,12 +1,13 @@
 from django.core.management.base import BaseCommand
 from faker import Faker
-from random import randint, shuffle
+import random
 from app.models import ( 
     Classroom,
     ClassroomStudent,
     ClassroomInvitation,
     GuestAccess,
     Quiz,
+    Question,
     TrueFalseQuestion,
     IntegerInputQuestion,
     MultipleChoiceQuestion,
@@ -14,6 +15,10 @@ from app.models import (
     Room,
     RoomParticipant,
     User,
+    IntegerInputResponse,
+    TextInputResponse,
+    MultipleChoiceResponse,
+    TrueFalseResponse
 )
 
 """The way this seeder works is it adds TWO admins, TWO tutors, TWO known students and 94 random students.
@@ -54,6 +59,7 @@ class Command(BaseCommand):
         self.generate_classroom()
         self.generate_classroom_invite()
         self.generate_quizzes()
+        self.generate_quiz_responses()
 
     "User generation functions"
 
@@ -139,7 +145,7 @@ class Command(BaseCommand):
         room.quiz = sample_quiz
         room.save()
 
-        integer_answer = randint(1, 10)
+        integer_answer = random.randint(1, 10)
 
         IntegerInputQuestion.objects.create(
             quiz = sample_quiz,
@@ -379,3 +385,50 @@ class Command(BaseCommand):
         )
 
         print(f"Seeded {quiz.name} Quiz with 5 Questions")
+    
+    def generate_quiz_responses(self):
+        self.generate_quiz_1_responses()
+        pass
+
+    def generate_quiz_1_responses(self):
+        students = list(User.objects.filter(role=User.STUDENT))
+        quiz = Quiz.objects.filter(name="Python Basics").first()
+        room = Room.objects.create(name="Python Quiz Room", quiz=quiz)
+        for student in students:
+            self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=1))
+            self.generate_true_false_response(student, room, TrueFalseQuestion.objects.get(quiz=quiz, position=2))
+            self.generate_multiple_choice_response(student, room, MultipleChoiceQuestion.objects.get(quiz=quiz, position=3))
+            self.generate_text_input_response(student, room, TextInputQuestion.objects.get(quiz=quiz, position=4))
+        
+       
+    def generate_integer_input_response(self, user, room, question):
+        IntegerInputResponse.objects.create(
+            player=user,
+            room=room,
+            question=question,
+            answer=random.randint(1, 100)
+        )
+    
+    def generate_text_input_response(self, user, room, question):
+        TextInputResponse.objects.create(
+            player=user,
+            room=room,
+            question=question,
+            answer="Lorem Ipsum"
+        )
+
+    def generate_multiple_choice_response(self, user, room, question):
+        MultipleChoiceResponse.objects.create(
+            player=user,
+            room=room,
+            question=question,
+            answer=random.choice(list(question.options.keys()))
+        )
+    
+    def generate_true_false_response(self, user, room, question):
+        TrueFalseResponse.objects.create(
+            player=user,
+            room=room,
+            question=question,
+            answer=random.choice([True,False])
+        )
