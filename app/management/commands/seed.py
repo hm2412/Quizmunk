@@ -415,7 +415,7 @@ class Command(BaseCommand):
 
     def generate_quiz_3_responses(self):
         students = list(User.objects.filter(role=User.STUDENT))
-        quiz = Quiz.objects.filter(name="Physics Test").first()
+        quiz = Quiz.objects.filter(name="Physics Basics").first()
         room = Room.objects.create(name="Physics Test Room", quiz=quiz)
         for student in students:
             self.generate_multiple_choice_response(student, room, MultipleChoiceQuestion.objects.get(quiz=quiz, position=1))
