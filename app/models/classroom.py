@@ -21,7 +21,7 @@ class ClassroomStudent(models.Model):
     )
 
     class Meta:
-        unique_together = ('classroom', 'student')  # Prevents duplicate invite
+        unique_together = ('classroom', 'student')
 
 class ClassroomInvitation(models.Model):
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
@@ -43,4 +43,4 @@ class ClassroomInvitation(models.Model):
     )
 
     class Meta:
-        unique_together = ('classroom', 'student')  # Prevents duplicate invite
+        unique_together = ('classroom', 'student')

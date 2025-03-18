@@ -1,5 +1,6 @@
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.urls import reverse
+from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from functools import wraps
 from django.utils.decorators import method_decorator
@@ -7,9 +8,10 @@ from django.views.decorators.cache import never_cache
 
 def is_student(view_func):
     @wraps(view_func)
-    @login_required
     def _wrapped_view(request, *args, **kwargs):
-        if request.user.role == 'student':
+        if not request.user.is_authenticated:
+            return redirect("homepage")  # Redirect to homepage instead of login page
+        elif request.user.role == "student":
             return view_func(request, *args, **kwargs)
         else:
             return HttpResponseForbidden("You do not have access to the Student Dashboard.")

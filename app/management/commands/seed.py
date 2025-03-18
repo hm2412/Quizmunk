@@ -145,7 +145,7 @@ class Command(BaseCommand):
         TrueFalseQuestion.objects.create(
             quiz = sample_quiz,
             question_text = f"The answer to this sample question is {str(integer_answer % 2 == 0)}",
-            is_correct = (integer_answer % 2 == 0)
+            correct_answer = (integer_answer % 2 == 0)
         )
 
     "Classroom generating functions"
