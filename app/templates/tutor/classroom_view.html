@@ -33,4 +33,16 @@
         </form>
     </div>
 </div>
+
+<script>
+function closeModal() {
+    window.location.href = "#";
+}
+
+document.addEventListener('htmx:afterRequest', function(evt) {
+    if (evt.detail.successful) {
+        window.location.reload();
+    }
+});
+</script>
 {% endblock %}

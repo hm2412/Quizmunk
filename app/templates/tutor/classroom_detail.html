@@ -74,18 +74,18 @@
         <div id="create-invite-modal" class="modal">
             <div class="modal-content">
                 <h2>Invite to Classroom</h2>
-                {% if messages %}
-                     {% for message in messages %}
-                         {% if message.tags == 'error' %}
-                         <div class="alert alert-error">
-                             {{ message }}
-                         </div>
-                         {% endif %}
-                     {% endfor %}
-                 {% endif %}
-                 <form method="POST" id="inviteForm">
+                <form method="POST" id="inviteForm">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="invite_student">
+                    {% if messages %}
+                        {% for message in messages %}
+                            {% if message.tags == 'error' %}
+                                <div class="alert alert-error">
+                                    {{ message }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
                     <input type="email" name="student_email" id="student_email" placeholder="Email Address" required>
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
                         <a href="#" class="btn cancel">Cancel</a>
@@ -127,31 +127,27 @@
         </div>
 
         <script>
-         
-            {% if messages %}
-                
-                history.replaceState(null, document.title, window.location.pathname + window.location.search);
-                window.location.hash = 'create-invite-modal';
-            {% endif %}
-    
-            document.querySelector('.cancel').addEventListener('click', function(e) {
-                e.preventDefault();
-                window.location.hash = '';
-            });
-    
-            document.getElementById('inviteForm').addEventListener('submit', function(e) {
-                
-            });
-    
-           
-            {% if messages %}
-                {% for message in messages %}
-                    {% if message.tags == 'error' %}
-                        window.location.hash = 'create-modal';
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-    
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'error' %}
+            window.location.hash = 'create-invite-modal';
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+document.querySelector('.cancel').addEventListener('click', function(e) {
+    e.preventDefault();
+    window.location.hash = '';
+});
+
+document.getElementById('inviteForm').addEventListener('submit', function(e) {
+    const email = document.getElementById('student_email').value;
+    if (!email) {
+        e.preventDefault();
+        window.location.hash = 'create-invite-modal';
+    }
+});
+
             function showEditDescription() {
                 document.getElementById('description-text').style.display = 'none';
                 document.querySelector('.edit-btn').style.display = 'none';
