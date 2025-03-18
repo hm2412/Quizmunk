@@ -18,28 +18,10 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'quizsite.settings')
 #application = get_asgi_application()
 
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
-        URLRouter(websocket_urlpatterns)
-    ),
+    'http':get_asgi_application(),
+    'websocket':AuthMiddlewareStack(
+        URLRouter(
+            websocket_urlpatterns
+        )
+    )
 })
-
-
-
-
-
-
-# HTTP + WebSocket handling
-#application = ProtocolTypeRouter({
-#    "http": get_asgi_application(),  
-#
-#    "websocket": AuthMiddlewareStack(
-#        URLRouter([
-#            # Student WebSocket route
-#            path("ws/student/<str:room_code>/", StudentQuizConsumer.as_asgi()),
-#
-#            # Tutor WebSocket route
-#            path("ws/tutor/<str:room_code>/", TutorQuizConsumer.as_asgi()),
-#        ])
-#    ),
-#})

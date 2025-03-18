@@ -81,7 +81,7 @@ class ViewTests(ChannelsLiveServerTestCase):
         #Test if WebSocket connection works for StudentQuizConsumer.
         communicator = WebsocketCommunicator(
             StudentQuizConsumer.as_asgi(),
-            f"ws/student/{self.test_room.join_code}/"
+            f"ws/live-quiz/{self.test_room.join_code}/"
         )
         connected, _ = await communicator.connect()
         self.assertTrue(connected)  # Ensure connection is successful
