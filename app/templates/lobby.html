@@ -6,7 +6,6 @@
     <main>
         <section>
             <h2>Lobby for {{ room.name }}</h2>
-            <p>Room Code: <strong>{{ join_code }}</strong></p>
             {% if room.classroom %}
                      {% if in_classroom %}
                          <p>Room Code: <strong>{{ join_code }}</strong></p>
@@ -19,7 +18,7 @@
                              {% endfor %}
                          </ul>
                          {% if room.quiz %}
-                         <form method="POST" action="{% url 'tutor_live_quiz' join_code %}">
+                         <form method="POST" action="{% url 'tutor_live_quiz' quiz_id=room.quiz.id join_code=join_code %}">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-primary">Start Quiz</button>
                         </form>
