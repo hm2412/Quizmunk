@@ -135,8 +135,9 @@
           startBtn.style.display = "none";
           endQuestionBtn.style.display = "none";
           nextQuestionBtn.style.display = "none";
+          ws.close();
           setTimeout(() => {
-            window.location.href = "/dashboard/"; // Change to valid URL
+            window.location.href = "/tutor-dashboard/"; 
           }, 2000);
         }
         else if (data.action === "update_participants") {

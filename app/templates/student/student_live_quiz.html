@@ -128,8 +128,9 @@
         else if(data.type === "quiz_ended") {
           $(".answer-box, input, textarea, .submit-answer-btn").prop("disabled", true);
           alert(data.message);
+          ws.close();
           setTimeout(() => {
-            window.location.href = "/dashboard/"; // Adjust as needed.
+            window.location.href = "/student-dashboard/"; 
           }, 2000);
         }
       };

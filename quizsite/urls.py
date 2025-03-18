@@ -68,7 +68,7 @@ urlpatterns = [
     path("tutor-stats/", stats_view, name='stats'),
     path("tutor-stats/<int:stats_id>/", stats_details, name='stats_details'),
     path("tutor-stats/<int:stats_id>/download/", csv_download, name='stats_download'),
-    path('player-responses/<int:room_id>/int:player_id/', player_responses, name='player_responses'),
+    path('player-responses/<int:room_id>/<int:player_id>/', player_responses, name='player_responses'),
     path('classroom/<int:classroom_id>/stats/', classroom_stats_view, name='classroom_stats_view'),path('student/<int:student_id>/stats/', student_stats, name='student_stats')
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

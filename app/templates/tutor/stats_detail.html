@@ -10,7 +10,7 @@
     {% include 'partials/tutor_navbar.html' %}
     {% block content %}
 
-    <h2>Quiz Statistics: {{ stats.quiz.title }}</h2>
+    <h2>Quiz Statistics: {{ stats.quiz.name }}</h2>
     <p><strong>Date Played:</strong> {{ stats.date_played|date:"Y-m-d H:i" }}</p>
     <p><strong>Participants:</strong> {{ stats.num_participants }}</p>
     <p><strong>Mean Score:</strong> {{ stats.mean_score|floatformat:2 }}</p>

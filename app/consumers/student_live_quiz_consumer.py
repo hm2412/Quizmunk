@@ -90,3 +90,10 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
             "type": "leaderboard_update",
             "leaderboard": event.get("leaderboard")
         }))
+    
+
+    async def quiz_ended(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "quiz_ended",
+            "message": event.get("message")
+        }))
