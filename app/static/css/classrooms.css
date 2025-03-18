@@ -153,15 +153,98 @@ input {
     justify-content: center;
 }
 
-#create-modal:not(:target) {
+#create-invite-modal:not(:target) {
     display: none;
 }
+
+#create-quiz-modal:not(:target) {
+    display: none;
+}
+
 .modal-content {
     background: white;
     padding: 20px;
     border-radius: 8px;
     width: 90%;
     max-width: 400px;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.messages {
+    margin-bottom: 15px;
+}
+
+.pending-invites {
+    margin-top: 30px;
+    padding: 20px;
+}
+
+.pending-invites ul {
+    list-style: none;
+    padding: 0;
+}
+
+.pending-invites li {
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.description-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 20px;
+}
+
+#edit-description-form textarea {
+    width: 100%;
+    min-height: 100px;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.edit-btn {
+    background: #6c757d;
+    color: white;
+}
+
+.save {
+    background: #28a745;
+    color: white;
+}
+
+.remove-btn {
+    background: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.remove-btn:hover {
+    background: #c82333;
 }
 
 .decline-btn {
@@ -202,4 +285,9 @@ h3{
     display: flex;
     align-items: center; 
     gap: 10px; 
+}
+
+.join-btn {
+    background:rgb(38, 155, 57);
+    color: white;
 }

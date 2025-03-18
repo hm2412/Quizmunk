@@ -17,6 +17,9 @@
 
             <div class="classroom-actions">
                 <a href="{% url 'student_classroom_view' %}" class="btn back-btn">← Back</a>
+                {% if room %}
+                        <a href="{% url 'lobby' room.join_code %}" class="btn join-btn">Join Quiz</a>
+                {% endif %}
             </div>
         </section>
     </main>

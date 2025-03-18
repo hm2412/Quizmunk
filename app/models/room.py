@@ -3,6 +3,7 @@ from django.forms import ValidationError
 from app.models.user import User
 from app.models.guest import GuestAccess
 from app.models.quiz import Quiz
+from app.models.classroom import Classroom
 import random
 import string
 
@@ -28,6 +29,15 @@ class Room(models.Model):
     )
     join_code = models.CharField(max_length=8, unique=True, editable=False, default=generate_join_code)
 
+    classroom = models.ForeignKey(
+         Classroom,
+         related_name="locked_rooms",
+         on_delete=models.CASCADE,
+         null=True,
+         blank=True,
+         help_text="The Classroom associated with this room"
+     )
+    
     def __str__(self):
         return f"Room: {self.name} (Code: {self.join_code})"
 
