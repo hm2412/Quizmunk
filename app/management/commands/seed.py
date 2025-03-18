@@ -389,7 +389,7 @@ class Command(BaseCommand):
     def generate_quiz_responses(self):
         self.generate_quiz_1_responses()
         self.generate_quiz_2_responses()
-        pass
+        self.generate_quiz_3_responses()
 
     def generate_quiz_1_responses(self):
         students = list(User.objects.filter(role=User.STUDENT))
@@ -413,6 +413,17 @@ class Command(BaseCommand):
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=5))
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=6))
 
+    def generate_quiz_3_responses(self):
+        students = list(User.objects.filter(role=User.STUDENT))
+        quiz = Quiz.objects.filter(name="Physics Test").first()
+        room = Room.objects.create(name="Physics Test Room", quiz=quiz)
+        for student in students:
+            self.generate_multiple_choice_response(student, room, MultipleChoiceQuestion.objects.get(quiz=quiz, position=1))
+            self.generate_true_false_response(student, room, TrueFalseQuestion.objects.get(quiz=quiz, position=2))
+            self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=3))
+            self.generate_multiple_choice_response(student, room, MultipleChoiceQuestion.objects.get(quiz=quiz, position=4))
+            self.generate_text_input_response(student, room, TextInputQuestion.objects.get(quiz=quiz, position=5))
+     
     def generate_integer_input_response(self, user, room, question):
         IntegerInputResponse.objects.create(
             player=user,
