@@ -17,7 +17,8 @@ a:hover {
   margin: -20px 0 0 -20px;
   pointer-events: none;
   mix-blend-mode: multiply;
-  z-index: 10;
+  position: absolute;
+  z-index: 99999;
   transition: all 0.1s ease;  /* Smooth transition for the shadow effect */
 }
 

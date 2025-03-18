@@ -3,7 +3,7 @@
 {% load static %}
 {% block title %}Student Dashboard{% endblock %}
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 {% block content %}
     <div class="dashboard-container">
@@ -24,12 +24,12 @@
             <div class="dashboard-top">
                 <div class="dashboard-info">
                     <h2>Your Dashboard</h2>
-                    <p>Access your quizzes, view results, and track progress here.</p>
+                    <p class="description">Access your quizzes, view results, and track progress here.</p>
                 </div>
             </div>
 
             <section class="quiz-section">
-                <h3>Available Quizzes</h3>
+                <h2>Available Quizzes</h2>
                 <div class="quiz-list">
                     {% for quiz in available_quizzes %}
                         {% include 'partials/quiz_card.html' with quiz_img=quiz.quiz_img quiz_title=quiz.quiz_title quiz_description=quiz.quiz_description %}
@@ -40,7 +40,7 @@
             </section>
 
             <section class="results-section">
-                <h3>Your Results</h3>
+                <h2>Your Results</h2>
                 <div class="results-list">
                     {% for result in student_results %}
                         <div class="result-card">

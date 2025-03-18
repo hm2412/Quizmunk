@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 {% extends "base.html" %}
 {% load static %}
+{% block title %}About Us{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/about.css' %}">{% endblock %}
 {% block content %}
     <div class="about">
         <div class="box top-left-box" style="grid-column: span 1; grid-row: span 1;">
