@@ -140,7 +140,9 @@ def tutor_classroom_detail_view(request, classroom_id):
                     classroom=classroom, 
                     student=user, 
                     status="pending"
-                ).exists():
+                ).exists()
+
+                if existing_invites:
                     messages.error(request, 'You have already invited this student')
                     return redirect('tutor_classroom_detail', classroom_id=classroom.id)
                 

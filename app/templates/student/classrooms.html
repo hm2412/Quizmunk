@@ -1,11 +1,13 @@
 <!DOCTYPE html>
+{% extends "base.html" %}
 {% load static %}
 <html lang="en">
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Classrooms</title>
+    {% block title %}My Classrooms{% endblock %}
+    {% block extra_css %}<link rel="stylesheet" href="{% static 'css/classrooms.css' %}">{% endblock %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
         .classroom-grid {
@@ -179,27 +181,22 @@
             <div class="invites">
                 <h1>Pending Invitations ({{invites|length}})</h1>
 
-                    {% for invite in invites %}
-                        <div class="invite-row">
-                            <p>{{ invite.classroom_name }} by {{invite.tutor_name}}</p>
-                                <form method="POST" action="{% url 'accept_classroom_invite' invite.id %}" style="display: inline;">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="action" value="accept">
-                                    <button type="submit" class="btn">Accept</button>
-                                </form>
-                            <a href="">
-                                <form method="POST" action="{% url 'decline_classroom_invite' invite.id %}" style="display: inline;">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="action" value="decline">
-                                    <button type="submit" class="btn decline-btn">Decline</button>
-                                </form>
-                            </a>
-                        </div>
-                    {% endfor %}
-            </div>
-        </div>
-        {% include 'partials/footer.html' %}
+            {% for invite in invites %}
+                <div class="invite-row">
+                    <p>{{ invite.classroom_name }} by {{invite.tutor_name}}</p>
+                        <form method="POST" action="{% url 'accept_classroom_invite' invite.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="accept">
+                            <button type="submit" class="btn">Accept</button>
+                        </form>
+                    <a href="">
+                        <form method="POST" action="{% url 'decline_classroom_invite' invite.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="decline">
+                            <button type="submit" class="btn decline-btn">Decline</button>
+                        </form>
+                    </a>
+                </div>
+            {% endfor %}
     </div>
-</body>
-</html>
-    
+{% endblock %}

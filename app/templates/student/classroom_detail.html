@@ -1,10 +1,12 @@
 <!DOCTYPE html>
+{% extends "base.html" %}
 {% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ classroom.name }}</title>
+    {% block extra_css %}<link rel="stylesheet" href="{% static 'css/classrooms.css' %}">{% endblock %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
         .classroom-details {
@@ -120,12 +122,12 @@
             <h1>{{ classroom.name }}</h1>
         </div>
 
-        <main>
-            <section class="classroom-details">
-                <div class="description-card">
-                    <h2>{{ classroom.name }}</h2>
-                    <p>{{ classroom.description }}</p>
-                </div>
+    <main>
+        <section class="classroom-details">
+            <div class="description-card">
+                <h2>{{ classroom.name }}</h2>
+                <p>{{ classroom.description }}</p>
+            </div>
 
                 <div class="classroom-actions">
                     <a href="{% url 'student_classroom_view' %}" class="btn back-btn">← Back</a>

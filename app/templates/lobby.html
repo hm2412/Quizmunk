@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% extends "base.html" %}
 {% load static %}
 <html lang="en">
 <head>
@@ -63,41 +64,38 @@
         {% include 'partials/footer.html' %}
     </div>
 
-    <script>
-        var userRole = "{{ request.user.role|default:'guest' }}";
-        console.log("User role:", userRole);
-    </script>    
+<script>
+    var userRole = "{{ request.user.role|default:'guest' }}";
+    console.log("User role:", userRole);
 
-    <script>
-        const ws = new WebSocket(`ws://${window.location.host}/ws/lobby/{{ join_code }}/`);
+    const ws = new WebSocket(`ws://${window.location.host}/ws/lobby/{{ join_code }}/`);
 
 
-        ws.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            if (data.action && data.action == "quiz_started"){
-                if(userRole == "tutor"){
-                    window.location.href = data.tutor_quiz_url;
-                }else{
-                    window.location.href = data.student_quiz_url;
-                }
-            }else if (data.participents) {
-                const participantsList = document.getElementById("participants-list");
-                participantsList.innerHTML = "";
-                data.participants.forEach(participant => {
-                    const li = document.createElement("li");
-                    li.textContent = participant;
-                    participantsList.appendChild(li);
-                });
+    ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        if (data.action && data.action == "quiz_started"){
+            if(userRole == "tutor"){
+                window.location.href = data.tutor_quiz_url;
+            }else{
+                window.location.href = data.student_quiz_url;
             }
-        };
+        }else if (data.participents) {
+            const participantsList = document.getElementById("participants-list");
+            participantsList.innerHTML = "";
+            data.participants.forEach(participant => {
+                const li = document.createElement("li");
+                li.textContent = participant;
+                participantsList.appendChild(li);
+            });
+        }
+    };
 
-        ws.onopen = function() {
-            console.log("WebSocket connected!");
-        };
+    ws.onopen = function() {
+        console.log("WebSocket connected!");
+    };
 
-        ws.onerror = function(error) {
-            console.error("WebSocket Error:", error);
-        };
-    </script>
-</body>
-</html>
+    ws.onerror = function(error) {
+        console.error("WebSocket Error:", error);
+    };
+</script>
+{% endblock %}
