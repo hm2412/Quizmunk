@@ -1,4 +1,4 @@
-from .classroom import Classroom, ClassroomStudent
+from .classroom import Classroom, ClassroomStudent, ClassroomInvitation
 from .guest import GuestAccess
 from .quiz import *
 from .room import Room, RoomParticipant

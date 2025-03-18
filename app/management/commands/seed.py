@@ -4,10 +4,13 @@ from random import randint, shuffle
 from app.models import ( 
     Classroom,
     ClassroomStudent,
+    ClassroomInvitation,
     GuestAccess,
     Quiz,
     TrueFalseQuestion,
     IntegerInputQuestion,
+    MultipleChoiceQuestion,
+    TextInputQuestion,
     Room,
     RoomParticipant,
     User,
@@ -49,6 +52,8 @@ class Command(BaseCommand):
         self.generate_users()
         self.generate_rooms()
         self.generate_classroom()
+        self.generate_classroom_invite()
+        self.generate_quizzes()
 
     "User generation functions"
 
@@ -139,16 +144,20 @@ class Command(BaseCommand):
         IntegerInputQuestion.objects.create(
             quiz = sample_quiz,
             question_text = f"The answer to this sample question is {integer_answer}",
-            correct_answer = integer_answer
+            correct_answer = integer_answer,
+            time = 60,
+            mark = 1
         )
 
         TrueFalseQuestion.objects.create(
             quiz = sample_quiz,
             question_text = f"The answer to this sample question is {str(integer_answer % 2 == 0)}",
-            correct_answer = (integer_answer % 2 == 0)
+            correct_answer = (integer_answer % 2 == 0),
+            time = 60,
+            mark = 1
         )
 
-    "Classroom generating functions"
+    """Classroom generating functions"""
 
     def generate_classroom(self):
         bob = User.objects.filter(email_address = "Bob.Tutor@example.org").first()
@@ -161,16 +170,212 @@ class Command(BaseCommand):
         )
         print(f"Created {classroom.name}", end = '\r')
 
-        ClassroomStudent.objects.create(classroom = classroom, student = john)
+        ClassroomStudent.objects.create(classroom=classroom, student=john)
 
-        classroom_count = ClassroomStudent.objects.filter(classroom = Classroom.objects.filter(name = "Bob's Classroom").first()).count()
-        students = list(User.objects.exclude(role = User.TUTOR, is_staff = True))
+        classroom_count = ClassroomStudent.objects.filter(classroom=classroom).count()
+        students = list(User.objects.filter(role=User.STUDENT)) 
 
         while classroom_count < Command.CLASSROOM_SIZE:
-            student = students.pop()
-            ClassroomStudent.objects.create(classroom = classroom, student = student)
-            print(f"Added {student.email_address} to {classroom.name}", end = "\r")
-            classroom_count = ClassroomStudent.objects.filter(classroom = Classroom.objects.filter(name = "Bob's Classroom").first()).count()
+            if students: #check if students in empty
+                student = students.pop()
+
+                if not ClassroomStudent.objects.filter(classroom=classroom, student=student).exists():    
+                    ClassroomStudent.objects.create(classroom = classroom, student = student)
+                    print(f"Added {student.email_address} to {classroom.name}")
+                    classroom_count += 1
+            else:
+                print("Students are less than required!")
+                break
 
         #There's a bug here where it will type "Classroom seeding complete.org to Bob's Classroomsroom" without all those spaces
-        print("Classroom seeding complete                                     ")
+        print("Classroom seeding complete")
+    
+    def generate_classroom_invite(self):
+        bob = User.objects.filter(email_address="Bob.Tutor@example.org").first()
+        jane = User.objects.filter(email_address="Jane.Doe@example.org").first()
+        classroom = Classroom.objects.filter(tutor=bob).first() 
+
+        ClassroomInvitation.objects.create(classroom=classroom, student=jane, status="pending")
+        print(f"Inivtation created for {jane.email_address} to {bob.first_name}'s Classroom")
+    
+    def generate_quizzes(self):
+        bob = User.objects.filter(email_address="Bob.Tutor@example.org").first()
+        
+        self.generate_quiz_1(bob)
+
+        
+        self.generate_quiz_2(bob)
+
+        
+        self.generate_quiz_3(bob)
+
+    def generate_quiz_1(self, tutor):
+        quiz = Quiz.objects.create(
+            name="Python Basics",
+            subject="Example Quiz",
+            difficulty="E",
+            type="L",
+            tutor=tutor
+        )
+        IntegerInputQuestion.objects.create(
+            question_text="What is the output of `print(2 + 3 * 4)` in Python?",
+            position=1,
+            time=30,
+            quiz=quiz,
+            mark=1,
+            correct_answer=14
+        )
+
+        TrueFalseQuestion.objects.create(
+            question_text="Python is a low level programming language.",
+            position=2,
+            time=30,
+            quiz=quiz,
+            mark=1,
+            correct_answer=False
+        )
+
+        MultipleChoiceQuestion.objects.create(
+            question_text="Which of the following is used to take user input in Python?",
+            position=3,
+            time=30,
+            quiz=quiz,
+            mark=1,
+            options={"A": "input()", "B": "scan()", "C": "get()", "D": "readline()"},
+            correct_answer="A"
+        )
+
+        TextInputQuestion.objects.create(
+            question_text="What keyword is used to define a class in Python?",
+            position=4,
+            time=30,
+            quiz=quiz,
+            mark=1,
+            correct_answer="class"
+        )
+
+        print(f"Seeded {quiz.name} Quiz with 4 Questions")
+
+
+    def generate_quiz_2(self, tutor):
+        quiz = Quiz.objects.create(
+            name="Arithmetic Test",
+            subject="Example Quiz",
+            difficulty="E",
+            type="L",
+            tutor=tutor
+        )
+        IntegerInputQuestion.objects.create(
+            question_text="What is 1 + 1?",
+            position=1,
+            time=15,
+            quiz=quiz,
+            mark=1,
+            correct_answer=2
+        )
+
+        IntegerInputQuestion.objects.create(
+            question_text="What is 8 + 5?",
+            position=2,
+            time=15,
+            quiz=quiz,
+            mark=1,
+            correct_answer=13
+        )
+
+        IntegerInputQuestion.objects.create(
+            question_text="What is 12 - 4?",
+            position=3,
+            time=15,
+            quiz=quiz,
+            mark=1,
+            correct_answer=8
+        )
+
+        IntegerInputQuestion.objects.create(
+            question_text="What is the square of 6?",
+            position=4,
+            time=15,
+            quiz=quiz,
+            mark=2,
+            correct_answer=36
+        )
+
+        IntegerInputQuestion.objects.create(
+            question_text="What is 9 x 3?",
+            position=5,
+            time=15,
+            quiz=quiz,
+            mark=1,
+            correct_answer=27
+        )
+
+        IntegerInputQuestion.objects.create(
+            question_text="What is 18 ÷ 2?",
+            position=6,
+            time=15,
+            quiz=quiz,
+            mark=1,
+            correct_answer=9
+        )
+
+        print(f"Seeded {quiz.name} Quiz with 6 Questions")
+
+    def generate_quiz_3(self, tutor):
+        quiz = Quiz.objects.create(
+            name="Physics Basics",
+            subject="Example Quiz",
+            difficulty="E",
+            type="L",
+            tutor=tutor
+        )
+
+        MultipleChoiceQuestion.objects.create(
+            question_text="What is the unit of force?",
+            position=1,
+            time=15,
+            quiz=quiz,
+            mark=1,
+            options={"A": "Newton", "B": "Joule", "C": "Watt", "D": "Pascal"},
+            correct_answer="A"
+        )
+
+        TrueFalseQuestion.objects.create(
+            question_text="Sound can travel through a vacuum.",
+            position=2,
+            time=10,
+            quiz=quiz,
+            mark=1,
+            correct_answer=False
+        )
+
+        IntegerInputQuestion.objects.create(
+            question_text="What is the acceleration due to gravity on Earth (in m/s²)?",
+            position=3,
+            time=15,
+            quiz=quiz,
+            mark=2,
+            correct_answer=9.8
+        )
+
+        
+        MultipleChoiceQuestion.objects.create(
+            question_text="Which of these is a form of potential energy?",
+            position=4,
+            time=15,
+            quiz=quiz,
+            mark=1,
+            options={"A": "Kinetic Energy", "B": "Thermal Energy", "C": "Gravitational Energy", "D": "Light Energy"},
+            correct_answer="C"
+        )
+
+        TextInputQuestion.objects.create(
+            question_text="Which electrical quantity is measured in amps?",
+            position=5,
+            time=15,
+            quiz=quiz,
+            mark=1,
+            correct_answer = "current"
+        )
+
+        print(f"Seeded {quiz.name} Quiz with 5 Questions")
