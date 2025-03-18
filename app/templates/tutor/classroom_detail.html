@@ -1,110 +1,9 @@
 <!DOCTYPE html>
+{% extends "base.html" %}
 {% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ classroom.name }}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <style>
-        .classroom-details {
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .description-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .description-card h2 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.5em;
-        }
-
-        .description-card p {
-            color: #666;
-            line-height: 1.6;
-        }
-
-        .classroom-actions {
-            margin-top: 30px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-
-        .back-btn {
-            background: #398AA2;
-            color: white;
-        }
-
-        .delete-btn {
-            background: #dc3545;
-            color: white;
-        }
-
-        .back-btn:hover {
-            background: #2d6f82;
-            transform: translateY(-2px);
-        }
-
-        .delete-btn:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
-
-        .assign-btn{
-            background:rgb(68, 156, 104);
-            color: white;
-        }
-
-        .assign-btn:hover {
-            background:rgb(57, 129, 87);
-            transform: translateY(-2px);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #create-modal:not(:target) {
-            display: none;
-        }
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 400px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        {% include 'partials/tutor_navbar.html' %}
-
+{% block title %}{{ classroom.name }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/classrooms.css' %}">{% endblock %}
+{% block content %}
         <div class="dashboard-header">
             <h1>{{ classroom.name }}</h1>
         </div>
@@ -151,7 +50,4 @@
                 </form>
             </div>
         </div>
-        {% include 'partials/footer.html' %}
-    </div>
-</body>
-</html> 
+{% endblock %}

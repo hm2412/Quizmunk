@@ -68,7 +68,7 @@ def tutor_classroom_view(request):
                 tutor=request.user
             )
             new_classroom.save()
-            return redirect('classroom_view')
+            return redirect('tutor_classroom_view')
     
     return render(request, 'tutor/classroom_view.html', {'classrooms': classrooms})
 

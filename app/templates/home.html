@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% extends "base.html" %}
 {% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
 {% block content %}
     <div class="home-box">
         <h1>Welcome to <span class="highlight">QuizMunk</span></h1>
@@ -9,7 +10,7 @@
             insert cool slogan
         </p>
         <div class="button-group">
-            <a href="{% url 'login' %}" class="inverse-btn">Login / Sign Up</a>
+            <a href="{% url 'login' %}" class="inverse-btn">Login</a>
             <a href="{% url 'join_quiz' %}" class="inverse-btn">Join Room as Guest</a>
         </div>
     </div>
