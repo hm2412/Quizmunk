@@ -1,4 +1,5 @@
 import json
+import asyncio
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async, aclose_old_connections
 from app.models import Room, RoomParticipant, QuizState
@@ -51,6 +52,24 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_participants(self, room):
         return list(room.participants.exclude(user__role__iexact="tutor").values_list('user__email_address', flat=True))
+        
+    @database_sync_to_async
+    def get_question_stats(self, question, room):
+        from app.models.stats import QuestionStats
+        question_stats = QuestionStats.objects.filter(room=room, question_id=question.id).first()
+
+        if question_stats:
+            return {
+                "question_id": question.id,
+                "responses_received": question_stats.responses_received,
+                "correct_responses": question_stats.correct_responses,
+            }
+        else:
+            return {
+                "question_id": question.id,
+                "responses_received": 0,
+                "correct_responses": 0,
+            }
     
 
     async def connect(self):
@@ -102,10 +121,19 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
     async def handle_end_question(self):
         room = await self.get_room(self.join_code)
         question = await self.get_current_question(room)
+        
         if question:
-            question_data = await self.get_question_data(question, room, reveal_answer=True)
-            await self.send_question_update(question_data)
-            await self.send_student_question(question_data)
+            question_stats = await self.get_question_stats(question, room)
+            await self.channel_layer.group_send(
+                f"student_{self.join_code}",
+                {
+                    "type": "question_stats",
+                    "message": question_stats
+                }
+            )
+            await asyncio.sleep(5)
+
+            await self.handle_next_question()
         else:
             await self.send(text_data=json.dumps({"error": "No question to end"}))
     

@@ -24,6 +24,13 @@
     <div class="answer-container d-flex flex-wrap justify-content-center gap-3 mt-3">
       <!-- Answer options or input will be injected here -->
     </div>
+
+    <div id="stats-popup" class="stats-popup">
+      <h3>Question Stats</h3>
+      <p><strong>Total Responses:</strong> <span id="responses-received">0</span></p>
+      <p><strong>Correct Answers:</strong> <span id="correct-responses">0</span></p>
+    </div>
+
   </div>
   <div class="container-fluid p-0">
     {% include 'partials/footer.html' %}
@@ -78,6 +85,12 @@
             $(".answer-box, input, textarea").prop("disabled", false);
           }
         }
+
+        else if (data.type === "question_stats") {
+          // Function to show the stats
+          showStatsPopup(data);
+      }
+
         else if(data.type === "answer_received") {
           // Optionally, highlight the selected answer if needed.
           $(".answer-box").removeClass("btn-success");
@@ -143,6 +156,17 @@
         $(".answer-box, input, textarea").prop("disabled", true);
       });
     });
+
+    function showStatsPopup(stats) {
+      // Function to ensure stats pop up for a moment before moving onto next question
+      $("#responses-received").text(stats.responses_received);
+      $("#correct-responses").text(stats.correct_responses);
+
+      $("#stats-popup").fadeIn();
+      setTimeout(() => {
+          $("#stats-popup").fadeOut();
+      }, 5000);
+    }
   </script>
 </body>
 </html>
