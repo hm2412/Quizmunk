@@ -1,3 +1,4 @@
+from itertools import chain
 from app.models import (
     Quiz, Response, RoomParticipant,
     IntegerInputQuestion, 
@@ -7,6 +8,12 @@ from app.models import (
     DecimalInputQuestion,
     NumericalRangeQuestion,
     NumericalRangeResponse,
+    TrueFalseResponse,
+    IntegerInputResponse,
+    TextInputResponse,
+    DecimalInputResponse,
+    MultipleChoiceResponse,
+    SortingResponse,
 )
 
 
