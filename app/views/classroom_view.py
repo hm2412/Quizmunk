@@ -71,6 +71,7 @@ def tutor_classroom_view(request):
                 tutor=request.user
             )
             new_classroom.save()
+            messages.success(request, f'Classroom "{name}" created successfully!')
             return redirect('tutor_classroom_view')
     
     return render(request, 'tutor/classroom_view.html', {'classrooms': classrooms})
@@ -88,7 +89,11 @@ def tutor_classroom_detail_view(request, classroom_id):
     
     if request.method == 'POST':
         action = request.POST.get('action', '')
-        
+
+        if action == 'delete_classroom':
+            classroom.delete()
+            return redirect('tutor_classroom_view')
+
         if action == 'remove_student':
             student_id = request.POST.get('student_id')
             try:
@@ -97,6 +102,12 @@ def tutor_classroom_detail_view(request, classroom_id):
                     student_id=student_id
                 )
                 student_enrollment.delete()
+                
+                ClassroomInvitation.objects.filter(
+                    classroom=classroom,
+                    student_id=student_id
+                ).delete() 
+
                 return redirect('tutor_classroom_detail', classroom_id=classroom.id)
             except ClassroomStudent.DoesNotExist:
                 pass
@@ -108,8 +119,7 @@ def tutor_classroom_detail_view(request, classroom_id):
                 classroom.save()
             return redirect('tutor_classroom_detail', classroom_id=classroom.id)
             
-        else:
-            # Existing invite student logic
+        elif action == 'invite_student':
             student_email = request.POST.get("student_email", "").strip()
             if not student_email:
                 messages.error(request, 'Please enter an email address')
@@ -126,7 +136,7 @@ def tutor_classroom_detail_view(request, classroom_id):
                     messages.error(request, 'This student is already in your classroom')
                     return redirect('tutor_classroom_detail', classroom_id=classroom.id)
                 
-                if ClassroomInvitation.objects.filter(
+                existing_invites = ClassroomInvitation.objects.filter(
                     classroom=classroom, 
                     student=user, 
                     status="pending"
@@ -135,11 +145,43 @@ def tutor_classroom_detail_view(request, classroom_id):
                     return redirect('tutor_classroom_detail', classroom_id=classroom.id)
                 
                 ClassroomInvitation.objects.create(classroom=classroom, student=user)
+                messages.success(request, f'Invitation sent to {user.first_name} {user.last_name}')
                 return redirect('tutor_classroom_detail', classroom_id=classroom.id)
                 
             except User.DoesNotExist:
                 messages.error(request, 'No account exists with this email')
                 return redirect('tutor_classroom_detail', classroom_id=classroom.id)
+        else:
+           
+            student_email = request.POST.get("student_email", "").strip()
+            if student_email:
+               
+                try:
+                    user = User.objects.get(email_address=student_email)
+
+                    if user.role != User.STUDENT:
+                        messages.error(request, 'This email belongs to a tutor account')
+                        return redirect('tutor_classroom_detail', classroom_id=classroom.id)
+                    
+                    if ClassroomStudent.objects.filter(classroom=classroom, student=user).exists():
+                        messages.error(request, 'This student is already in your classroom')
+                        return redirect('tutor_classroom_detail', classroom_id=classroom.id)
+                    
+                    existing_invites = ClassroomInvitation.objects.filter(
+                        classroom=classroom, 
+                        student=user
+                    )
+                    if existing_invites.exists():
+                        messages.error(request, 'This student has an existing invitation to this classroom')
+                        return redirect('tutor_classroom_detail', classroom_id=classroom.id)
+
+                    ClassroomInvitation.objects.create(classroom=classroom, student=user)
+                    messages.success(request, f'Invitation sent to {user.first_name} {user.last_name}')
+                    return redirect('tutor_classroom_detail', classroom_id=classroom.id)
+                    
+                except User.DoesNotExist:
+                    messages.error(request, 'No account exists with this email')
+                    return redirect('tutor_classroom_detail', classroom_id=classroom.id)
     
     return render(request, 'tutor/classroom_detail.html', {
         'classroom': classroom,

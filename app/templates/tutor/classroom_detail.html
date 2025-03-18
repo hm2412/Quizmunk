@@ -216,10 +216,11 @@
 
                 <div class="classroom-actions">
                     <a href="{% url 'tutor_classroom_view' %}" class="btn back-btn">← Back</a>
-                    <!-- <form method="POST" onsubmit="return confirm('Delete this classroom?');" style="display: inline;">
+                    <form method="POST" onsubmit="return confirm('Are you sure you want to delete this classroom? This action cannot be undone.');">
                         {% csrf_token %}
-                        <button type="submit" class="btn delete-btn">Delete</button>
-                    </form> -->
+                        <input type="hidden" name="action" value="delete_classroom">
+                        <button type="submit" class="btn delete-btn">Delete Classroom</button>
+                    </form>
                 </div>
             </section>
             <section class="classroom-students">
@@ -268,6 +269,7 @@
                 {% endif %}
                 <form method="POST" id="inviteForm">
                     {% csrf_token %}
+                    <input type="hidden" name="action" value="invite_student">
                     <input type="email" name="student_email" id="student_email" placeholder="Email Address" required>
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
                         <a href="#" class="btn cancel">Cancel</a>
@@ -311,7 +313,10 @@
     </div>
 
     <script>
+        
         {% if messages %}
+            
+            history.replaceState(null, document.title, window.location.pathname + window.location.search);
             window.location.hash = 'create-invite-modal';
         {% endif %}
 
@@ -321,8 +326,17 @@
         });
 
         document.getElementById('inviteForm').addEventListener('submit', function(e) {
-            const email = document.getElementById('student_email').value;
+            
         });
+
+       
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'error' %}
+                    window.location.hash = 'create-modal';
+                {% endif %}
+            {% endfor %}
+        {% endif %}
 
         function showEditDescription() {
             document.getElementById('description-text').style.display = 'none';
@@ -337,4 +351,4 @@
         }
     </script>
 </body>
-</html> 
+</html>
