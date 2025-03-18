@@ -78,7 +78,7 @@ class Command(BaseCommand):
         print("Tutor fixtures seeded")
 
     def create_admin_fixtures(self):
-        for data in user_fixtures:
+        for data in admin_fixtures:
             try:
                 if not User.objects.filter(email_address = data['email']).exists():
                     User.objects.create_superuser(data['email'], data['first_name'], data['last_name'], Command.PASSWORD)
