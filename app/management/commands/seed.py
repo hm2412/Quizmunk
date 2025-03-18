@@ -196,7 +196,7 @@ class Command(BaseCommand):
         classroom = Classroom.objects.filter(tutor=bob).first() 
 
         ClassroomInvitation.objects.create(classroom=classroom, student=jane, status="pending")
-        print(f"Inivtation created for {jane.email_address} to {bob.first_name}'s Classroom")
+        print(f"Invitation created for {jane.email_address} to {bob.first_name}'s Classroom")
     
     def generate_quizzes(self):
         bob = User.objects.filter(email_address="Bob.Tutor@example.org").first()
