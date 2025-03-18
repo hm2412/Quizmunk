@@ -19,10 +19,11 @@
 
                 <div class="classroom-actions">
                     <a href="{% url 'tutor_classroom_view' %}" class="btn back-btn">← Back</a>
-                    <!-- <form method="POST" onsubmit="return confirm('Delete this classroom?');" style="display: inline;">
+                    <form method="POST" onsubmit="return confirm('Are you sure you want to delete this classroom? This action cannot be undone.');">
                         {% csrf_token %}
-                        <button type="submit" class="btn delete-btn">Delete</button>
-                    </form> -->
+                        <input type="hidden" name="action" value="delete_classroom">
+                        <button type="submit" class="btn delete-btn">Delete Classroom</button>
+                    </form>
                 </div>
             </section>
             <section class="classroom-students">
