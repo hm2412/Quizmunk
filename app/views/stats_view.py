@@ -24,7 +24,7 @@ def stats_view(request):
 def stats_details(request, stats_id):
     """show the stats for the live quiz"""
     stats_obj = get_object_or_404(Stats, id=stats_id, quiz__tutor=request.user)
-    participants = RoomParticipant.objects.filter(room=stats_obj.room)
+    participants = RoomParticipant.objects.filter(room=stats_obj.room).exclude(user__role__iexact="tutor")
     """
     # Fake quizzes mapped by ID
     fake_stats_data = {

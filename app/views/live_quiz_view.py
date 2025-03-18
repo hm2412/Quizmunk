@@ -18,7 +18,7 @@ def tutor_live_quiz(request, quiz_id, join_code):
     quiz = get_object_or_404(Quiz, pk=quiz_id)
     all_questions = quiz.get_all_questions()
     first_question = all_questions[0] if all_questions else None 
-    participants = RoomParticipant.objects.filter(room=room)
+    participants = RoomParticipant.objects.filter(room=room).exclude(user__role__iexact="tutor")
     participantNumber = participants.count()
 
     context = {
@@ -45,7 +45,7 @@ def tutor_live_quiz(request, quiz_id, join_code):
 
 def student_live_quiz(request, room_code):
     room = get_object_or_404(Room, join_code=room_code)
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and request.user.role.lower() != "tutor":
         participant, created = RoomParticipant.objects.get_or_create(room=room, user=request.user)
     else:
         guest_session = request.session.session_key
@@ -55,7 +55,7 @@ def student_live_quiz(request, room_code):
         from app.models.guest import GuestAccess
         guest_access, _ = GuestAccess.objects.get_or_create(session_id=guest_session)
         participant, created = RoomParticipant.objects.get_or_create(room=room, guest_access=guest_access)
-    participants = RoomParticipant.objects.filter(room=room)
+    participants = RoomParticipant.objects.filter(room=room).exclude(user__role__iexact="tutor")
     participant_number = participants.count()
     context = {
         'room': room,
