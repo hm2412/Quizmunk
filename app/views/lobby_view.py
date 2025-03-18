@@ -19,7 +19,7 @@ def setup_quiz(request, quiz_id):
 def lobby(request, join_code):
     room = get_object_or_404(Room, join_code=join_code)
 
-    n_classroom = False
+    in_classroom = False
      
     if room.classroom is not None:
          if request.user.is_authenticated:
@@ -33,11 +33,11 @@ def lobby(request, join_code):
              participant, created = RoomParticipant.objects.get_or_create(room=room, user=request.user)
         else:
             guest_session = request.session.session_key
-        if not guest_session:
-            request.session.save()
-            guest_session = request.session.session_key
-        guest_access, _ = GuestAccess.objects.get_or_create(session_id=guest_session)
-        participant, created = RoomParticipant.objects.get_or_create(room=room, guest_access=guest_access)
+            if not guest_session:
+                request.session.save()
+                guest_session = request.session.session_key
+            guest_access, _ = GuestAccess.objects.get_or_create(session_id=guest_session)
+            participant, created = RoomParticipant.objects.get_or_create(room=room, guest_access=guest_access)
 
     participants = RoomParticipant.objects.filter(room=room).exclude(user__role="tutor")
     qr_code_path = "app/static/images/qr_code.png"
