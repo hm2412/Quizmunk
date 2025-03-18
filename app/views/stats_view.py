@@ -63,59 +63,6 @@ def stats_details(request, stats_id):
     }
     return render(request, "tutor/stats_detail.html", context)
 
-"""@is_tutor
-def csv_download(request, stats_id):
-    #Generate a CSV file for fake quiz stats
-
-    # Fake stats data mapped by quiz ID
-    fake_stats_data = {
-        1: {"quiz": {"title": "Python Basics Quiz"}, "date_played": datetime.datetime(2025, 3, 11, 14, 30)},
-        2: {"quiz": {"title": "Django Fundamentals"}, "date_played": datetime.datetime(2025, 3, 10, 10, 15)},
-        3: {"quiz": {"title": "Machine Learning Concepts"}, "date_played": datetime.datetime(2025, 3, 9, 16, 45)},
-    }
-
-    # Fake participants mapped by quiz ID
-    fake_participants = {
-        1: [
-            {"user": {"email_address": "student1@example.com"}, "joined_at": "2025-03-11 14:35", "score": 92},
-            {"user": {"email_address": "student2@example.com"}, "joined_at": "2025-03-11 14:37", "score": 78},
-            {"guest_access": {"session_id": "abcd1234"}, "joined_at": "2025-03-11 14:40", "score": 87},
-        ],
-        2: [
-            {"user": {"email_address": "learner1@example.com"}, "joined_at": "2025-03-10 10:05", "score": 75},
-            {"user": {"email_address": "learner2@example.com"}, "joined_at": "2025-03-10 10:10", "score": 82},
-        ],
-        3: [
-            {"user": {"email_address": "ml_student@example.com"}, "joined_at": "2025-03-09 16:50", "score": 95},
-            {"guest_access": {"session_id": "xyz7890"}, "joined_at": "2025-03-09 16:55", "score": 88},
-        ],
-    }
-
-    # Fetch the correct fake quiz and participants
-    stats_obj = fake_stats_data.get(int(stats_id), None)
-    participants = fake_participants.get(int(stats_id), [])
-
-    if not stats_obj:
-        return HttpResponse("Quiz stats not found.", status=404)
-
-    # Create CSV response
-    response = HttpResponse(content_type="text/csv")
-    response['Content-Disposition'] = f'attachment; filename="quiz_stats_fake_{stats_id}.csv"'
-
-    writer = csv.writer(response)
-    writer.writerow(["Participant", "Joined At", "Score"])
-
-    # Write fake participant data to CSV
-    for participant in participants:
-        if "user" in participant:
-            identifier = participant["user"]["email_address"]
-        else:
-            identifier = f"Guest ({participant['guest_access']['session_id'][:8]})"
-        writer.writerow([identifier, participant["joined_at"], participant["score"]])
-
-    return response
-
-"""
 @is_tutor
 def csv_download(request, stats_id):
     #genrate a csv file for the stats
