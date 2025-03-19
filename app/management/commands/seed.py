@@ -199,8 +199,6 @@ class Command(BaseCommand):
             else:
                 print("Students are less than required!")
                 break
-
-        #There's a bug here where it will type "Classroom seeding complete.org to Bob's Classroomsroom" without all those spaces
         print("Classroom seeding complete")
     
     def generate_classroom_invite(self):
@@ -216,10 +214,8 @@ class Command(BaseCommand):
         
         self.generate_quiz_1(bob)
 
-        
         self.generate_quiz_2(bob)
 
-        
         self.generate_quiz_3(bob)
 
     def generate_quiz_1(self, tutor):
@@ -473,36 +469,13 @@ class Command(BaseCommand):
         )
 
     def generate_stats(self):
-        room = Room.objects.filter(name="Python Quiz Room").first()
-        quiz = Quiz.objects.filter(name="Python Basics").first()
-        room_stats = Stats.objects.create(
-            room=room,
-            quiz=quiz,
-            num_participants = User.objects.filter(role=User.STUDENT).count(),
-            mean_score = 4,
-            median_score = 3
-        )
-
-        room = Room.objects.filter(name="Arithmetic Test Room").first()
-        quiz = Quiz.objects.filter(name="Arithmetic Test").first()
-        room_stats = Stats.objects.create(
-            room=room,
-            quiz=quiz,
-            num_participants = User.objects.filter(role=User.STUDENT).count(),
-            mean_score = 4,
-            median_score = 3
-        )
-
-        room = Room.objects.filter(name="Physics Test Room").first()
-        quiz = Quiz.objects.filter(name="Physics Basics").first()
-        room_stat = Stats.objects.create(
-            room=room,
-            quiz=quiz,
-            num_participants = User.objects.filter(role=User.STUDENT).count(),
-            mean_score = 4,
-            median_score = 3
-        )
-        room_stat.save()
+        for room in Room.objects.all():
+            room_stats = Stats.objects.create(
+                room=room,
+                quiz=room.quiz,
+                num_participants = User.objects.filter(role=User.STUDENT).count(),
+            )
+            room_stats.save()
 
     def generate_quiz_question_stats(self):
         for room in Room.objects.all():
