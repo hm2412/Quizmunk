@@ -74,16 +74,42 @@
     <div id="{{ key }}-form-template" style="display: none;">
       <form id="{{ key }}-question-form" method="post" action="" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
-        <div id="{{ key }}-image-preview-container" style="margin-top: 10px;">
-          <img id="{{ key }}-image-preview" src="" alt="No image uploaded" style="max-width: 100%; display: none;" />
-        </div>
+        {% if key == "numerical_range" %}
+          <p>{{ form.question_text.label_tag }} {{ form.question_text }}</p>
+          <p>{{ form.time.label_tag }} {{ form.time }}</p>
+          <p>{{ form.mark.label_tag }} {{ form.mark }}</p>
+
+          <!-- Special Form For Numerical Range Fields -->
+          <div class="row">
+            <div class="col-md-6">
+              <label for="{{ form.min_value.id_for_label }}">{{ form.min_value.label }}</label>
+              {{ form.min_value }}
+            </div>
+            <div class="col-md-6">
+              <label for="{{ form.max_value.id_for_label }}">{{ form.max_value.label }}</label>
+              {{ form.max_value }}
+            </div>
+          </div>
+          <div id="{{ key }}-image-preview-container" style="margin-top: 10px;">
+            <img id="{{ key }}-image-preview" src="" alt="No image uploaded" style="max-width: 100%; display: none;" />
+          </div>
+          <p>{{ form.image.label_tag }} {{ form.image }}</p>
+  
+        {% else %}
+          <!-- Default Hidden Form -->
+          {{ form.as_p }}
+          <div id="{{ key }}-image-preview-container" style="margin-top: 10px;">
+            <img id="{{ key }}-image-preview" src="" alt="No image uploaded" style="max-width: 100%; display: none;" />
+          </div>
+        {% endif %}
         <input type="hidden" name="{{ key }}" value="true">
-        <input type="hidden" name="quizID" value="{{ quiz.id }}"> 
+        <input type="hidden" name="quizID" value="{{ quiz.id }}">
+        <button type='button' id="clear-image" class="btn btn-primary">Clear Image</button>
         <button type="submit" class="btn btn-primary">Save {{ key|capfirst }} Question</button>
       </form>
     </div>
   {% endfor %}
+
   
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
@@ -143,14 +169,81 @@
           } else if (type == "true_false") {
             $("#editor").find("[name='correct_answer']").prop("checked", data.correct_answer === true || data.correct_answer === "True"); 
           } else if (type == "multiple_choice") {
-            $("#editor").find("[name='options']").val(data.options || "");
-            $("#editor").find("[name='correct_answer']").val(data.correct_option || "");
+            $("#editor").find("[name='options[]']").each(function(index) {
+              $(this).val(data.options ? data.options[index] : "");
+            });
+            $("#editor").find("[name='correct_option']").val(data.correct_option || "");
           } else if (type === "numerical_range") {
             $("#editor").find("[name='min_value']").val(data.min_value || "");
             $("#editor").find("[name='max_value']").val(data.max_value || "");
           }
+
+          //This subroutine allows multiple choice questions to add or remove options
+          if (type === "multiple_choice") {
+            var addOptionBtn = document.getElementById("add-option");
+            var removeOptionBtn = document.getElementById("remove-option");
+
+            if (addOptionBtn) {
+              addOptionBtn.addEventListener("click", function(){
+                var container = document.getElementById("multiple-choice-options-container");
+                if (container) {
+                  var newDiv = document.createElement("div");
+                  newDiv.className = "option-input";
+                  var input = document.createElement("input");
+                  input.type = "text";
+                  input.name = "options";
+                  input.className = "form-control";
+                  input.placeholder = "Enter option";
+                  newDiv.appendChild(input);
+                  container.appendChild(newDiv);
+                }
+              });
+            }
+
+            if (removeOptionBtn) {
+              removeOptionBtn.addEventListener("click", function(){
+                var container = document.getElementById("multiple-choice-options-container");
+                var optionInputs = container.getElementsByClassName("option-input");
+
+                if (optionInputs.length > 2) {
+                    container.removeChild(optionInputs[optionInputs.length - 1]);
+                } else {
+                    alert("You must have at least 2 options.");
+                }
+              });
+            }
+          }
+
+          // clear the image
+          $("#clear-image").click(function(){
+
+            var questionId = $("#editor").find("input[name='question_id']").val();
+    
+            if (!questionId) {
+                console.error("No question ID found.");
+                return;
+            }
+
+            $.ajax({
+              url: `/delete-question-image/${questionId}/`,
+              type: "POST",
+              data: {
+                  csrfmiddlewaretoken: "{{ csrf_token }}"
+              },
+              success: function(response) {
+                  console.log("Image deleted successfully!");
+                  $("#editor").find("#" + type + "-image-preview").attr("src", "");
+                  $(".form-control-file").val("");
+              },
+              error: function() {
+                  alert("Error deleting image.");
+              }
+            });
+          });
         }
       }
+
+
       // when clicking on an added question you can see it in the box
       $(document).on("click", ".question-item", function () {
         var questionId = $(this).data('id');
