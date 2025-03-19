@@ -259,3 +259,46 @@ def count_answers_for_question(room, question):
         responses = []
     unique_players = set(r.player_id for r in responses)
     return len(unique_players)
+
+
+def get_guest_responses(guest_access, room):
+    tf_responses = TrueFalseResponse.objects.filter(guest_access=guest_access, room=room)
+    int_responses = IntegerInputResponse.objects.filter(guest_access=guest_access, room=room)
+    text_responses = TextInputResponse.objects.filter(guest_access=guest_access, room=room)
+    decimal_responses = DecimalInputResponse.objects.filter(guest_access=guest_access, room=room)
+    mc_responses = MultipleChoiceResponse.objects.filter(guest_access=guest_access, room=room)
+    range_responses = NumericalRangeResponse.objects.filter(guest_access=guest_access, room=room)
+    sorting_responses = SortingResponse.objects.filter(guest_access=guest_access, room=room)
+    responses = sorted(
+        chain(tf_responses, int_responses, text_responses, decimal_responses, mc_responses, range_responses, sorting_responses),
+        key=lambda r: r.timestamp 
+    )
+    return responses
+
+
+def calculate_guest_score(guest_access, room):
+    if not guest_access or not room:
+        return 0
+    responses = get_guest_responses(guest_access, room)
+    base_score = 0
+    total_score = 0
+    streak_count = 0
+    question_position = {}
+    for response in responses:
+        question_id = response.question.id
+        if isCorrectAnswer(response):
+            base_points = response.question.mark  # base points from the question
+            base_score += base_points
+            total_score += base_points
+            streak_count += 1
+            streak_bonus = get_streak_bonus(streak_count, base_points)
+            total_score += streak_bonus
+            if question_id not in question_position:
+                question_position[question_id] = 0
+            question_position[question_id] += 1
+            position = question_position[question_id]
+            speed_bonus = get_speed_bonus(position)
+            total_score += speed_bonus
+        else:
+            streak_count = 0
+    return total_score

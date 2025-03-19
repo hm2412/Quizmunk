@@ -54,7 +54,6 @@ def student_live_quiz(request, room_code):
         if not guest_session:
             request.session.save()
             guest_session = request.session.session_key
-        from app.models.guest import GuestAccess
         guest_access, _ = GuestAccess.objects.get_or_create(session_id=guest_session)
         participant, created = RoomParticipant.objects.get_or_create(room=room, guest_access=guest_access)
     participants = RoomParticipant.objects.filter(room=room).exclude(user__role__iexact="tutor")

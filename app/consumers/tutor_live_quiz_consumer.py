@@ -5,7 +5,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async, aclose_old_connections
 from app.models import Room, RoomParticipant, QuizState
 from app.models.quiz import MultipleChoiceQuestion, TrueFalseQuestion, IntegerInputQuestion, DecimalInputQuestion, TextInputQuestion, NumericalRangeQuestion, SortingQuestion
-from app.helpers.helper_functions import create_quiz_stats, calculate_user_score, count_answers_for_question
+from app.helpers.helper_functions import create_quiz_stats, calculate_user_score, count_answers_for_question, calculate_guest_score
+
 
 class TutorQuizConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
@@ -30,6 +31,8 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         for participant in participants:
             if participant.user:
                 participant.score = calculate_user_score(participant.user, room)
+            elif participant.guest_access:
+                participant.score = calculate_guest_score(participant.guest_access, room)
         RoomParticipant.objects.bulk_update(participants, ['score'])
         leaderboard_data = (
             participants.order_by('-score', 'joined_at')
@@ -43,8 +46,8 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
             }
             for rank, participant in enumerate(leaderboard_data, start=1)
         ]
-    
 
+    
     @database_sync_to_async
     def get_current_question(self, room):
         return room.get_current_question()

@@ -5,6 +5,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async as sync_to_async, aclose_old_connections
 from app.models import Room, RoomParticipant
 
+
 class LobbyConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.join_code = self.scope['url_route']['kwargs']['join_code']
