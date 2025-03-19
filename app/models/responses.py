@@ -10,10 +10,11 @@ class Response(models.Model):
     player = models.ForeignKey(User, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    correct = models.BooleanField(null=True, blank=True)
 
     class Meta:
         abstract = True
-
+        
 class TrueFalseResponse(Response):
     question = models.ForeignKey(TrueFalseQuestion, on_delete=models.CASCADE)
     answer = models.BooleanField()

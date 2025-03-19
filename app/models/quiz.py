@@ -1,6 +1,9 @@
-from itertools import chain
 from django.db import models
 from app.models.user import User
+from django.core.files.storage import default_storage
+from django.core.exceptions import ObjectDoesNotExist
+from itertools import chain
+
 
 class Quiz(models.Model):
     DIFFICULTIES = [
@@ -25,6 +28,12 @@ class Quiz(models.Model):
         verbose_name="Related tutor",
         help_text="The tutor that creates this quiz."
     )
+    quiz_img = models.ImageField(
+        upload_to='quiz_images/',
+        default='quiz_images/default_quiz.png',  # Default image
+        null=True,
+        blank=True
+    )
     # room = models.OneToOneField("Room", related_name="quiz_room", on_delete=models.SET_NULL, null=True, blank=True)
     # I believe this should be removed, as it's redundant? 
 
@@ -40,7 +49,7 @@ class Quiz(models.Model):
 
         # Combine all queries
         all_questions = list(chain(integer_qs, true_false_qs, text_qs, decimal_qs, multiple_choice_qs, numerical_range_qs, sorting_qs))
-        
+
         # Sort by position
         return sorted(all_questions, key=lambda q: q.position if q.position is not None else float('inf'))
 
@@ -61,6 +70,25 @@ class Question(models.Model):
     )
     mark = models.IntegerField()
     image = models.ImageField(null=True, blank=True, upload_to='questions_images/')
+
+    def save(self, *args, **kwargs):
+        """ Delete the associated image file when the image is updated """
+        if self.pk:
+            try:
+                old_instance = self.__class__.objects.get(pk=self.pk)
+                if old_instance.image and self.image != old_instance.image:
+                    if default_storage.exists(old_instance.image.name):
+                        default_storage.delete(old_instance.image.name)
+            except ObjectDoesNotExist:
+                pass
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        """ Delete the associated image file when the question is deleted. """
+        if self.image:
+            if default_storage.exists(self.image.name):
+                default_storage.delete(self.image.name)
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return f"Quiz {self.quiz.id} Question {self.position}"

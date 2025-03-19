@@ -5,21 +5,26 @@ from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from app.helpers.decorators import is_tutor, redirect_unauthenticated_to_homepage
 from django.views.decorators.http import require_POST
+from django.core.files.storage import default_storage
 from app.models.room import Room, RoomParticipant
 from app.question_registry import QUESTION_FORMS, QUESTION_MODELS
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-
+from app.helpers.helper_functions import getAllQuestions
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
 def create_quiz_view(request):
-    form = QuizForm(request.POST or None)
+    form = QuizForm(request.POST or None, request.FILES or None)
     
     if request.method == 'POST':
         if form.is_valid():
             quiz = form.save(commit=False)
             quiz.tutor = request.user
+
+            if 'quiz_img' in request.FILES:
+                quiz.quiz_img = request.FILES['quiz_img']
+
             quiz.save()
             if request.headers.get('HX-Request'):
                 response = HttpResponse()
@@ -37,15 +42,8 @@ def create_quiz_view(request):
 @is_tutor
 def edit_quiz_view(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-    
-    #if new types are added add them here
-    questions_int = list(IntegerInputQuestion.objects.filter(quiz=quiz))
-    questions_tf = list(TrueFalseQuestion.objects.filter(quiz=quiz))
-    questions_ti = list(TextInputQuestion.objects.filter(quiz=quiz))
-    questions_mc = list(MultipleChoiceQuestion.objects.filter(quiz=quiz))
-    questions_dc = list(DecimalInputQuestion.objects.filter(quiz=quiz))
-    questions_nr = list(NumericalRangeQuestion.objects.filter(quiz=quiz))
-    questions = questions_int + questions_tf + questions_ti + questions_mc + questions_dc + questions_nr
+
+    questions = getAllQuestions(quiz=quiz)
     questions.sort(key=lambda q: (q.position if q.position is not None else float('inf')))
 
     form_type = None
@@ -128,6 +126,28 @@ def delete_question_view(request, question_id):
     question.delete()
     return redirect('edit_quiz', quiz_id=quiz_id)
 
+@redirect_unauthenticated_to_homepage
+@is_tutor
+def delete_question_image_view(request, question_id):
+    question = None
+    for key, model in QUESTION_MODELS.items():
+        try:
+            question = model.objects.get(pk=question_id)
+            break
+        except model.DoesNotExist:
+            continue
+
+    if not question:
+        return HttpResponse("Question not found", status=404)
+    
+    quiz_id = question.quiz.id
+    if question.image:
+        if default_storage.exists(question.image.name):
+            default_storage.delete(question.image.name)
+        question.image = None
+        question.save()
+    return redirect('edit_quiz', quiz_id=quiz_id)
+
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
@@ -163,7 +183,7 @@ def get_question_view(request, quiz_id):
     #add more types here with their uniqe fields
     if question_type == "multiple_choice":
         data["options"] = question.options
-        data["correct_option"] = question.correct_option
+        data["correct_answer"] = question.correct_answer
     elif question_type == "numerical_range":
         data["min_value"] = question.min_value
         data["max_value"] = question.max_value
@@ -218,7 +238,7 @@ def teacher_live_quiz_view(request, quiz_id):
 
 #     if first_question:
 #         return render(request, "partials/current_question.html", {"question": first_question})
-    
+
 #     return JsonResponse({"message": "No questions available"}, status=404)
 
 
@@ -242,12 +262,12 @@ def start_quiz(request, join_code):
     room.is_quiz_active = True
     room.current_question_index = 0
     room.save()
-    
+
     first_question = room.get_current_question()
     answer = get_correct_answer(first_question)
     return JsonResponse({
         'question': first_question.question_text,
-        'answer': answer,  
+        'answer': answer,
         'question_number': 1,
         'total_questions': room.quiz.questions.count()
     })
@@ -256,7 +276,7 @@ def start_quiz(request, join_code):
 #     room = Room.objects.get(join_code=join_code)
 #     next_q = room.next_question()
 #     answer = get_correct_answer(next_q)
-    
+
 #     if next_q:
 #         return JsonResponse({
 #             'question': next_q.question_text,
@@ -269,7 +289,7 @@ def start_quiz(request, join_code):
 def next_question(request, join_code):
     room = get_object_or_404(Room, join_code=join_code)
     current_q = room.get_current_question()
-    
+
     if current_q:
         # Broadcast to WebSocket group
         channel_layer = get_channel_layer()
@@ -306,16 +326,16 @@ def get_correct_answer(question):
 def tutor_live_quiz(request, join_code):
     """View for the tutor to conduct a live quiz"""
     room = get_object_or_404(Room, join_code=join_code)
-    
+
     # Get participants excluding tutors
     participants = RoomParticipant.objects.filter(room=room).exclude(user__role="tutor")
     participant_count = participants.count()
-    
+
     # If the quiz hasn't started, make sure it's ready
     if not room.is_quiz_active:
         room.current_question_index = 0
         room.save()
-    
+
     context = {
         'room': room,
         'quiz': room.quiz,
@@ -323,5 +343,5 @@ def tutor_live_quiz(request, join_code):
         'participants': participants,
         'participant_count': participant_count,
     }
-    
+
     return render(request, 'tutor/live_quiz.html', context)

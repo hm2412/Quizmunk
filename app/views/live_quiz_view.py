@@ -6,7 +6,7 @@ from app.helpers.helper_functions import getAllQuestions
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.views.decorators.csrf import csrf_exempt
-
+from django.http import Http404
 
 def get_room(join_code):
     return get_object_or_404(Room, join_code=join_code)
@@ -18,7 +18,7 @@ def tutor_live_quiz(request, quiz_id, join_code):
     room = get_room(join_code)
     quiz = get_object_or_404(Quiz, pk=quiz_id)
     all_questions = quiz.get_all_questions()
-    first_question = all_questions[0] if all_questions else None 
+    first_question = all_questions[0] if all_questions else None
     participants = RoomParticipant.objects.filter(room=room)
     participantNumber = participants.count()
 
@@ -47,7 +47,7 @@ def tutor_live_quiz(request, quiz_id, join_code):
 
 def student_live_quiz(request, room_code):
     room = get_object_or_404(Room, join_code=room_code)
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and request.user.role.lower() != "tutor":
         participant, created = RoomParticipant.objects.get_or_create(room=room, user=request.user)
     else:
         guest_session = request.session.session_key
@@ -57,7 +57,7 @@ def student_live_quiz(request, room_code):
         from app.models.guest import GuestAccess
         guest_access, _ = GuestAccess.objects.get_or_create(session_id=guest_session)
         participant, created = RoomParticipant.objects.get_or_create(room=room, guest_access=guest_access)
-    participants = RoomParticipant.objects.filter(room=room)
+    participants = RoomParticipant.objects.filter(room=room).exclude(user__role__iexact="tutor")
     participant_number = participants.count()
     context = {
         'room': room,
@@ -67,25 +67,23 @@ def student_live_quiz(request, room_code):
     return render(request, 'student/student_live_quiz.html', context)
 
 
-# def start_quiz(request, join_code):
-#     room = get_object_or_404(Room, join_code=join_code)
-    
-#     if request.method == "POST":
-#         room.current_question_index = 0
-#         room.is_quiz_active = True
-#         room.save()
-        
-#         return JsonResponse({
-#             "status": "success",
-#             "message": "Quiz started",
-#             "first_question": room.get_current_question().question_text
-#         })
-    
-#     return JsonResponse({"error": "Invalid request"}, status=400)
+def load_partial(request, partial_name):
+    allowed_partials = [
+        "integer_input",
+        "decimal_input",
+        "text_input",
+        "multiple_choice",
+        "true_false",
+        "numerical_range"
+    ]
+    if partial_name not in allowed_partials:
+        raise Http404("Partial not found")
+    return render(request, f"partials/{partial_name}.html")
+
 
 def start_quiz(request, join_code):
     room = get_object_or_404(Room, join_code=join_code)
-    
+
     if request.method == "POST":
         # Set up the room and start the quiz
         room.current_question_index = 0  # Set to the first question
@@ -105,6 +103,7 @@ def start_quiz(request, join_code):
         })
     
     return JsonResponse({"error": "Invalid request"}, status=400)    
+
 
 
 @csrf_exempt

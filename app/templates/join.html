@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Join - QuizMunk{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/forms.css' %}">{% endblock %}
 {% block content %}
-    <div class="main-content">
         <h1>Join a Quiz</h1>
         <p>Enter your room code below to participate in a quiz.</p>
 
@@ -19,5 +20,4 @@
             <input type="text" name="join_code" class="form-input" placeholder="Enter Room Code" id="code" required>
             <button type="submit" class="btn">Join</button>
         </form>
-    </div>
 {% endblock %}

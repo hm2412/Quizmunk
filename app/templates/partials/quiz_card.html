@@ -1,8 +1,8 @@
 <div class="card" style="width: 18rem;">
-  <img src={{ quiz_img }} class="card-img-top" alt="...">
+  <img src="{% if quiz.quiz_img %}{{ quiz.quiz_img.url }}{% else %}{{ MEDIA_URL }}quiz_images/default_quiz.png{% endif %}" alt="Quiz Image">
   <div class="card-body">
     <h5 class="card-title">{{ quiz_title }}</h5>
     <p class="card-text">{{ quiz_description }}</p>
-    <a href="{% url 'setup_quiz' quiz.id %}" class="btn btn-primary">Start!</a>
+    <a href="{% url 'setup_quiz' quiz.id %}" class="btn">Start!</a>
   </div>
 </div>

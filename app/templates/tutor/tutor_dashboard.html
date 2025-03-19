@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Tutor Dashboard{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">{% endblock %}
 {% block content %}
     <div class="dashboard-container">
         <div class="dashboard-header">
@@ -19,14 +21,14 @@
         <div class="dashboard-content">
             <div class="dashboard-top">
                 <div class="dashboard-info">
-                    <h2>Your Dashboard</h2>
-                    <p>Create quizzes, manage rooms, and view student results here.</p>
+                    <h2>Your dashboard</h2>
+                    <p class="description">Create quizzes, manage classrooms, and view your students statistics here!</p>
                 </div>
-                <a href="{% url 'create_quiz' %}" class="btn btn-primary">Create Quiz</a>
+                <a href="{% url 'create_quiz' %}" class="create-quiz inverse-btn">Create Quiz</a>
             </div>
 
             <section class="quiz-section">
-                <h3>My Quizzes</h3>
+                <h2>My Quizzes</h2>
                 <div class="quiz-list">
                     {% for quiz in quizzes %}
                         {% include 'partials/quiz_card.html' with quiz_img=quiz.quiz_img quiz_title=quiz.quiz_title quiz_description=quiz.quiz_description %}
