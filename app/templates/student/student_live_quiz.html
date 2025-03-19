@@ -34,12 +34,12 @@
     $(document).ready(function() {
       let currentQuestionNumber = 0;
       let currentQuestionId = null;
-      let currentQuestionType = null;
+      let currentQuestionType = null; 
       const joinCode = "{{ room.join_code }}";
       const ws = new WebSocket(`ws://${window.location.host}/ws/student/${joinCode}/`);
-
+      
       ws.onopen = () => console.log("WebSocket connected!");
-
+      
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if(data.type === "question_update") {
@@ -49,10 +49,10 @@
           currentQuestionType = data.question_type;
           $("#question-text").text(data.question);
           $(".quiz-header p").text(`Question ${data.question_number} of ${data.total_questions}`);
-
+          
           const $answerContainer = $(".answer-container");
           $answerContainer.empty();
-
+          
           // For multiple choice and true/false, render answer buttons.
           if(data.question_type === "multiple_choice" || data.question_type === "true_false") {
             data.options.forEach((option, index) => {
@@ -97,7 +97,7 @@
             $answerContainer.append('<button class="btn btn-primary submit-answer-btn mt-2">Submit Order</button>');
             $(".sortable").sortable();
           }
-
+          
           // Enable inputs if answer not yet revealed.
           if(data.answer || data.time === 0) {
             $(".answer-box, input, textarea, .submit-answer-btn").prop("disabled", true);
@@ -130,11 +130,11 @@
           alert(data.message);
           ws.close();
           setTimeout(() => {
-            window.location.href = "/student-dashboard/";
+            window.location.href = "/student-dashboard/"; 
           }, 2000);
         }
       };
-
+      
       // Handler for clickable answer boxes (multiple choice/true-false).
       $(document).on('click', '.answer-box', function () {
         const answer = $(this).text().split('. ')[1];
@@ -150,7 +150,7 @@
         $(".answer-box").removeClass("active btn-primary");
         $(this).addClass("active btn-primary");
       });
-
+      
       // Handler for the explicit submit button (for input-based or sorting questions).
       $(document).on('click', '.submit-answer-btn', function () {
         let answer;

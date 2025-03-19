@@ -131,7 +131,7 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
                 {"type": "quiz_ended", "message": message}
             )
 
-
+    
     async def handle_end_quiz(self):
         room = await self.get_room(self.join_code)
         await self.update_quiz_state(room, current_question_index=-1, quiz_started=False)
@@ -142,7 +142,6 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
             {"type": "quiz_ended", "message": "Quiz ended! Redirecting..."}
         )
     
-
     async def send_quiz_ended(self, message):
         await self.channel_layer.group_send(
             self.room_group_name,
