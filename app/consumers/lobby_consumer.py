@@ -80,6 +80,6 @@ class LobbyConsumer(AsyncWebsocketConsumer):
     async def quiz_started(self, event):
         await self.send(text_data=json.dumps({
             "action": "quiz_started",
-            "student_quiz_url": event.get("student_quiz_url"),
-            "tutor_quiz_url": event.get("tutor_quiz_url")
+            "student_quiz_url": event["student_quiz_url"],
+            "tutor_quiz_url": event["tutor_quiz_url"],
         }))
