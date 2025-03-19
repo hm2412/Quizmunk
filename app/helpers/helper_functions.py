@@ -238,3 +238,24 @@ def find_best_and_worst_scores(quiz_history):
             worst_score = quiz
 
     return best_score, worst_score
+
+
+def count_answers_for_question(room, question):
+    if isinstance(question, TrueFalseQuestion):
+        responses = TrueFalseResponse.objects.filter(room=room, question=question)
+    elif isinstance(question, IntegerInputQuestion):
+        responses = IntegerInputResponse.objects.filter(room=room, question=question)
+    elif isinstance(question, TextInputQuestion):
+        responses = TextInputResponse.objects.filter(room=room, question=question)
+    elif isinstance(question, DecimalInputQuestion):
+        responses = DecimalInputResponse.objects.filter(room=room, question=question)
+    elif isinstance(question, MultipleChoiceQuestion):
+        responses = MultipleChoiceResponse.objects.filter(room=room, question=question)
+    elif isinstance(question, NumericalRangeQuestion):
+        responses = NumericalRangeResponse.objects.filter(room=room, question=question)
+    elif isinstance(question, SortingQuestion):
+        responses = SortingResponse.objects.filter(room=room, question=question)
+    else:
+        responses = []
+    unique_players = set(r.player_id for r in responses)
+    return len(unique_players)

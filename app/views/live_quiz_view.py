@@ -19,7 +19,7 @@ def tutor_live_quiz(request, quiz_id, join_code):
     quiz = get_object_or_404(Quiz, pk=quiz_id)
     all_questions = quiz.get_all_questions()
     first_question = all_questions[0] if all_questions else None
-    participants = RoomParticipant.objects.filter(room=room)
+    participants = RoomParticipant.objects.filter(room=room).exclude(user__role__iexact="tutor")
     participantNumber = participants.count()
 
     context = {

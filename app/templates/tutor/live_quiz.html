@@ -41,7 +41,14 @@
         </div>
         <div class="circle" style="color: black;">
           <div>
-            <p id="participants-count" class="mb-0 h5">0 / {{ participant_number }}</p>
+            <p id="participants-count" class="mb-0 h5">0</p>
+            <p class="small">Participants</p>
+          </div>
+        </div>
+        <div class="circle" style="color: black;">
+          <div>
+            <p id="answered-count" class="mb-0 h5">0</p>
+            <p class="small">Answered</p>
           </div>
         </div>
         <div id="quiz-controls">
@@ -72,7 +79,6 @@
       let currentQuestionNumber = 0;
       let questionActive = false;
       let currentTimer = null;
-      //let ws;
 
       
       function startTimer(seconds) {
@@ -131,6 +137,12 @@
             li.textContent = `#${entry.rank} ${entry.participant}: ${entry.score}`;
             leaderboardEl.appendChild(li);
           });
+          if (data.participant_number !== undefined) {
+            document.getElementById("participants-count").textContent = data.participant_number;
+          }
+          if (data.answered_count !== undefined) {
+            document.getElementById("answered-count").textContent = data.answered_count;
+          }
         }
         else if (data.type === "quiz_ended") {
           questionActive = false;

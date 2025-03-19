@@ -22,7 +22,7 @@
       <h2 id="question-text" class="fw-bold">Loading question...</h2>
     </div>
     <div class="answer-container d-flex flex-column align-items-center gap-3 mt-3">
-      <!-- The answer input will be loaded here dynamically -->
+      <!-- The answer input will be loaded here dynamically via the partial loader -->
     </div>
     <!-- Leaderboard container for students -->
     <div id="student-leaderboard" class="mt-3 w-50"></div>
@@ -34,7 +34,7 @@
     $(document).ready(function() {
       let currentQuestionNumber = 0;
       let currentQuestionId = null;
-      let currentQuestionType = null; 
+      let currentQuestionType = null;
       const joinCode = "{{ room.join_code }}";
       const ws = new WebSocket(`ws://${window.location.host}/ws/student/${joinCode}/`);
 
@@ -91,13 +91,19 @@
             if (partialHtml) {
               $answerContainer.html(partialHtml);
 
-              // For multiple choice, update buttons with the provided options.
+              // For multiple choice, dynamically create option buttons.
               if (data.question_type === "multiple_choice") {
-                $answerContainer.find('.option-btn').each(function(index) {
-                  if (data.options && data.options[index]) {
-                    $(this).text(String.fromCharCode(65 + index) + ". " + data.options[index]);
-                  }
-                });
+                const $container = $("#multiple-choice-container");
+                $container.empty();
+                if (data.options && data.options.length > 0) {
+                  data.options.forEach((option, index) => {
+                    const button = $('<button class="btn option-btn answer-box"></button>');
+                    button.text(String.fromCharCode(65 + index) + ". " + option);
+                    $container.append(button);
+                  });
+                } else {
+                  $container.html("<p>No options provided.</p>");
+                }
               }
             } else {
               $answerContainer.html("<p>Unable to load answer input.</p>");
@@ -141,25 +147,24 @@
 
       // Handle answer submission for button-based answers.
       $(document).on('click', '.answer-box', function () {
-          let fullText = $(this).text().trim();
-          let answer;
-          if (fullText.indexOf('. ') !== -1) {
-              answer = fullText.split('. ')[1];
-          } else {
-              answer = fullText;
-          }
-          ws.send(JSON.stringify({
-              action: "submit_answer",
-              answer: answer,
-              question_number: currentQuestionNumber,
-              question_id: currentQuestionId,
-              question_type: currentQuestionType
-          }));
-          $(".answer-box, input, textarea, .submit-answer-btn").prop("disabled", true);
-          $(".answer-box").removeClass("active btn-primary");
-          $(this).addClass("active btn-primary");
+        let fullText = $(this).text().trim();
+        let answer;
+        if (fullText.indexOf('. ') !== -1) {
+          answer = fullText.split('. ')[1];
+        } else {
+          answer = fullText;
+        }
+        ws.send(JSON.stringify({
+          action: "submit_answer",
+          answer: answer,
+          question_number: currentQuestionNumber,
+          question_id: currentQuestionId,
+          question_type: currentQuestionType
+        }));
+        $(".answer-box, input, textarea, .submit-answer-btn").prop("disabled", true);
+        $(".answer-box").removeClass("active btn-primary");
+        $(this).addClass("active btn-primary");
       });
-
 
       // Handle submission for input-based answers.
       $(document).on('click', '.submit-answer-btn', function () {

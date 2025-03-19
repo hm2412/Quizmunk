@@ -1,33 +1,25 @@
-<div class="question">
-    <button class="btn option-btn answer-box">A</button>
-    <button class="btn option-btn answer-box">B</button>
-    <button class="btn option-btn answer-box">C</button>
-    <button class="btn option-btn answer-box">D</button>
-</div>
+<div id="multiple-choice-container" class="multiple-choice-container">
+  </div>
 
-<style>
-.question {
-    display: flex; 
-    gap: 10px; 
-    justify-content: center;
-    flex-wrap: wrap;
+  <style>
+  .multiple-choice-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     width: 100%;
     margin-top: 10px;
-}
-
-.option-btn {
+  }
+  .multiple-choice-container .option-btn {
     padding: 12px 20px;
     font-size: 1.2rem;
-    border: none; 
-    border-radius: 5px; 
+    border: none;
+    border-radius: 5px;
     background-color: #007bff;
     color: white;
     cursor: pointer;
-    min-width: 60px;
-    text-align: center;
-}
-
-.option-btn:hover {
-    opacity: 0.9; 
-}
-</style>
+    text-align: left;
+  }
+  .multiple-choice-container .option-btn:hover {
+    opacity: 0.9;
+  }
+  </style>  

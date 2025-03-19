@@ -16,11 +16,34 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
         self.answered_questions = set()
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
+        participants = await database_sync_to_async(list)(
+            self.room.participants.exclude(user__role__iexact="tutor").values_list('user__email_address', flat=True)
+        )
+        participant_number = len(participants)
+        update_message = {
+            "type": "participants_update",
+            "participants": participants,
+            "participant_number": participant_number
+        }
+        await self.channel_layer.group_send(self.room_group_name, update_message)
+        await self.channel_layer.group_send(f"live_quiz_{self.join_code}", update_message)
     
     
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-    
+        room = await database_sync_to_async(Room.objects.get)(join_code=self.join_code)
+        participants = await database_sync_to_async(list)(
+            room.participants.exclude(user__role__iexact="tutor").values_list('user__email_address', flat=True)
+        )
+        participant_number = len(participants)
+        update_message = {
+            "type": "participants_update",
+            "participants": participants,
+            "participant_number": participant_number
+        }
+        await self.channel_layer.group_send(self.room_group_name, update_message)
+        await self.channel_layer.group_send(f"live_quiz_{self.join_code}", update_message)
+
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -35,7 +58,6 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
                 return
             self.answered_questions.add(question_id)
             user = self.scope.get("user")
-            #this will need better handling
             if user and question_id:
                 await self.save_response(user, question_type, question_id, answer)
             await self.channel_layer.group_send(
@@ -96,14 +118,27 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
     
 
     async def leaderboard_update(self, event):
-        await self.send(text_data=json.dumps({
+        response = {
             "type": "leaderboard_update",
             "leaderboard": event.get("leaderboard")
-        }))
+        }
+        if "answered_count" in event:
+            response["answered_count"] = event["answered_count"]
+        if "participant_number" in event:
+            response["participant_number"] = event["participant_number"]
+        await self.send(text_data=json.dumps(response))
     
 
     async def quiz_ended(self, event):
         await self.send(text_data=json.dumps({
             "type": "quiz_ended",
             "message": event.get("message")
+        }))
+    
+
+    async def participants_update(self, event):
+        await self.send(text_data=json.dumps({
+            "action": "update_participants",
+            "participant_number": event.get("participant_number"),
+            "participants": event.get("participants")
         }))
