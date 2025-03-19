@@ -11,6 +11,8 @@ from app.models import (
     TextInputQuestion,
     Room,
     RoomParticipant,
+    Stats,
+    QuestionStats,
     User,
 )
 
@@ -31,4 +33,6 @@ class Command(BaseCommand):
         TextInputQuestion.objects.all().delete(),
         Room.objects.all().delete()
         RoomParticipant.objects.all().delete()
+        Stats.objects.all().delete()
+        QuestionStats.objects.all().delete()
 

@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.contenttypes.models import ContentType
 from app.helpers.helper_functions import calculate_user_score
+from app.helpers.helper_functions import getAllQuestions
 from faker import Faker
 import random
 from app.models import ( 
@@ -59,13 +60,13 @@ class Command(BaseCommand):
         self.create_tutor_fixtures()
         self.create_user_fixtures()
         self.generate_users()
-        self.generate_rooms()
+        # self.generate_rooms()
         self.generate_classroom()
         self.generate_classroom_invite()
         self.generate_quizzes()
         self.generate_quiz_responses()
         self.generate_stats()
-        self.generate_question_stats()
+        self.generate_quiz_question_stats()
 
     "User generation functions"
 
@@ -415,23 +416,29 @@ class Command(BaseCommand):
         quiz = Quiz.objects.filter(name="Arithmetic Test").first()
         room = Room.objects.create(name="Arithmetic Test Room", quiz=quiz)
         for student in students:
+            participant = RoomParticipant.objects.create(room=room, user=student)
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=1))
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=2))
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=3))
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=4))
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=5))
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=6))
+            participant.score = calculate_user_score(student, room)
+            participant.save()
 
     def generate_quiz_3_responses(self):
         students = list(User.objects.filter(role=User.STUDENT))
         quiz = Quiz.objects.filter(name="Physics Basics").first()
         room = Room.objects.create(name="Physics Test Room", quiz=quiz)
         for student in students:
+            participant = RoomParticipant.objects.create(room=room, user=student)
             self.generate_multiple_choice_response(student, room, MultipleChoiceQuestion.objects.get(quiz=quiz, position=1))
             self.generate_true_false_response(student, room, TrueFalseQuestion.objects.get(quiz=quiz, position=2))
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=3))
             self.generate_multiple_choice_response(student, room, MultipleChoiceQuestion.objects.get(quiz=quiz, position=4))
             self.generate_text_input_response(student, room, TextInputQuestion.objects.get(quiz=quiz, position=5))
+            participant.score = calculate_user_score(student, room)
+            participant.save()
      
     def generate_integer_input_response(self, user, room, question):
         IntegerInputResponse.objects.create(
@@ -497,12 +504,13 @@ class Command(BaseCommand):
         )
         room_stat.save()
 
-    def generate_question_stats(self):
-        room = Room.objects.filter(name="Python Quiz Room").first()
-        quiz = Quiz.objects.filter(name="Python Basics").first()
-
-        from app.helpers.helper_functions import getAllQuestions
-        questions = getAllQuestions(quiz)
+    def generate_quiz_question_stats(self):
+        for room in Room.objects.all():
+            self.generate_question_stats(room)
+        
+    
+    def generate_question_stats(self, room):
+        questions = getAllQuestions(room.quiz)
 
         for question in questions:
             question_stat = QuestionStats.objects.create(
