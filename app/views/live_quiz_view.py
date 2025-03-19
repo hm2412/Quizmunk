@@ -6,7 +6,7 @@ from app.helpers.helper_functions import getAllQuestions
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.views.decorators.csrf import csrf_exempt
-
+from django.http import Http404
 
 def get_room(join_code):
     return get_object_or_404(Room, join_code=join_code)
@@ -14,11 +14,12 @@ def get_room(join_code):
 
 @is_tutor
 def tutor_live_quiz(request, quiz_id, join_code):
+    
     room = get_room(join_code)
     quiz = get_object_or_404(Quiz, pk=quiz_id)
     all_questions = quiz.get_all_questions()
     first_question = all_questions[0] if all_questions else None
-    participants = RoomParticipant.objects.filter(room=room)
+    participants = RoomParticipant.objects.filter(room=room).exclude(user__role__iexact="tutor")
     participantNumber = participants.count()
 
     context = {
@@ -37,10 +38,11 @@ def tutor_live_quiz(request, quiz_id, join_code):
         {
             "type": "quiz_started",
             "student_quiz_url": f"/student/live-quiz/{join_code}/",
-            "tutor_quiz_url": f"/live-quiz/{quiz_id}/{join_code}",
+            "tutor_quiz_url": f"/live-quiz/{quiz_id}/{join_code}/",
         }
     )
     return render(request, 'tutor/live_quiz.html', context)
+
 
 
 def student_live_quiz(request, room_code):
@@ -65,21 +67,43 @@ def student_live_quiz(request, room_code):
     return render(request, 'student/student_live_quiz.html', context)
 
 
+def load_partial(request, partial_name):
+    allowed_partials = [
+        "integer_input",
+        "decimal_input",
+        "text_input",
+        "multiple_choice",
+        "true_false",
+        "numerical_range"
+    ]
+    if partial_name not in allowed_partials:
+        raise Http404("Partial not found")
+    return render(request, f"partials/{partial_name}.html")
+
+
 def start_quiz(request, join_code):
     room = get_object_or_404(Room, join_code=join_code)
 
     if request.method == "POST":
-        room.current_question_index = 0
-        room.is_quiz_active = True
+        # Set up the room and start the quiz
+        room.current_question_index = 0  # Set to the first question
+        room.is_quiz_active = True  # Mark quiz as active
         room.save()
 
+        # You can return a JsonResponse if you need the frontend to handle something
+        # But if you want to redirect the tutor to the quiz page:
+        if request.user.role == 'tutor':
+            return redirect(f"/live-quiz/{room.quiz.id}/{join_code}/")
+
+        # Optionally, you can include logic for students or other participants here
         return JsonResponse({
             "status": "success",
             "message": "Quiz started",
             "first_question": room.get_current_question().question_text
         })
+    
+    return JsonResponse({"error": "Invalid request"}, status=400)    
 
-    return JsonResponse({"error": "Invalid request"}, status=400)
 
 
 @csrf_exempt

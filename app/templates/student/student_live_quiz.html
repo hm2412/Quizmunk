@@ -22,7 +22,7 @@
       <h2 id="question-text" class="fw-bold">Loading question...</h2>
     </div>
     <div class="answer-container d-flex flex-column align-items-center gap-3 mt-3">
-      <!-- Answer options or input will be injected here -->
+      <!-- The answer input will be loaded here dynamically via the partial loader -->
     </div>
     <!-- Leaderboard container for students -->
     <div id="student-leaderboard" class="mt-3 w-50"></div>
@@ -38,85 +38,95 @@
       const joinCode = "{{ room.join_code }}";
       const ws = new WebSocket(`ws://${window.location.host}/ws/student/${joinCode}/`);
 
+      // Utility function: Load the proper partial based on question type.
+      function loadPartial(questionType, callback) {
+        let partialName = "";
+        switch (questionType) {
+          case "decimal":
+            partialName = "decimal_input";
+            break;
+          case "integer":
+            partialName = "integer_input";
+            break;
+          case "text":
+            partialName = "text_input";
+            break;
+          case "multiple_choice":
+            partialName = "multiple_choice";
+            break;
+          case "true_false":
+            partialName = "true_false";
+            break;
+          case "numerical_range":
+            partialName = "numerical_range";
+            break;
+          default:
+            callback("");
+            return;
+        }
+        // Fetch the partial from the dedicated view.
+        $.get(`/load-partial/${partialName}/`, function(data) {
+          callback(data);
+        }).fail(function() {
+          callback("");
+        });
+      }
+
       ws.onopen = () => console.log("WebSocket connected!");
 
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        if(data.type === "question_update") {
-          // Update the current question info, including its ID and type.
+        if (data.type === "question_update") {
+          // Update question information.
           currentQuestionNumber = data.question_number;
           currentQuestionId = data.question_id;
           currentQuestionType = data.question_type;
           $("#question-text").text(data.question);
           $(".quiz-header p").text(`Question ${data.question_number} of ${data.total_questions}`);
 
+          // Load the corresponding partial based on question type.
           const $answerContainer = $(".answer-container");
           $answerContainer.empty();
+          loadPartial(currentQuestionType, function(partialHtml) {
+            if (partialHtml) {
+              $answerContainer.html(partialHtml);
 
-          // For multiple choice and true/false, render answer buttons.
-          if(data.question_type === "multiple_choice" || data.question_type === "true_false") {
-            data.options.forEach((option, index) => {
-              $answerContainer.append(
-                `<button class="answer-box btn btn-outline-primary px-5 py-3">
-                   ${String.fromCharCode(65+index)}. ${option}
-                 </button>`
-              );
-            });
-          }
-          // For input-based questions, render an input field and a submit button.
-          else if(data.question_type === "integer" || data.question_type === "decimal") {
-            $answerContainer.html(
-              `<div class="form-group w-100">
-                  <input type="number" class="form-control" placeholder="Enter your answer">
-               </div>
-               <button class="btn btn-primary submit-answer-btn mt-2">Submit Answer</button>`
-            );
-          }
-          else if(data.question_type === "text") {
-            $answerContainer.html(
-              `<div class="form-group w-100">
-                  <textarea class="form-control" rows="3" placeholder="Type your answer here..."></textarea>
-               </div>
-               <button class="btn btn-primary submit-answer-btn mt-2">Submit Answer</button>`
-            );
-          }
-          else if(data.question_type === "numerical_range") {
-            $answerContainer.html(
-              `<div class="form-group w-100">
-                  <input type="number" class="form-control" placeholder="Enter a number within the range">
-               </div>
-               <button class="btn btn-primary submit-answer-btn mt-2">Submit Answer</button>`
-            );
-          }
-          else if(data.question_type === "sorting") {
-            const $sortableList = $('<ul class="list-group sortable">');
-            data.items.forEach(item => {
-              $sortableList.append(`<li class="list-group-item">${item}</li>`);
-            });
-            $answerContainer.html($sortableList);
-            $answerContainer.append('<button class="btn btn-primary submit-answer-btn mt-2">Submit Order</button>');
-            $(".sortable").sortable();
-          }
-
-          // Enable inputs if answer not yet revealed.
-          if(data.answer || data.time === 0) {
-            $(".answer-box, input, textarea, .submit-answer-btn").prop("disabled", true);
-          } else {
-            $(".answer-box, input, textarea, .submit-answer-btn").prop("disabled", false);
-          }
+              // For multiple choice, dynamically create option buttons.
+              if (data.question_type === "multiple_choice") {
+                const $container = $("#multiple-choice-container");
+                $container.empty();
+                if (data.options && data.options.length > 0) {
+                  data.options.forEach((option, index) => {
+                    const button = $('<button class="btn option-btn answer-box"></button>');
+                    button.text(String.fromCharCode(65 + index) + ". " + option);
+                    $container.append(button);
+                  });
+                } else {
+                  $container.html("<p>No options provided.</p>");
+                }
+              }
+            } else {
+              $answerContainer.html("<p>Unable to load answer input.</p>");
+            }
+            // Disable inputs if answer is revealed or time is 0.
+            if (data.answer || data.time === 0) {
+              $answerContainer.find("button, input, textarea").prop("disabled", true);
+            } else {
+              $answerContainer.find("button, input, textarea").prop("disabled", false);
+            }
+          });
         }
-        else if(data.type === "answer_received") {
-          // Optionally, highlight the selected answer if needed.
+        else if (data.type === "answer_received") {
+          // Optionally highlight the selected answer.
           $(".answer-box").removeClass("btn-success");
           $(".answer-box").filter(function() {
             return $(this).text().includes(data.answer);
           }).addClass("btn-success");
         }
-        else if(data.type === "leaderboard_update") {
-          // Update the student leaderboard container.
+        else if (data.type === "leaderboard_update") {
           const $lb = $("#student-leaderboard");
           $lb.empty();
-          if(data.leaderboard && data.leaderboard.length) {
+          if (data.leaderboard && data.leaderboard.length) {
             let html = '<h4>Leaderboard</h4><ul class="list-group">';
             data.leaderboard.forEach(entry => {
               html += `<li class="list-group-item">#${entry.rank} ${entry.participant}: ${entry.score}</li>`;
@@ -125,20 +135,25 @@
             $lb.html(html);
           }
         }
-        else if(data.type === "quiz_ended") {
+        else if (data.type === "quiz_ended") {
           $(".answer-box, input, textarea, .submit-answer-btn").prop("disabled", true);
           alert(data.message);
           ws.close();
           setTimeout(() => {
-            window.location.href = "/student-dashboard/";
+            window.location.href = "/student-dashboard/"; 
           }, 2000);
         }
       };
 
-      // Handler for clickable answer boxes (multiple choice/true-false).
+      // Handle answer submission for button-based answers.
       $(document).on('click', '.answer-box', function () {
-        const answer = $(this).text().split('. ')[1];
-        console.log("Submitting answer from button:", answer);
+        let fullText = $(this).text().trim();
+        let answer;
+        if (fullText.indexOf('. ') !== -1) {
+          answer = fullText.split('. ')[1];
+        } else {
+          answer = fullText;
+        }
         ws.send(JSON.stringify({
           action: "submit_answer",
           answer: answer,
@@ -151,10 +166,10 @@
         $(this).addClass("active btn-primary");
       });
 
-      // Handler for the explicit submit button (for input-based or sorting questions).
+      // Handle submission for input-based answers.
       $(document).on('click', '.submit-answer-btn', function () {
         let answer;
-        if(currentQuestionType === "sorting") {
+        if (currentQuestionType === "sorting") {
           let sortedItems = [];
           $('.sortable li').each(function () {
             sortedItems.push($(this).text());
@@ -163,7 +178,6 @@
         } else {
           answer = $(".answer-container input, .answer-container textarea").val();
         }
-        console.log("Submitting answer via button:", answer);
         ws.send(JSON.stringify({
           action: "submit_answer",
           answer: answer,

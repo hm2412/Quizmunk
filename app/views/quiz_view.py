@@ -5,6 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from app.helpers.decorators import is_tutor, redirect_unauthenticated_to_homepage
 from django.views.decorators.http import require_POST
+from django.core.files.storage import default_storage
 from app.models.room import Room, RoomParticipant
 from app.question_registry import QUESTION_FORMS, QUESTION_MODELS
 from channels.layers import get_channel_layer
@@ -125,6 +126,28 @@ def delete_question_view(request, question_id):
     question.delete()
     return redirect('edit_quiz', quiz_id=quiz_id)
 
+@redirect_unauthenticated_to_homepage
+@is_tutor
+def delete_question_image_view(request, question_id):
+    question = None
+    for key, model in QUESTION_MODELS.items():
+        try:
+            question = model.objects.get(pk=question_id)
+            break
+        except model.DoesNotExist:
+            continue
+
+    if not question:
+        return HttpResponse("Question not found", status=404)
+    
+    quiz_id = question.quiz.id
+    if question.image:
+        if default_storage.exists(question.image.name):
+            default_storage.delete(question.image.name)
+        question.image = None
+        question.save()
+    return redirect('edit_quiz', quiz_id=quiz_id)
+
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
@@ -160,7 +183,7 @@ def get_question_view(request, quiz_id):
     #add more types here with their uniqe fields
     if question_type == "multiple_choice":
         data["options"] = question.options
-        data["correct_option"] = question.correct_option
+        data["correct_answer"] = question.correct_answer
     elif question_type == "numerical_range":
         data["min_value"] = question.min_value
         data["max_value"] = question.max_value
