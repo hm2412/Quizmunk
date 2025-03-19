@@ -496,4 +496,19 @@ class Command(BaseCommand):
             median_score = 3
         )
         room_stat.save()
-     
+
+    def generate_question_stats(self):
+        room = Room.objects.filter(name="Python Quiz Room").first()
+        quiz = Quiz.objects.filter(name="Python Basics").first()
+
+        from app.helpers.helper_functions import getAllQuestions
+        questions = getAllQuestions(quiz)
+
+        for question in questions:
+            question_stat = QuestionStats.objects.create(
+                room=room,
+                question_type=ContentType.objects.get_for_model(question),
+                question_id=question.id
+            )
+            question_stat.save()
+       
