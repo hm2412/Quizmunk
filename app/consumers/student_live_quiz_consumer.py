@@ -35,6 +35,7 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
                 return
             self.answered_questions.add(question_id)
             user = self.scope.get("user")
+            #this will need better handling
             if user and question_id:
                 await self.save_response(user, question_type, question_id, answer)
             await self.channel_layer.group_send(
@@ -49,7 +50,8 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
     def save_response(self, user, question_type, question_id, answer):
         if question_type == "true_false":
             question = TrueFalseQuestion.objects.get(id=question_id)
-            return TrueFalseResponse.objects.create(player=user, room=self.room, question=question, answer=bool(answer))
+            bool_answer = True if str(answer).strip().lower() == "true" else False
+            return TrueFalseResponse.objects.create(player=user, room=self.room, question=question, answer=bool_answer)
         elif question_type == "integer":
             question = IntegerInputQuestion.objects.get(id=question_id)
             return IntegerInputResponse.objects.create(player=user, room=self.room, question=question, answer=int(answer))
