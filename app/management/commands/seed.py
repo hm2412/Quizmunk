@@ -1,4 +1,6 @@
 from django.core.management.base import BaseCommand
+from django.contrib.contenttypes.models import ContentType
+from app.helpers.helper_functions import calculate_user_score
 from faker import Faker
 import random
 from app.models import ( 
@@ -18,7 +20,9 @@ from app.models import (
     IntegerInputResponse,
     TextInputResponse,
     MultipleChoiceResponse,
-    TrueFalseResponse
+    TrueFalseResponse,
+    Stats,
+    QuestionStats
 )
 
 """The way this seeder works is it adds TWO admins, TWO tutors, TWO known students and 94 random students.
@@ -60,6 +64,8 @@ class Command(BaseCommand):
         self.generate_classroom_invite()
         self.generate_quizzes()
         self.generate_quiz_responses()
+        self.generate_stats()
+        self.generate_question_stats()
 
     "User generation functions"
 
@@ -396,10 +402,13 @@ class Command(BaseCommand):
         quiz = Quiz.objects.filter(name="Python Basics").first()
         room = Room.objects.create(name="Python Quiz Room", quiz=quiz)
         for student in students:
+            participant = RoomParticipant.objects.create(room=room, user=student)
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=1))
             self.generate_true_false_response(student, room, TrueFalseQuestion.objects.get(quiz=quiz, position=2))
             self.generate_multiple_choice_response(student, room, MultipleChoiceQuestion.objects.get(quiz=quiz, position=3))
             self.generate_text_input_response(student, room, TextInputQuestion.objects.get(quiz=quiz, position=4))
+            participant.score = calculate_user_score(student, room)
+            participant.save()
         
     def generate_quiz_2_responses(self):
         students = list(User.objects.filter(role=User.STUDENT))
@@ -455,3 +464,36 @@ class Command(BaseCommand):
             question=question,
             answer=random.choice([True,False])
         )
+
+    def generate_stats(self):
+        room = Room.objects.filter(name="Python Quiz Room").first()
+        quiz = Quiz.objects.filter(name="Python Basics").first()
+        room_stats = Stats.objects.create(
+            room=room,
+            quiz=quiz,
+            num_participants = User.objects.filter(role=User.STUDENT).count(),
+            mean_score = 4,
+            median_score = 3
+        )
+
+        room = Room.objects.filter(name="Arithmetic Test Room").first()
+        quiz = Quiz.objects.filter(name="Arithmetic Test").first()
+        room_stats = Stats.objects.create(
+            room=room,
+            quiz=quiz,
+            num_participants = User.objects.filter(role=User.STUDENT).count(),
+            mean_score = 4,
+            median_score = 3
+        )
+
+        room = Room.objects.filter(name="Physics Test Room").first()
+        quiz = Quiz.objects.filter(name="Physics Basics").first()
+        room_stat = Stats.objects.create(
+            room=room,
+            quiz=quiz,
+            num_participants = User.objects.filter(role=User.STUDENT).count(),
+            mean_score = 4,
+            median_score = 3
+        )
+        room_stat.save()
+     
