@@ -16,6 +16,7 @@ class QuizTestCase(TestCase):
             subject="Computer Science", 
             difficulty="M",
             type="L",
+            is_public=False,
             tutor=self.test_tutor
         )
         
@@ -23,6 +24,7 @@ class QuizTestCase(TestCase):
     def test_valid_quiz_is_valid(self):
         self.assertEqual(self.quiz.name, "Test Quiz")
         self.assertEqual(self.quiz.tutor, self.test_tutor)
+        self.assertFalse(self.quiz.is_public)
 
     def test_quiz_name_max_length(self):
         with self.assertRaises(ValidationError):
@@ -82,6 +84,16 @@ class QuizTestCase(TestCase):
                 tutor=non_tutor
             )
             invalid_quiz.full_clean()
+
+    def test_quiz_public_default_value(self):
+        quiz = Quiz.objects.create(
+            name="Default Quiz",
+            subject="Test",
+            difficulty="M",
+            type="L",
+            tutor=self.test_tutor
+        )
+        self.assertFalse(quiz.is_public)
 
 class QuestionTestCase(TestCase):
     def setUp(self):

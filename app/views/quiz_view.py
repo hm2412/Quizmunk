@@ -174,10 +174,8 @@ def get_question_view(request, quiz_id):
 @redirect_unauthenticated_to_homepage
 @is_tutor
 def your_quizzes_view(request):
-    """show the drafts created by the tutor"""
     drafts = Quiz.objects.filter(tutor=request.user).order_by("-id")
-    context = {'drafts':drafts}
-    return render(request, 'tutor/your_quizzes.html', context)
+    return render(request, 'tutor/your_quizzes.html', {'drafts': drafts})
 
 
 @redirect_unauthenticated_to_homepage

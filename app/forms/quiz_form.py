@@ -6,12 +6,12 @@ class QuizForm(forms.ModelForm):
 
     class Meta:
         model = Quiz
-        fields = ['name', 'subject', 'difficulty','quiz_img']
+        fields = ['name', 'subject', 'difficulty', 'quiz_img', 'is_public']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter quiz name'}),
             'subject': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter subject'}),
-            'difficulty': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Enter difficulty level'}),
-            #'type': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Enter type'}),
+            'difficulty': forms.Select(attrs={'class': 'form-control'}),
+            'is_public': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):
