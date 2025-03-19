@@ -48,24 +48,18 @@
                     <p>No quiz associated with this room.</p>
                     {% endif %}
                 {% endif %}
-    <script>
-        const ws = new WebSocket(`ws://${window.location.host}/ws/lobby/{{ room.join_code }}/`);
-
-        var userRole = "{{ request.user.role|default:'guest' }}";
-        console.log("User role:", userRole);
-
-        let quizStarted = false; 
         </section>
     </main>
 
 <script>
+    const ws = new WebSocket(`ws://${window.location.host}/ws/lobby/{{ join_code }}/`);
     var userRole = "{{ request.user.role|default:'guest' }}";
     console.log("User role:", userRole);
+    let quizStarted = false; 
 
-    const ws = new WebSocket(`ws://${window.location.host}/ws/lobby/{{ join_code }}/`);
-
-            
-            if (data.action && data.action == "quiz_started"){
+    ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        if (data.action && data.action == "quiz_started"){
                 if (!quizStarted) {
                     quizStarted = true; 
                     if(userRole == "tutor"){
@@ -74,22 +68,6 @@
                         window.location.href = data.student_quiz_url;
                     }
                 }
-            }else if (data.participants) {
-                const participantsList = document.getElementById("participants-list");
-                participantsList.innerHTML = "";
-                data.participants.forEach(participant => {
-                    const li = document.createElement("li");
-                    li.textContent = participant;
-                    participantsList.appendChild(li);
-                });
-    ws.onmessage = function(event) {
-        const data = JSON.parse(event.data);
-        if (data.action && data.action == "quiz_started"){
-            if(userRole == "tutor"){
-                window.location.href = data.tutor_quiz_url;
-            }else{
-                window.location.href = data.student_quiz_url;
-            }
         }else if (data.participants) {
             const participantsList = document.getElementById("participants-list");
             participantsList.innerHTML = "";
