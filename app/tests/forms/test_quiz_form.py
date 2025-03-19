@@ -9,7 +9,8 @@ class QuizFormTestCase(TestCase): #The last 3 of these fail, not sure what's up 
         self.form_input = {
             'name': 'Sample Quiz',
             'subject': 'Math',
-            'difficulty': 'M'
+            'difficulty': 'M',
+            'is_public': False
         }
 
     def test_valid_quiz_form(self):
@@ -21,6 +22,7 @@ class QuizFormTestCase(TestCase): #The last 3 of these fail, not sure what's up 
         self.assertIn('name', form.fields)
         self.assertIn('subject', form.fields)
         self.assertIn('difficulty', form.fields)
+        self.assertIn('is_public', form.fields)
         #test type once present in the form webpage
 
     def test_name_is_required(self):
@@ -64,6 +66,7 @@ class QuizFormTestCase(TestCase): #The last 3 of these fail, not sure what's up 
         self.assertEqual(quiz.name, 'Sample Quiz')
         self.assertEqual(quiz.subject, 'Math')
         self.assertEqual(quiz.difficulty, 'M')
+        self.assertEqual(quiz.is_public, False)
         self.assertEqual(quiz.type, '') #this should also be changed
 
 #these are later tests when type field is insterted in the webpage

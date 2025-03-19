@@ -20,6 +20,7 @@ class Quiz(models.Model):
     subject = models.CharField(blank=True, max_length=50)
     difficulty = models.CharField(blank=True, max_length=1, choices=DIFFICULTIES)
     type = models.CharField(max_length=1, choices=TYPES, blank=True)
+    is_public = models.BooleanField(default=False, help_text="If true, quiz will be visible to all tutors")
     tutor = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

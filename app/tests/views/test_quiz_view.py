@@ -29,6 +29,7 @@ class ViewTests(TestCase):
             subject="general",
             difficulty="E",
             type="L",
+            is_public=False,
             tutor=self.tutor_user,
         )
         # Create a question
@@ -94,5 +95,25 @@ class ViewTests(TestCase):
         """Unauthenticated users should not be able to access the edit quiz page"""
         response = self.client.get(reverse("edit_quiz", args=[self.quiz.id]))
         self.assertEqual(response.status_code, 302)
+
+    def test_create_quiz_with_public_setting(self):
+        self.client.login(email_address="tutor@example.com", password="password123")
+        response = self.client.post(reverse("create_quiz"), {
+            'name': 'New Quiz',
+            'subject': 'Test Subject',
+            'difficulty': 'E',
+            'is_public': True
+        })
+        self.assertEqual(Quiz.objects.last().is_public, True)
+
+    def test_create_quiz_with_private_setting(self):
+        self.client.login(email_address="tutor@example.com", password="password123")
+        response = self.client.post(reverse("create_quiz"), {
+            'name': 'New Quiz',
+            'subject': 'Test Subject',
+            'difficulty': 'E',
+            'is_public': False
+        })
+        self.assertEqual(Quiz.objects.last().is_public, False)
 
     #delete question and other things should be added later
