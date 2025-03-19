@@ -1,11 +1,26 @@
-<header>
-    <h1 class="title">QuizMunk</h1>
-    <nav>
-        <ul>
+{% load static %}
+<div class="sidebar">
+    <img src="{% static 'images/chipmunk.svg' %}">
+    <h2>QuizMunk</h2>
+    <ul>
+        {% if user.is_authenticated %}
+            {% if user.role == "tutor" %}
+                <li><a href="{% url 'tutor_dashboard' %}">Dashboard</a></li>
+                <li><a href="{% url 'your_quizzes' %}">Your Quizzes</a></li>
+                <li><a href="{% url 'tutor_classroom_view' %}">Classrooms</a></li>
+                <li><a href="#">Stats</a></li>
+                <li><a href="{% url 'tutor_profile' %}">Profile</a></li>
+            {% elif user.role == "student" %}
+                <li><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+                <li><a href="{% url 'student_classroom_view' %}">Classrooms</a></li>
+                <li><a href="{% url 'student_profile' %}">Profile</a></li>
+            {% endif %}
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+        {% else %}
             <li><a href="{% url 'homepage' %}">Home</a></li>
-            <li><a href="#">Features</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Contact</a></li>
-        </ul>
-    </nav>
-</header>
+            <li><a href="{% url 'about_us' %}">About Us</a></li>
+            <li><a href="{% url 'login' %}">Login</a></li>
+            <li><a href="{% url 'sign_up' %}">Sign Up</a></li>
+        {% endif %}
+    </ul>
+</div>

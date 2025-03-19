@@ -167,7 +167,7 @@
           if (type === "integer" || type == "text" || type == "decimal")  {
             $("#editor").find("[name='correct_answer']").val(data.correct_answer || "");
           } else if (type == "true_false") {
-            $("#editor").find("[name='is_correct']").prop("checked", data.is_correct === true || data.is_correct === "True"); 
+            $("#editor").find("[name='correct_answer']").prop("checked", data.correct_answer === true || data.correct_answer === "True"); 
           } else if (type == "multiple_choice") {
             $("#editor").find("[name='options[]']").each(function(index) {
               $(this).val(data.options ? data.options[index] : "");
@@ -285,7 +285,7 @@
       });
       // save clicked return to dashboard
       $("#finish-quiz").click(function(){
-        window.location.href = "/tutor-dashboard/";
+        window.location.href = "/your-quizzes/";
       });
     });
 
@@ -329,7 +329,7 @@
       $("#finish-quiz").click(function(){
         showToast("Quiz saved successfully!", "success");
         setTimeout(() => {
-          window.location.href = "/tutor-dashboard/";
+          window.location.href = "/your-quizzes/";
         }, 2000);
       });
   

@@ -1,54 +1,86 @@
-from django.shortcuts import redirect,render, get_object_or_404
-from app.models import Quiz, RoomParticipant, Room, Question, IntegerInputQuestion, TrueFalseQuestion, QuizState
-from django.http import HttpResponse, JsonResponse
-from django.urls import reverse
+from django.http import JsonResponse
+from django.shortcuts import redirect, render, get_object_or_404
+from app.models import Quiz, RoomParticipant, Room, GuestAccess, QuizState
 from app.helpers.decorators import is_tutor
 from app.helpers.helper_functions import getAllQuestions
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.views.decorators.csrf import csrf_exempt
 
 
-'''Student Live Quiz'''
-def student_live_quiz(request, room_code):
-    room = get_object_or_404(Room, join_code=room_code)
-    return render(request, 'student/student_live_quiz.html', {'room': room})
-
-
-'''Tutor Live Quiz'''
 def get_room(join_code):
     return get_object_or_404(Room, join_code=join_code)
 
+
 @is_tutor
-def tutor_live_quiz(request, join_code):
+def tutor_live_quiz(request, quiz_id, join_code):
     room = get_room(join_code)
+    quiz = get_object_or_404(Quiz, pk=quiz_id)
+    all_questions = quiz.get_all_questions()
+    first_question = all_questions[0] if all_questions else None
     participants = RoomParticipant.objects.filter(room=room)
-    leaders = participants.order_by('-score')[:10]
     participantNumber = participants.count()
 
     context = {
+        'quiz': quiz,
+        'first_question': first_question,
+        'questions': all_questions,
         'room': room,
         'join_code': join_code,
         'participants': participants,
-        'leaders': leaders,
         'participant_number': participantNumber,
     }
+
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f"lobby_{join_code}",
+        {
+            "type": "quiz_started",
+            "student_quiz_url": f"/student/live-quiz/{join_code}/",
+            "tutor_quiz_url": f"/live-quiz/{quiz_id}/{join_code}",
+        }
+    )
     return render(request, 'tutor/live_quiz.html', context)
 
-def start_quiz(request, join_code):
-    room = get_room(join_code)
-    questions = getAllQuestions(room.quiz)
 
-    if not questions:
-        return JsonResponse({"error": "No questions found for this quiz."}, status=400)
+def student_live_quiz(request, room_code):
+    room = get_object_or_404(Room, join_code=room_code)
+    if request.user.is_authenticated and request.user.role.lower() != "tutor":
+        participant, created = RoomParticipant.objects.get_or_create(room=room, user=request.user)
+    else:
+        guest_session = request.session.session_key
+        if not guest_session:
+            request.session.save()
+            guest_session = request.session.session_key
+        from app.models.guest import GuestAccess
+        guest_access, _ = GuestAccess.objects.get_or_create(session_id=guest_session)
+        participant, created = RoomParticipant.objects.get_or_create(room=room, guest_access=guest_access)
+    participants = RoomParticipant.objects.filter(room=room).exclude(user__role__iexact="tutor")
+    participant_number = participants.count()
+    context = {
+        'room': room,
+        'participants': participants,
+        'participant_number': participant_number
+    }
+    return render(request, 'student/student_live_quiz.html', context)
+
+
+def start_quiz(request, join_code):
+    room = get_object_or_404(Room, join_code=join_code)
 
     if request.method == "POST":
-        quiz_state, created = QuizState.objects.get_or_create(room=room)
-        if not created:
-            quiz_state.current_question_index = 0
-            quiz_state.quiz_started = True
-            quiz_state.save()
+        room.current_question_index = 0
+        room.is_quiz_active = True
+        room.save()
 
-        return JsonResponse({"message": "Quiz started!"})
+        return JsonResponse({
+            "status": "success",
+            "message": "Quiz started",
+            "first_question": room.get_current_question().question_text
+        })
+
     return JsonResponse({"error": "Invalid request"}, status=400)
+
 
 @csrf_exempt
 def next_question(request, join_code):
@@ -82,13 +114,11 @@ def next_question(request, join_code):
         quiz_state.save()
         return JsonResponse({
             "question_number": quiz_state.current_question_index,
-            "question": current_question.question_text,  
+            "question": current_question.question_text,
             # "answer": current_question.correct_answer
         })
     else:
         return JsonResponse({"message": "No more questions!"})
-
-
 
 
 @csrf_exempt
@@ -104,4 +134,3 @@ def end_quiz(request, join_code):
         return JsonResponse({"error": "Quiz not found for this room."}, status=400)
 
     return JsonResponse({"error": "Invalid request"}, status=400)
-

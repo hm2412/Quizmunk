@@ -1,0 +1,109 @@
+/* Set global styles */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.content-area {
+  flex-grow: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Styling for question, leaderboard, and answer sections */
+.question-container, 
+.leaderboard-container, 
+.answer-container {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.question-container{
+  text-align: center;
+  background-color: #398AA2;
+  color: white;
+}
+
+.question{
+  font-size: 35px;
+  color: #398AA2;
+  background-color: white;
+}
+
+.leaderboard-container {
+  flex-grow: 0;  /* Prevent it from taking too much space */
+  max-width: 300px;  /* Adjust width */
+  width: 100%;  /* Make sure it doesn't exceed max-width */
+  overflow-y: auto;
+  margin: 0 auto; /* Centers it */
+}
+
+.answer-container{
+  text-align: center;
+  background-color: #28a745;
+  color: white;
+}
+
+.row{
+  text-align: center;
+  background-color: #28a745;
+  color: white;
+}
+
+.answer{
+  font-size: 35px;
+}
+
+/* Sidebar styles */
+.sidebar {
+  width: 10%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 50px;
+}
+
+.circle {
+  width: 150px;
+  height: 150px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  color: black;
+}
+
+.circle p {
+  margin: 0;
+  color: black;
+}
+
+.time-text {
+  color: black;  /* Change to any color */
+  font-weight: italic;
+}
+
+.seconds-text {
+  color: black;  /* Change to any color */
+  font-style: italic;
+}

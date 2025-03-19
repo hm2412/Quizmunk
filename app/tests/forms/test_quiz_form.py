@@ -28,17 +28,21 @@ class QuizFormTestCase(TestCase): #The last 3 of these fail, not sure what's up 
         form = QuizForm(data=self.form_input)
         self.assertFalse(form.is_valid())
         self.assertIn('name', form.errors)
+        self.assertEqual(form.errors['name'][0], "Quiz name cannot be empty.")
 
     def test_subject_is_required(self):
         self.form_input['subject'] = ''
         form = QuizForm(data=self.form_input)
         self.assertFalse(form.is_valid())
         self.assertIn('subject', form.errors)
+        self.assertEqual(form.errors['subject'][0], "Subject cannot be empty.")
 
     def test_difficulty_is_required(self):
         self.form_input['difficulty'] = ''
         form = QuizForm(data=self.form_input)
-        self.assertTrue(form.is_valid())
+        self.assertFalse(form.is_valid())
+        self.assertIn('difficulty', form.errors)
+        self.assertEqual(form.errors['difficulty'][0], "Difficulty cannot be empty.")
 
 
     def test_form_save_creates_quiz(self):
