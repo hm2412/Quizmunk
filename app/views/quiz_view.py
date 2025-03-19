@@ -183,7 +183,7 @@ def get_question_view(request, quiz_id):
     #add more types here with their uniqe fields
     if question_type == "multiple_choice":
         data["options"] = question.options
-        data["correct_option"] = question.correct_option
+        data["correct_answer"] = question.correct_answer
     elif question_type == "numerical_range":
         data["min_value"] = question.min_value
         data["max_value"] = question.max_value

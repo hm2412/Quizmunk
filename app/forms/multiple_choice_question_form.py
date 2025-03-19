@@ -38,12 +38,12 @@ class MultipleChoiceQuestionForm(forms.ModelForm):
 
     class Meta:
         model = MultipleChoiceQuestion
-        fields = ['time', 'question_text', 'mark', 'options', 'correct_option', 'image']
+        fields = ['time', 'question_text', 'mark', 'options', 'correct_answer', 'image']
         widgets = {
             'time': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
             'question_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter question text'}),
             'mark': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
-            'correct_option': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter the correct option'}),
+            'correct_answer': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter the correct option'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }
     
@@ -69,8 +69,8 @@ class MultipleChoiceQuestionForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         options_list = cleaned_data.get('options')
-        correct_option = cleaned_data.get('correct_option')
-        if options_list and correct_option:
-            if correct_option.strip() not in options_list:
-                self.add_error('correct_option', 'the answer should match one of the options')
+        correct_answer = cleaned_data.get('correct_answer')
+        if options_list and correct_answer:
+            if correct_answer.strip() not in options_list:
+                self.add_error('correct_answer', 'the answer should match one of the options')
         return cleaned_data
