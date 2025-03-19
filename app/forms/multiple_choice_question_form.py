@@ -13,7 +13,7 @@ class MultipleChoiceOptionsWidget(forms.Widget):
         for option in value:
             html += (
                 '<div class="option-input">'
-                f'<input type="text" name="{name}" value="{option}" class="form-control" placeholder="Enter option" />'
+                f'<input type="text" name="{name}[]" value="{option}" class="form-control" placeholder="Enter option" />'
                 '</div>'
             )
         html += '</div>'
@@ -28,7 +28,7 @@ class MultipleChoiceOptionsWidget(forms.Widget):
         return mark_safe(html)
 
     def value_from_datadict(self, data, files, name):
-        return data.getlist(name)
+        return data.getlist(name + "[]")
 
 class MultipleChoiceQuestionForm(forms.ModelForm):
     options = forms.CharField(
@@ -61,9 +61,22 @@ class MultipleChoiceQuestionForm(forms.ModelForm):
 
     def clean_options(self):
         options = self.cleaned_data.get('options')
-        options_list = [option.strip() for option in options.splitlines() if option.strip()]
+
+        if isinstance(options, str):  
+            try:
+                options = eval(options)
+                if not isinstance(options, list):
+                    raise ValueError
+            except (SyntaxError, ValueError):
+                options = options.splitlines()
+
+        options_list = [option.strip() for option in options if option.strip()]
+
+        print("Cleaned options:", options_list)  # Debugging print
+
         if len(options_list) < 2:
             raise forms.ValidationError("Please enter at least two options.")
+
         return options_list
     
     def clean(self):
@@ -72,5 +85,6 @@ class MultipleChoiceQuestionForm(forms.ModelForm):
         correct_answer = cleaned_data.get('correct_answer')
         if options_list and correct_answer:
             if correct_answer.strip() not in options_list:
-                self.add_error('correct_answer', 'the answer should match one of the options')
+                #self.add_error('correct_answer', 'the answer should match one of the options')
+                raise forms.ValidationError("Ensure that the correct answer matches one of the options.")
         return cleaned_data
