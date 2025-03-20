@@ -19,7 +19,6 @@ def stats_view(request):
     ]"""
     return render(request, "tutor/stats.html", {"stats_list": stats_list})
 
-
 @is_tutor
 def stats_details(request, stats_id):
     """show the stats for the live quiz"""
@@ -85,20 +84,21 @@ def csv_download(request, stats_id):
             identifier = participant.guest_access.session_id[:8]
         writer.writerow([identifier, participant.joined_at, participant.score])
 
-def player_responses(request, room_id,player_id):
-    room = get_object_or_404(Room, id=room_id)
+def player_responses(request, room_id, player_id):
     player = get_object_or_404(User, id = player_id)
+    room = get_object_or_404(Room, id=room_id)
 
     responses = get_responses_by_player_in_room(player,room)
 
     context={
-        'room':room,
-        'player':player,
-        'responses':responses,
+        "player": player, 
+        "room": room, 
+        "responses": responses
     }
+
     return render(request, 'player_responses.html',context)
 
-def player_responses(request, room_id,question_id):
+def question_responses(request, room_id,question_id):
     room = get_object_or_404(Room, id=room_id)
     question = get_object_or_404(User, id = question_id)
 

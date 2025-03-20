@@ -44,7 +44,7 @@
                         <tr>
                             <td>
                                 {% if participant.user %}
-                                    <a href="{% url 'player_responses' room_id=stats.room.id player_id=participant.user.id %}">
+                                    <a href="{% url 'player_responses' stats.room.id participant.user.id %}">
                                     {{ participant.user.email_address }}
                                 {% else %}
                                     Guest ({{ participant.guest_access.session_id|slice:":8" }})
@@ -79,7 +79,7 @@
                         {% for question_stat in questions_stats %}
                         <tr>
                             <td>
-                                <a href="{% url 'question_responses' room_id=stats.room.id question_id=question_stat.question.id %}">
+                                <a href="{% url 'question_responses' stats.room.id question_stat.question.id %}">
                                     {{ question_stat.question_text }}
                                 </a>
                             </td>

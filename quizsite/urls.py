@@ -31,7 +31,7 @@ from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_
 from app.views.live_quiz_view import tutor_live_quiz, start_quiz, next_question, end_quiz, student_live_quiz, load_partial
 from app.views.password_reset_view import password_reset
 from app.views.classroom_view import tutor_classroom_view, tutor_classroom_detail_view, student_classroom_view, accept_classroom_invite, decline_classroom_invite, student_classroom_detail_view
-from app.views.stats_view import stats_view, stats_details, csv_download, player_responses,classroom_stats_view, student_stats
+from app.views.stats_view import stats_view, stats_details, csv_download, player_responses,classroom_stats_view, student_stats, question_responses
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -67,11 +67,14 @@ urlpatterns = [
     path('accept-classroom-invite/<int:invite_id>/', accept_classroom_invite, name="accept_classroom_invite"),
     path('decline-classroom-invite/<int:invite_id>/', decline_classroom_invite, name="decline_classroom_invite"),
     path("student/live-quiz/<str:room_code>/", student_live_quiz, name="student_live_quiz"),
+
     path("tutor-stats/", stats_view, name='stats'),
     path("tutor-stats/<int:stats_id>/", stats_details, name='stats_details'),
     path("tutor-stats/<int:stats_id>/download/", csv_download, name='stats_download'),
     path('player-responses/<int:room_id>/<int:player_id>/', player_responses, name='player_responses'),
+    path('question-responses/<int:room_id>/<int:question_id>/', question_responses, name='question_responses'),
     path('classroom/<int:classroom_id>/stats/', classroom_stats_view, name='classroom_stats_view'),path('student/<int:student_id>/stats/', student_stats, name='student_stats'),
+
     path('load-partial/<str:partial_name>/', load_partial, name='load_partial'),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
