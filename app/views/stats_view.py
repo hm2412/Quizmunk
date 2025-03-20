@@ -7,6 +7,7 @@ from app.models.stats import QuestionStats
 import csv
 import datetime
 from app.helpers.helper_functions import get_responses_by_player_in_room, get_all_responses_question, get_student_quiz_history, calculate_average_score, find_best_and_worst_scores, get_guest_responses, isCorrectAnswer
+import json
 
 
 @is_tutor
@@ -123,14 +124,14 @@ def question_responses(request, room_id, question_id):
 def classroom_stats_view(request, classroom_id):
     """show the list of the quizzes started by the tutor for a classroom"""
     classroom= get_object_or_404(Classroom, id=classroom_id)
-    stats_list = Stats.objects.filter(room__classroom=classroom,quiz__tutor=request.user).order_by('-date_played')
+    stats_list = Stats.objects.filter(room__classroom=classroom, quiz__tutor=request.user).order_by('-date_played')
     quiz_names = [stats.quiz.name for stats in stats_list]
-    scores = [stats.mean_score for stats in stats_list]
+    scores = [float(stats.mean_score) for stats in stats_list]
     context={
         "classroom": classroom,
         "stats_list":stats_list,
-        "quiz_names": quiz_names,
-        "scores":scores,
+        "quiz_names": json.dumps(quiz_names),
+        "scores": json.dumps(scores),
     }
     return render(request, "tutor/classroom_stats.html", context)
 

@@ -10,8 +10,9 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var ctx = document.getElementById('quizChart').getContext('2d');
-        var quizNames = JSON.parse('{{ quiz_names|safe }}');
-        var scores = JSON.parse('{{ scores|safe }}');
+        var quizNames = {{ quiz_names|safe }};
+        var scores = {{ scores|safe }};
+
 
         var quizChart = new Chart(ctx, {
             type: 'bar', 
