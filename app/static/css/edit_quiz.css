@@ -20,6 +20,7 @@
     max-width: 1200px;
     margin: auto;
     transition: transform 0.3s ease;
+    margin-top: 5%;
   }
   .container-fluid:hover {
     transform: scale(1.01);
