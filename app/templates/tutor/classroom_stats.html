@@ -5,7 +5,39 @@
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/style.css' %}">{% endblock %}
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://unpkg.com/htmx.org@1.9.2"></script>{% endblock %}
+<script src="https://unpkg.com/htmx.org@1.9.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var ctx = document.getElementById('quizChart').getContext('2d');
+        var quizNames = JSON.parse('{{ quiz_names|safe }}');
+        var scores = JSON.parse('{{ scores|safe }}');
+
+        var quizChart = new Chart(ctx, {
+            type: 'bar', 
+            data: {
+                labels: quizNames,
+                datasets: [{
+                    label: 'Mean Score',
+                    data: scores,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        suggestedMax: 100
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -37,6 +69,8 @@
                 {% endfor %}
             </tbody>
         </table>
+        <h3 class="mt-4">Quiz Performance Overview</h3>
+        <canvas id="quizChart"></canvas>
     </div>
 </div>
 {% endblock %}
