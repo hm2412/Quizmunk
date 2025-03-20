@@ -3,7 +3,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.aggregates import Avg
 from django.db.models.expressions import result
-
 from app.models import Room, RoomParticipant, Response, Quiz, Question, IntegerInputResponse, TrueFalseResponse, \
     TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, NumericalRangeResponse, SortingResponse, User
 
@@ -18,7 +17,7 @@ class Stats(models.Model):
 
 
     def calculate_median(self):
-        scores = RoomParticipant.objects.filter(room=self.room).values_list('score', flat=True).order_by('score')
+        scores = RoomParticipant.objects.filter(room=self.room).exclude(user__role__iexact="tutor").values_list('score', flat=True).order_by('score')
         total_scores = len(scores)
         if total_scores == 0:
             median = 0
@@ -31,8 +30,8 @@ class Stats(models.Model):
         return median
 
     def save(self, *args, **kwargs):
-        self.num_participants = RoomParticipant.objects.filter(room=self.room).count()
-        self.mean_score = RoomParticipant.objects.filter(room=self.room).aggregate(Avg('score'))['score__avg']
+        self.num_participants = RoomParticipant.objects.filter(room=self.room).exclude(user__role__iexact="tutor").count()
+        self.mean_score = RoomParticipant.objects.filter(room=self.room).exclude(user__role__iexact="tutor").aggregate(Avg('score'))['score__avg']
         if self.mean_score is None:
             self.mean_score = 0
         self.median_score = self.calculate_median()
