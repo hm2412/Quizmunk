@@ -31,17 +31,12 @@ def stats_details(request, stats_id):
 
 
 @is_tutor
-def csv_download(request, stats_id):
-    #genrate a csv file for the stats
-    
+def csv_download_player(request, stats_id):
     stats_obj = get_object_or_404(Stats, id=stats_id, quiz__tutor=request.user)
     room = stats_obj.room
-    participants = RoomParticipant.objects.filter(room=stats_obj.room)
-
+    participants = RoomParticipant.objects.filter(room=room).exclude(user__role__iexact="tutor")
     response = HttpResponse(content_type="text/csv")
-    #this is the best way right now to seprate quizzes states as a quiz can create multiple live quizzes
-    response['Content-Disposition'] = f'attachment; filename="quiz_stats_{room.join_code}.csv"'
-
+    response['Content-Disposition'] = f'attachment; filename="player_stats_{room.join_code}.csv"'
     writer = csv.writer(response)
     writer.writerow(["Participant", "Joined At", "Score"])
 
@@ -49,8 +44,32 @@ def csv_download(request, stats_id):
         if participant.user:
             identifier = participant.user.email_address
         else:
-            identifier = participant.guest_access.session_id[:8]
-        writer.writerow([identifier, participant.joined_at, participant.score])
+            identifier = f"Guest ({participant.guest_access.session_id[:8]})"
+        writer.writerow([
+            identifier,
+            participant.joined_at.strftime("%Y-%m-%d %H:%M:%S"),
+            participant.score
+        ])
+    return response
+
+
+@is_tutor
+def csv_download_question(request, stats_id):
+    stats_obj = get_object_or_404(Stats, id=stats_id, quiz__tutor=request.user)
+    question_stats = QuestionStats.objects.filter(room=stats_obj.room)
+    response = HttpResponse(content_type="text/csv")
+    response['Content-Disposition'] = f'attachment; filename="question_stats_{stats_obj.room.join_code}.csv"'
+    writer = csv.writer(response)
+    writer.writerow(["Question", "Total Responses", "Correct Responses", "Incorrect Responses", "Percentage Correct"])
+
+    for qs in question_stats:
+        question_text = getattr(qs.question, "question_text", "N/A")
+        total = qs.responses_received
+        correct = qs.correct_responses
+        incorrect = qs.wrong_responses 
+        percentage = qs.percentage_correct
+        writer.writerow([question_text, total, correct, incorrect, f"{percentage:.2f}%"])
+    return response
 
 
 def player_responses(request, room_id, player_id):

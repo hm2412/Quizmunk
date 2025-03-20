@@ -57,6 +57,7 @@
             {% else %}
                 <p class="alert alert-warning">No participants for this quiz.</p>
             {% endif %}
+            <a href="{% url 'stats_download_player' stats.id %}" class="btn btn-secondary mt-3">Download CSV</a>
         </div>
 
         <!-- Questions Tab -->
@@ -91,10 +92,10 @@
             {% else %}
                 <p class="alert alert-warning">No question data available.</p>
             {% endif %}
+            <a href="{% url 'stats_download_question' stats.id %}" class="btn btn-secondary mt-3">Download CSV</a>
         </div>
     </div>
     
-    <a href="{% url 'stats_download' stats.id %}" class="btn btn-secondary mt-3">Download CSV</a>
     <a href="{% url 'stats' %}" class="btn btn-outline-primary mt-3">Back to Stats List</a>
     </div>
 </div>
