@@ -10,6 +10,7 @@ from app.question_registry import QUESTION_FORMS, QUESTION_MODELS
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from app.helpers.helper_functions import getAllQuestions
+from django.contrib import messages
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
@@ -41,14 +42,21 @@ def create_quiz_view(request):
 @is_tutor
 def edit_quiz_view(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-
-    questions = getAllQuestions(quiz=quiz)
-    questions.sort(key=lambda q: (q.position if q.position is not None else float('inf')))
-
     form_type = None
     form = None
     
     if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'update_settings':
+            # Handle quiz settings update
+            quiz.name = request.POST.get('name', quiz.name)
+            quiz.subject = request.POST.get('subject', quiz.subject)
+            quiz.is_public = request.POST.get('is_public') == 'on'
+            quiz.save()
+            messages.success(request, 'Quiz settings updated successfully')
+            return redirect('your_quizzes')
+            
         for key in QUESTION_FORMS:
             if key in request.POST:
                 form_type = key
@@ -66,10 +74,8 @@ def edit_quiz_view(request, quiz_id):
                 question = form.save(commit=False)
                 question.quiz = quiz
                 question.save()
-                print("Question saved successfully!")
                 return redirect('edit_quiz', quiz_id=quiz.id)
             else:
-                print("Form validation failed:", form.errors)
                 question_forms = {}
                 for key, form_class in QUESTION_FORMS.items():
                     if key == form_type:
@@ -79,7 +85,7 @@ def edit_quiz_view(request, quiz_id):
                 return render(request, 'tutor/edit_quiz.html', {
                     'quiz': quiz,
                     'form': form,
-                    'questions': questions,
+                    'questions': getAllQuestions(quiz=quiz),
                     'question_forms': question_forms,
                 })
 
@@ -98,6 +104,9 @@ def edit_quiz_view(request, quiz_id):
     question_forms = {}
     for key, form_class in QUESTION_FORMS.items():
         question_forms[key] = form_class(initial={'quizID': str(quiz.id)})
+
+    questions = getAllQuestions(quiz=quiz)
+    questions.sort(key=lambda q: (q.position if q.position is not None else float('inf')))
 
     return render(request, 'tutor/edit_quiz.html', {
         'quiz': quiz,
