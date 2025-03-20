@@ -117,9 +117,25 @@
     $(function(){
       // sortable questions
       $("#questions-list").sortable({
+        cancel: ".question-type", // Prevents draggable conflict
         update: function(event, ui) {
-          var order = $(this).sortable('toArray', {attribute: 'data-id'});
+          var order = $(this).sortable('toArray', { attribute: 'data-id' });
           console.log("New order:", order);
+      
+          $.ajax({
+            url: "/update-question-order/",
+            type: "POST",
+            data: {
+              order: JSON.stringify(order),
+              csrfmiddlewaretoken: "{{ csrf_token }}"
+            },
+            success: function(response) {
+              console.log("Order updated successfully!");
+            },
+            error: function() {
+              showToast("Error saving question order!", "error");
+            }
+          });
         }
       });
       // draggable question
@@ -137,6 +153,7 @@
       });
       // load the form in the box
       function loadForm(type, data) {
+        $(".ui-draggable-dragging").remove();
         data = data || {};
         var formHtml = $("#" + type + "-form-template").html();
         $("#editor").html(formHtml);
@@ -169,9 +186,24 @@
           } else if (type == "true_false") {
             $("#editor").find("[name='correct_answer']").prop("checked", data.correct_answer === true || data.correct_answer === "True"); 
           } else if (type == "multiple_choice") {
-            $("#editor").find("[name='options[]']").each(function(index) {
-              $(this).val(data.options ? data.options[index] : "");
+            
+            data.options.forEach(function(option, index) {
+              var optionInput = $("#editor").find("[name='options[]']").eq(index);
+              if (optionInput.length) {
+                optionInput.val(option);
+              } else {
+                var newOptionDiv = $("<div>").addClass("option-input");
+                var newOptionInput = $("<input>").attr({
+                  type: "text",
+                  name: "options[]",
+                  class: "form-control",
+                  placeholder: "Enter option"
+                }).val(option);
+                newOptionDiv.append(newOptionInput);
+                $("#editor").find("#multiple-choice-options-container").append(newOptionDiv);
+              }
             });
+
             $("#editor").find("[name='correct_answer']").val(data.correct_answer || "");
           } else if (type === "numerical_range") {
             $("#editor").find("[name='min_value']").val(data.min_value || "");
@@ -191,7 +223,8 @@
                   newDiv.className = "option-input";
                   var input = document.createElement("input");
                   input.type = "text";
-                  input.name = "options";
+                  input.name = "options[]";
+                  input.value = "";
                   input.className = "form-control";
                   input.placeholder = "Enter option";
                   newDiv.appendChild(input);

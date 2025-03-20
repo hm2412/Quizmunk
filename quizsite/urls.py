@@ -26,7 +26,7 @@ from app.views.join_quiz_view import join_quiz
 from app.views.lobby_view import lobby, setup_quiz, setup_classroom_quiz
 from app.views.dashboard_view import student_dashboard, tutor_dashboard
 from app.views.profile_view import student_profile, tutor_profile
-from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_view, get_question_view, your_quizzes_view, delete_quiz_view, delete_question_image_view
+from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_view, get_question_view, your_quizzes_view, delete_quiz_view, delete_question_image_view, update_question_order
 from app.views.live_quiz_view import tutor_live_quiz, start_quiz, next_question, end_quiz, student_live_quiz
 from app.views.password_reset_view import password_reset
 from app.views.live_quiz_view import student_live_quiz, tutor_live_quiz, start_quiz, next_question, end_quiz
@@ -72,7 +72,8 @@ urlpatterns = [
     path("tutor-stats/<int:stats_id>/", stats_details, name='stats_details'),
     path("tutor-stats/<int:stats_id>/download/", csv_download, name='stats_download'),
     path('player-responses/<int:room_id>/<int:player_id>/', player_responses, name='player_responses'),
-    path('classroom/<int:classroom_id>/stats/', classroom_stats_view, name='classroom_stats_view'),path('student/<int:student_id>/stats/', student_stats, name='student_stats')
+    path('classroom/<int:classroom_id>/stats/', classroom_stats_view, name='classroom_stats_view'),path('student/<int:student_id>/stats/', student_stats, name='student_stats'),
+    path('update-question-order/', update_question_order, name='update-question-order'),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 if settings.DEBUG:
