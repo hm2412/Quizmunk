@@ -3,6 +3,10 @@
 {% load static %}
 {% block title %}Classroom Stats List{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/style.css' %}">{% endblock %}
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://unpkg.com/htmx.org@1.9.2"></script>{% endblock %}
+
 {% block content %}
     <h2>Classroom: {{ classroom.name }}</h2>
     <h3>Quizzes Played</h3>
@@ -32,6 +36,3 @@
         </tbody>
     </table>
 {% endblock %}
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://unpkg.com/htmx.org@1.9.2"></script> <!-- HTMX for AJAX -->
