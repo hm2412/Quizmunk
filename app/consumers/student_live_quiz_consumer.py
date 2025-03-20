@@ -3,15 +3,12 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from app.models import Room
-from app.models.quiz import (TrueFalseQuestion, IntegerInputQuestion, TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion, SortingQuestion)
-from app.models.responses import (TrueFalseResponse, IntegerInputResponse, TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, NumericalRangeResponse, SortingResponse)
-from app.models.guest import GuestAccess
 
 
 class StudentQuizConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.join_code = self.scope['url_route']['kwargs']['join_code']
+        from app.models import Room
         self.room = await database_sync_to_async(Room.objects.get)(join_code=self.join_code)
         self.room_group_name = f"student_{self.join_code}"
         self.answered_questions = set()
@@ -28,10 +25,11 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
         }
         await self.channel_layer.group_send(self.room_group_name, update_message)
         await self.channel_layer.group_send(f"live_quiz_{self.join_code}", update_message)
-    
-    
+
+
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        from app.models import Room
         room = await database_sync_to_async(Room.objects.get)(join_code=self.join_code)
         participants = await database_sync_to_async(list)(
             room.participants.exclude(user__role__iexact="tutor").values_list('user__email_address', flat=True)
@@ -52,9 +50,9 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
         if action == "submit_answer":
             question_number = data.get("question_number")
             answer = data.get("answer")
-            question_id = data.get("question_id") 
+            question_id = data.get("question_id")
             question_type = data.get("question_type")
-            
+
             if question_id in self.answered_questions:
                 return
             self.answered_questions.add(question_id)
@@ -66,10 +64,12 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
             )
         elif action == "update":
             pass
-    
+
 
     @database_sync_to_async
     def save_response(self, user, question_type, question_id, answer):
+        from app.models.quiz import TrueFalseQuestion, IntegerInputQuestion, TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion, SortingQuestion
+        from app.models.responses import TrueFalseResponse, IntegerInputResponse, TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, NumericalRangeResponse, SortingResponse
         if user.is_authenticated:
             if question_type == "true_false":
                 question = TrueFalseQuestion.objects.get(id=question_id)
@@ -99,6 +99,7 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
                 return None
         else:
             session_key = self.scope["session"].session_key
+            from app.models import GuestAccess
             guest_access = GuestAccess.objects.get(session_id=session_key)
             if question_type == "true_false":
                 question = TrueFalseQuestion.objects.get(id=question_id)
@@ -131,7 +132,7 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
         response = {
             "type": "question_update",
             "question": event.get("message").get("question"),
-            "question_id": event.get("message").get("question_id"),  
+            "question_id": event.get("message").get("question_id"),
             "options": event.get("message").get("options"),
             "question_number": event.get("message").get("question_number"),
             "total_questions": event.get("message").get("total_questions"),
@@ -144,7 +145,7 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
 
     async def quiz_update(self, event):
         await self.send(text_data=json.dumps(event))
-    
+
 
     async def leaderboard_update(self, event):
         response = {
@@ -156,14 +157,14 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
         if "participant_number" in event:
             response["participant_number"] = event["participant_number"]
         await self.send(text_data=json.dumps(response))
-    
+
 
     async def quiz_ended(self, event):
         await self.send(text_data=json.dumps({
             "type": "quiz_ended",
             "message": event.get("message")
         }))
-    
+
 
     async def participants_update(self, event):
         await self.send(text_data=json.dumps({
