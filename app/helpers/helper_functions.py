@@ -200,7 +200,7 @@ def get_responses_by_player_in_room(player, room):
     return None
 
 def get_student_quiz_history(student):
-    participations = RoomParticipant.objects.filter(User=student)
+    participations = RoomParticipant.objects.filter(user=student)
     quiz_history=[]
 
     for participation in participations:

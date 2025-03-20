@@ -96,7 +96,7 @@ def player_responses(request, room_id, player_id):
         "responses": responses
     }
 
-    return render(request, 'player_responses.html',context)
+    return render(request, 'tutor/player_responses.html',context)
 
 def question_responses(request, room_id,question_id):
     room = get_object_or_404(Room, id=room_id)
@@ -109,11 +109,12 @@ def question_responses(request, room_id,question_id):
         'question':question,
         'responses':responses,
     }
-    return render(request, 'question_responses.html',context)
+    return render(request, 'tutor/question_responses.html',context)
 
 def student_stats(request,student_id):
 
     student= get_object_or_404(User, id=student_id)
+    print("Student Object:", student)
     quiz_history= get_student_quiz_history(student)
     average_score = calculate_average_score(quiz_history)
     best_score, worst_score = find_best_and_worst_scores(quiz_history)
@@ -126,7 +127,7 @@ def student_stats(request,student_id):
         'worst_score': worst_score,
     }
 
-    return render(request, 'student_stats.html', context)
+    return render(request, 'student/student_stats.html', context)
 
 @is_tutor
 def classroom_stats_view(request, classroom_id):

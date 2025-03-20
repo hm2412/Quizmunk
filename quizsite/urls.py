@@ -35,31 +35,38 @@ from app.views.stats_view import stats_view, stats_details, csv_download, player
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
     path('', homepage, name='homepage'),
     path('about_us/', about_us, name='about_us'),
     path('sign-up/', sign_up_view, name='sign_up'),
     path('login/', login_view, name='login'), 
     path('logout/', logout_view, name='logout'),
+
     path('student-dashboard/', student_dashboard, name='student_dashboard'),
     path('tutor-dashboard/', tutor_dashboard, name='tutor_dashboard'),
+    path('student-profile/', student_profile, name='student_profile'),
+    path('tutor-profile/', tutor_profile, name='tutor_profile'),
+     path("password-reset/", password_reset, name="password_reset"),
+
     path('create-quiz/', create_quiz_view, name='create_quiz'),
     path('edit-quiz/<int:quiz_id>/', edit_quiz_view, name='edit_quiz'),
     path('delete-question/<int:question_id>/', delete_question_view, name='delete_question'),
     path('delete-question-image/<int:question_id>/', delete_question_image_view, name='delete_question_image'),
     path('get_question/<int:quiz_id>/', get_question_view, name='get_question'),
-    path('student-profile/', student_profile, name='student_profile'),
-    path('tutor-profile/', tutor_profile, name='tutor_profile'),
+
     path('join-quiz/', join_quiz, name='join_quiz'),
     path('setup_quiz/<int:quiz_id>/', setup_quiz, name='setup_quiz'),
     path('setup-classroom-quiz/<int:classroom_id>/<int:quiz_id>/', setup_classroom_quiz, name='setup_classroom_quiz'),
     path('lobby/<str:join_code>', lobby, name='lobby'),
     path('live-quiz/<int:quiz_id>/<str:join_code>/', tutor_live_quiz, name='tutor_live_quiz'),
+
     path('start-quiz/<str:join_code>/', start_quiz, name='start_quiz'),
     path('next-question/<str:join_code>/', next_question, name='next_question'),
     path('end-quiz/<str:join_code>/', end_quiz, name='end_quiz'),
+
     path('your-quizzes/', your_quizzes_view, name='your_quizzes'),
     path('delete-quiz/<int:quiz_id>/', delete_quiz_view, name='delete_quiz'),
-    path("password-reset/", password_reset, name="password_reset"),
+   
     path('tutor-classrooms/', tutor_classroom_view, name='tutor_classroom_view'),
     path('tutor-classrooms/<int:classroom_id>/', tutor_classroom_detail_view, name='tutor_classroom_detail'),
     path('student-classrooms/', student_classroom_view, name='student_classroom_view'),
@@ -73,8 +80,9 @@ urlpatterns = [
     path("tutor-stats/<int:stats_id>/download/", csv_download, name='stats_download'),
     path('player-responses/<int:room_id>/<int:player_id>/', player_responses, name='player_responses'),
     path('question-responses/<int:room_id>/<int:question_id>/', question_responses, name='question_responses'),
-    path('classroom/<int:classroom_id>/stats/', classroom_stats_view, name='classroom_stats_view'),path('student/<int:student_id>/stats/', student_stats, name='student_stats'),
-
+    path('classroom/<int:classroom_id>/stats/', classroom_stats_view, name='classroom_stats_view'),
+    path('student/<int:student_id>/stats/', student_stats, name='student_stats'),
+    
     path('load-partial/<str:partial_name>/', load_partial, name='load_partial'),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
