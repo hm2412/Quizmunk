@@ -7,6 +7,7 @@
             {% if user.role == "tutor" %}
                 <li><a href="{% url 'tutor_dashboard' %}">Dashboard</a></li>
                 <li><a href="{% url 'your_quizzes' %}">Your Quizzes</a></li>
+                <li><a href="{% url 'public_quizzes'%}">Public Quizzes</a></li>
                 <li><a href="{% url 'tutor_classroom_view' %}">Classrooms</a></li>
                 <li><a href="#">Stats</a></li>
                 <li><a href="{% url 'tutor_profile' %}">Profile</a></li>
