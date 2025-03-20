@@ -1,12 +1,12 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from app.models import Stats, Room, User, Classroom
 from app.models.room import RoomParticipant
 from app.helpers.decorators import is_tutor
 from app.models.stats import QuestionStats
 import csv
 import datetime
-from app.helpers.helper_functions import get_responses_by_player_in_room, get_all_responses_question, get_student_quiz_history, calculate_average_score, find_best_and_worst_scores, get_guest_responses
+from app.helpers.helper_functions import get_responses_by_player_in_room, get_all_responses_question, get_student_quiz_history, calculate_average_score, find_best_and_worst_scores, get_guest_responses, isCorrectAnswer
 
 
 @is_tutor
@@ -77,11 +77,16 @@ def player_responses(request, room_id, player_id):
     return render(request, 'tutor/player_responses.html',context)
 
 
-def question_responses(request, room_id,question_id):
+def question_responses(request, room_id, question_id):
     room = get_object_or_404(Room, id=room_id)
-    question = get_object_or_404(User, id = question_id)
+    questions = room.get_questions()
+    question = next((q for q in questions if q.id == int(question_id)), None)
+    if not question:
+        raise Http404("Question not found.")
     stats = Stats.objects.filter(room=room).first()
-    responses = get_responses_by_player_in_room(question,room)
+    responses = sorted(get_all_responses_question(room, question), key=lambda r: r.timestamp)
+    for response in responses:
+        isCorrectAnswer(response)
     correct_count = sum(1 for r in responses if r.correct)
     incorrect_count = len(responses) - correct_count
     context={
