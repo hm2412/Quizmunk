@@ -68,7 +68,7 @@
 
                 <div class="classroom-actions">
                     <a href="{% url 'tutor_classroom_view' %}" class="btn back-btn">← Back</a>
-                    <a href="{% url 'classroom_stats' classroom.id %}" class="btn stats-btn">View Classroom Stats</a>
+                    <a href="{% url 'classroom_stats_view' classroom_id=classroom.id %}" class="btn stats-btn">View Classroom Stats</a>
                     <form method="POST" onsubmit="return confirm('Are you sure you want to delete this classroom? This action cannot be undone.');">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="delete_classroom">

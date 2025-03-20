@@ -3,6 +3,40 @@
 {% load static %}
 {% block title %}Question Responses List{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/style.css' %}">{% endblock %}
+<!-- Load Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var chartCanvas = document.getElementById('scoreChart');
+        if (chartCanvas) {
+            var ctx = chartCanvas.getContext('2d');
+            var correct = {{ correct_count|default:0 }};
+            var incorrect = {{ incorrect_count|default:0 }};
+            var scoreChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Correct', 'Incorrect'],
+                    datasets: [{
+                        data: [correct, incorrect], 
+                        backgroundColor: ['#2a7a8c', '#B9D9EB'],
+                        borderColor: ['#155724', '#721c24'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
 {% block content %}
     <h2>Responses for Question: {{ question.text }}</h2>
     <p><strong>Room:</strong> {{ room.name }}</p>
@@ -47,7 +81,15 @@
     {% else %}
         <p class="alert alert-warning">No responses found for this question.</p>
     {% endif %}
-
+    
+    {% if responses %}
+            <div class="card mt-4 p-3">
+                <h4 class="text-center">Score Breakdown</h4>
+                <div class="chart-container">
+                    <canvas id="scoreChart"></canvas>
+                </div>
+            </div>
+    {% endif %}
     <!-- Back button -->
     {% if stats_id %}
         <a href="{% url 'stats_details' stats_id=stats_id %}" class="btn btn-outline-primary mt-3">
