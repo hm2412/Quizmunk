@@ -3,7 +3,65 @@
 {% load static %}
 {% block title %}Student Statistics{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/style.css' %}">{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const quizDataElement = document.getElementById("quiz-data");
+        if (!quizDataElement) {
+            console.warn("No quiz data available.");
+            return;
+        }
 
+        const quizData = JSON.parse(quizDataElement.textContent);
+
+        if (quizData.length === 0) {
+            console.warn("Quiz data is empty. Chart will not render.");
+            return;
+        }
+
+        const labels = quizData.map(q => q.date_played);
+        const scores = quizData.map(q => q.score);
+
+        const ctx = document.getElementById("quizChart").getContext("2d");
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Quiz Scores',
+                    data: scores,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Date"
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Score"
+                        },
+                        min: 0,
+                        max: 100
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}
 {% block content %}
 <div class="container mt-4">
     <div class="card shadow p-4">
@@ -19,7 +77,16 @@
                 <p><strong>Worst Performance:</strong> {{ worst_score.quiz_title}} (Score:{{ worst_score.score|floatformat:2 }})</p>
             {% endif %}
         </div>
-
+         <!-- Quiz Performance Chart -->
+        {% if quiz_history %}
+            <div class="mb-4">
+                <canvas id="quizChart"></canvas>
+            </div>
+        {% endif %}
+         <!-- Pass Quiz Data to JavaScript -->
+        <script id="quiz-data" type="application/json">
+            {{ quiz_history|json_script:"quiz-data" }}
+        </script>
         <!-- Table to display the responses -->
         {% if quiz_history %}
             <div class="table-responsive">

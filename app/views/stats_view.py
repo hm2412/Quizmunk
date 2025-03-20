@@ -139,10 +139,9 @@ def classroom_stats_view(request, classroom_id):
 def student_stats(request,student_id):
 
     student= get_object_or_404(User, id=student_id)
-    print("Student Object:", student)
     quiz_history= get_student_quiz_history(student)
-    average_score = calculate_average_score(quiz_history)
-    best_score, worst_score = find_best_and_worst_scores(quiz_history)
+    average_score = calculate_average_score(quiz_history)  if quiz_history else 0.0
+    best_score, worst_score = find_best_and_worst_scores(quiz_history)  if quiz_history else (None,None)
 
     context={
         'student': student,
