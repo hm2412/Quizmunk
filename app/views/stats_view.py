@@ -52,12 +52,15 @@ def player_responses(request, room_id, player_id):
     room = get_object_or_404(Room, id=room_id)
     stats = Stats.objects.filter(room=room).first()
     responses = get_responses_by_player_in_room(player,room)
-
+    correct_count = sum(1 for r in responses if r.correct)
+    incorrect_count = len(responses) - correct_count
     context={
         "player": player, 
         "room": room, 
         "responses": responses,
-        "stats_id": stats.id if stats else None
+        "stats_id": stats.id if stats else None,
+        "correct_count": correct_count,
+        "incorrect_count": incorrect_count
     }
 
     return render(request, 'tutor/player_responses.html',context)

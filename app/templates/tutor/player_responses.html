@@ -3,56 +3,107 @@
 {% load static %}
 {% block title %}Player Responses List{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/style.css' %}">{% endblock %}
+{% block extra_js %}
+<!-- Load Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var chartCanvas = document.getElementById('scoreChart');
+        if (chartCanvas) {
+            var ctx = chartCanvas.getContext('2d');
+            var correct = {{ correct_count|default:0 }};
+            var incorrect = {{ incorrect_count|default:0 }};
+            var scoreChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Correct', 'Incorrect'],
+                    datasets: [{
+                        data: [correct, incorrect],  // Fake data: 7 correct, 3 incorrect
+                        backgroundColor: ['#2a7a8c', '#B9D9EB'],
+                        borderColor: ['#155724', '#721c24'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
 {% block content %}
-
-    <h2>Responses for {{ player.email_address }} in Room: {{ room.name }}</h2>
-    
-    <!--  info about the player and room -->
-    <div class="mb-4">
-        <p><strong>Room Join Code:</strong> {{ room.join_code }}</p>
-        <p><strong>Total Responses:</strong> {{ responses|length }}</p>
-    </div>
-
-    <!-- Table to display the responses -->
-    {% if responses %}
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Question</th>
-                        <th>Response</th>
-                        <th>Correct</th>
-                        <th>Timestamp</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for response in responses %}
-                    <tr>
-                        <td>{{ response.question.text }}</td>
-                        <td>{{ response.answer }}</td>
-                        <td>
-                            {% if response.correct %}
-                                <span class="text-success">Correct</span>
-                            {% else %}
-                                <span class="text-danger">Incorrect</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ response.timestamp|date:"Y-m-d H:i" }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<div class="container mt-4">
+    <div class="card shadow p-4">
+        <h2 class='text-center'>Responses for {{ player.email_address }} in Room: {{ room.name }}</h2>
+        
+        <!--  info about the player and room -->
+        <hr>
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Room Join Code:</strong> {{ room.join_code }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Total Responses:</strong> {{ responses|length }}</p>
+            </div>
         </div>
-    {% else %}
-        <p class="alert alert-warning">No responses found for this player.</p>
-    {% endif %}
 
-    <!-- Back button -->
-    {% if stats_id %}
-    <a href="{% url 'stats_details' stats_id=stats_id %}" class="btn btn-outline-primary mt-3">
-        Back to Quiz Statistics
-    </a>
-    {% else %}
-    <p class="text-muted">Stats unavailable for this quiz.</p>
-    {% endif %}
+        <!-- Table to display the responses -->
+        {% if responses %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Question</th>
+                            <th>Response</th>
+                            <th>Correct</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for response in responses %}
+                        <tr>
+                            <td>{{ response.question.text }}</td>
+                            <td>{{ response.answer }}</td>
+                            <td>
+                                {% if response.correct %}
+                                    <span class="text-success">Correct</span>
+                                {% else %}
+                                    <span class="text-danger">Incorrect</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ response.timestamp|date:"Y-m-d H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="alert alert-warning">No responses found for this player.</p>
+        {% endif %}
+        
+        {% if responses %}
+            <div class="card mt-4 p-3">
+                <h4 class="text-center">Score Breakdown</h4>
+                <div class="chart-container">
+                    <canvas id="scoreChart"></canvas>
+                </div>
+            </div>
+        {% endif %}
+        <!-- Back button -->
+        {% if stats_id %}
+        <a href="{% url 'stats_details' stats_id=stats_id %}" class="btn btn-outline-primary mt-3">
+            Back to Quiz Statistics
+        </a>
+        {% else %}
+        <p class="text-muted">Stats unavailable for this quiz.</p>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}
