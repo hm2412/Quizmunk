@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from app.models import Stats, Room, User, Classroom
 from app.models.room import RoomParticipant
 from app.helpers.decorators import is_tutor
+from app.models.stats import QuestionStats
 import csv
 import datetime
 from app.helpers.helper_functions import get_responses_by_player_in_room, get_all_responses_question, get_student_quiz_history, calculate_average_score, find_best_and_worst_scores, get_guest_responses
@@ -14,16 +15,20 @@ def stats_view(request):
     stats_list = Stats.objects.filter(quiz__tutor=request.user).order_by('-date_played')
     return render(request, "tutor/stats.html", {"stats_list": stats_list})
 
+
 @is_tutor
 def stats_details(request, stats_id):
     """show the stats for the live quiz"""
     stats_obj = get_object_or_404(Stats, id=stats_id, quiz__tutor=request.user)
     participants = RoomParticipant.objects.filter(room=stats_obj.room).exclude(user__role__iexact="tutor")
+    questions_stats = QuestionStats.objects.filter(room=stats_obj.room)
     context = {
         "stats": stats_obj,
-        "participants": participants
+        "participants": participants,
+        "questions_stats": questions_stats,
     }
     return render(request, "tutor/stats_detail.html", context)
+
 
 @is_tutor
 def csv_download(request, stats_id):
@@ -46,6 +51,7 @@ def csv_download(request, stats_id):
         else:
             identifier = participant.guest_access.session_id[:8]
         writer.writerow([identifier, participant.joined_at, participant.score])
+
 
 def player_responses(request, room_id, player_id):
     player = get_object_or_404(RoomParticipant, id = player_id)
@@ -70,6 +76,7 @@ def player_responses(request, room_id, player_id):
 
     return render(request, 'tutor/player_responses.html',context)
 
+
 def question_responses(request, room_id,question_id):
     room = get_object_or_404(Room, id=room_id)
     question = get_object_or_404(User, id = question_id)
@@ -86,6 +93,19 @@ def question_responses(request, room_id,question_id):
         "incorrect_count": incorrect_count
     }
     return render(request, 'tutor/question_responses.html',context)
+
+
+@is_tutor
+def classroom_stats_view(request, classroom_id):
+    """show the list of the quizzes started by the tutor for a classroom"""
+    classroom= get_object_or_404(Classroom, id=classroom_id)
+    stats_list = Stats.objects.filter(room__classroom=classroom,quiz__tutor=request.user).order_by('-date_played')
+    context={
+        "classroom": classroom,
+        "stats_list":stats_list
+    }
+    return render(request, "tutor/classroom_stats.html", context)
+
 
 def student_stats(request,student_id):
 
@@ -104,14 +124,3 @@ def student_stats(request,student_id):
     }
 
     return render(request, 'student/student_stats.html', context)
-
-@is_tutor
-def classroom_stats_view(request, classroom_id):
-    """show the list of the quizzes started by the tutor for a classroom"""
-    classroom= get_object_or_404(Classroom, id=classroom_id)
-    stats_list = Stats.objects.filter(room__classroom=classroom,quiz__tutor=request.user).order_by('-date_played')
-    context={
-        "classroom": classroom,
-        "stats_list":stats_list
-    }
-    return render(request, "tutor/classroom_stats.html", context)

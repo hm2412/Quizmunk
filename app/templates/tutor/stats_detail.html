@@ -77,7 +77,7 @@
                         <tr>
                             <td>
                                 <a href="{% url 'question_responses' stats.room.id question_stat.question.id %}">
-                                    {{ question_stat.question_text }}
+                                    {{ question_stat.question.question_text }}
                                 </a>
                             </td>
                             <td>{{ question_stat.responses_received }}</td>
