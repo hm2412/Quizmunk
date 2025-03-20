@@ -38,64 +38,76 @@
 </script>
 {% endblock %}
 {% block content %}
-    <h2>Responses for Question: {{ question.text }}</h2>
-    <p><strong>Room:</strong> {{ room.name }}</p>
-    <p><strong>Total Responses:</strong> {{ responses|length }}</p>
-
-    <!-- Table to display the responses -->
-    {% if responses %}
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Participant</th>
-                        <th>Response</th>
-                        <th>Correct</th>
-                        <th>Timestamp</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for response in responses %}
-                    <tr>
-                        <td>
-                            {% if response.player %}
-                                {{ response.player.email_address }}
-                            {% else %}
-                                Guest ({{ response.guest_access.session_id|slice:":8" }})
-                            {% endif %}
-                        </td>
-                        <td>{{ response.answer }}</td>
-                        <td>
-                            {% if response.correct %}
-                                <span class="text-success">Correct</span>
-                            {% else %}
-                                <span class="text-danger">Incorrect</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ response.timestamp|date:"Y-m-d H:i" }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% else %}
-        <p class="alert alert-warning">No responses found for this question.</p>
-    {% endif %}
-    
-    {% if responses %}
-            <div class="card mt-4 p-3">
-                <h4 class="text-center">Score Breakdown</h4>
-                <div class="chart-container">
-                    <canvas id="scoreChart"></canvas>
-                </div>
+<div class="container mt-4">
+    <div class="card shadow p-4">
+        <h2 class="text-center">Responses for Question: {{ question.text }}</h2>
+        <hr>
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Room:</strong> {{ room.name }}</p>
             </div>
-    {% endif %}
-    <!-- Back button -->
-    {% if stats_id %}
-        <a href="{% url 'stats_details' stats_id=stats_id %}" class="btn btn-outline-primary mt-3">
-            Back to Quiz Statistics
-        </a>
-    {% else %}
-        <p class="text-muted">Stats unavailable for this quiz.</p>
-    {% endif %}
+            <div class="col-md-6">
+                <p><strong>Total Responses:</strong> {{ responses|length }}</p>
+            </div>
+        </div>
+        
+        
+        <!-- Table to display the responses -->
+        {% if responses %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Participant</th>
+                            <th>Response</th>
+                            <th>Correct</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for response in responses %}
+                        <tr>
+                            <td>
+                                {% if response.player %}
+                                    {{ response.player.email_address }}
+                                {% else %}
+                                    Guest ({{ response.guest_access.session_id|slice:":8" }})
+                                {% endif %}
+                            </td>
+                            <td>{{ response.answer }}</td>
+                            <td>
+                                {% if response.correct %}
+                                    <span class="text-success">Correct</span>
+                                {% else %}
+                                    <span class="text-danger">Incorrect</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ response.timestamp|date:"Y-m-d H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="alert alert-warning">No responses found for this question.</p>
+        {% endif %}
+        
+        {% if responses %}
+                <div class="card mt-4 p-3">
+                    <h4 class="text-center">Score Breakdown</h4>
+                    <div class="chart-container">
+                        <canvas id="scoreChart"></canvas>
+                    </div>
+                </div>
+        {% endif %}
+        <!-- Back button -->
+        {% if stats_id %}
+            <a href="{% url 'stats_details' stats_id=stats_id %}" class="btn btn-outline-primary mt-3">
+                Back to Quiz Statistics
+            </a>
+        {% else %}
+            <p class="text-muted">Stats unavailable for this quiz.</p>
+        {% endif %}
+    </div>
+</div>    
 {% endblock %}
