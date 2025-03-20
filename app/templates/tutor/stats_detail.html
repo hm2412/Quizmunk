@@ -41,9 +41,10 @@
                         <tr>
                             <td>
                                 {% if participant.user %}
-                                    <a href="{% url 'player_responses' stats.room.id participant.user.id %}">
+                                    <a href="{% url 'player_responses' stats.room.id participant.id %}">
                                     {{ participant.user.email_address }}
                                 {% else %}
+                                    <a href="{% url 'player_responses' stats.room.id participant.id %}">
                                     Guest ({{ participant.guest_access.session_id|slice:":8" }})
                                 {% endif %}
                             </td>

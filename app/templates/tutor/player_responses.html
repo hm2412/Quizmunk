@@ -41,7 +41,7 @@
 {% block content %}
 <div class="container mt-4">
     <div class="card shadow p-4">
-        <h2 class='text-center'>Responses for {{ player.email_address }} in Room: {{ room.name }}</h2>
+        <h2 class='text-center'>Responses for {{ player }} in Room: {{ room.name }}</h2>
         
         <!--  info about the player and room -->
         <hr>
@@ -69,7 +69,7 @@
                     <tbody>
                         {% for response in responses %}
                         <tr>
-                            <td>{{ response.question.text }}</td>
+                            <td>{{ response.question.question_text }}</td>
                             <td>{{ response.answer }}</td>
                             <td>
                                 {% if response.correct %}
