@@ -49,7 +49,11 @@
     {% endif %}
 
     <!-- Back button -->
-    <a href="{% url 'stats_details' stats_id=room.stats.id %}" class="btn btn-outline-primary mt-3">
-        Back to Quiz Statistics
-    </a>
+    {% if stats_id %}
+        <a href="{% url 'stats_details' stats_id=stats_id %}" class="btn btn-outline-primary mt-3">
+            Back to Quiz Statistics
+        </a>
+    {% else %}
+        <p class="text-muted">Stats unavailable for this quiz.</p>
+    {% endif %}
 {% endblock %}
