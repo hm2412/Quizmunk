@@ -1,1 +1,1 @@
-This is testing with gitignore has kept the media file structure, but ignored files within. If you can see this file, it hasn't worked right.
+This is testing whether gitignore has kept the media file structure, but ignored files within. If you can see this file, it hasn't worked right.

@@ -9,8 +9,14 @@ __pycache__/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-/media/*
-!/media/
+# Ignore everything inside media subfolders, but keep the subfolders themselves
+/media/*/
+!media/questions_images/
+!media/another_subfolder/
+
+# Ignore everything inside the subfolders
+/media/questions_images/*
+/media/questions_images/*/
 
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
