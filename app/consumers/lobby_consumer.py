@@ -3,7 +3,6 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async as sync_to_async, aclose_old_connections
-from app.models import Room, RoomParticipant
 
 
 class LobbyConsumer(AsyncWebsocketConsumer):
@@ -56,6 +55,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
 
 
     async def send_updated_participants(self):
+        from app.models import Room
         try:
             room = await sync_to_async(Room.objects.get)(join_code=self.join_code)
             participants = await self.get_participants(room)

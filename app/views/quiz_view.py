@@ -84,6 +84,13 @@ def edit_quiz_view(request, quiz_id):
                     'question_forms': question_forms,
                 })
 
+        # Handle the image file separately
+        if 'quiz_img' in request.FILES:
+            quiz.quiz_img = request.FILES['quiz_img']
+            quiz.save()
+
+        return redirect('edit_quiz', quiz_id=quiz.id)
+    
     else:
         # Initialize form based on the selected form type
         for key in QUESTION_FORMS:
@@ -95,7 +102,7 @@ def edit_quiz_view(request, quiz_id):
             form_class = QUESTION_FORMS.get(form_type)
             form = form_class(initial={'quizID': str(quiz.id)})
 
-    #makes loading the forms easier 
+    # Makes loading the forms easier 
     question_forms = {}
     for key, form_class in QUESTION_FORMS.items():
         question_forms[key] = form_class(initial={'quizID': str(quiz.id)})
