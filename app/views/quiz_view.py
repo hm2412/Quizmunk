@@ -155,6 +155,39 @@ def delete_question_image_view(request, question_id):
         question.save()
     return redirect('edit_quiz', quiz_id=quiz_id)
 
+@redirect_unauthenticated_to_homepage
+@is_tutor
+def update_question_order(request):
+    import json
+
+    if request.method != "POST":
+        return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
+
+    try:
+        print("Received request to update order")  # Debugging line
+        data = json.loads(request.POST.get("order", "[]"))
+        print("Received order:", data)  # Debugging line
+
+        for index, question_id in enumerate(data, start=1):
+            question = None
+            for key, model in QUESTION_MODELS.items():
+                try:
+                    question = model.objects.get(id=question_id)
+                    break
+                except model.DoesNotExist:
+                    continue
+
+            if not question:
+                return JsonResponse({"status": "error", "message": f"Question with ID {question_id} not found"}, status=404)
+
+            question.position = index
+            question.save()
+
+        return JsonResponse({"status": "success"})
+
+    except Exception as e:
+        print(f"Error updating order: {e}")  # Debugging line
+        return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
 @redirect_unauthenticated_to_homepage
 @is_tutor

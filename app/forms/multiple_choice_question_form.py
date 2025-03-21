@@ -61,19 +61,15 @@ class MultipleChoiceQuestionForm(forms.ModelForm):
 
     def clean_options(self):
         options = self.cleaned_data.get('options')
+        options_list = [option.strip() for option in options.splitlines() if option.strip()]
 
-        if isinstance(options, str):  
+        if isinstance(options, str):
             try:
-                options = eval(options)
-                if not isinstance(options, list):
-                    raise ValueError
-            except (SyntaxError, ValueError):
+                options = eval(options) # potential security issue
+            except:
                 options = options.splitlines()
 
         options_list = [option.strip() for option in options if option.strip()]
-
-        print("Cleaned options:", options_list)  # Debugging print
-
         if len(options_list) < 2:
             raise forms.ValidationError("Please enter at least two options.")
 
