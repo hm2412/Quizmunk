@@ -14,7 +14,7 @@ class MultipleChoiceQuestionFormTest(TestCase):
         form = MultipleChoiceQuestionForm(data=form_data)
         self.assertTrue(form.is_valid())
 
-    def test_invalid_time(self):
+    def test_invalid_time(self): #Fails
         form_data = {
             'time': 'abc',
             'question_text': 'What is 2 + 2?',
@@ -27,7 +27,7 @@ class MultipleChoiceQuestionFormTest(TestCase):
         self.assertIn('time', form.errors)
         self.assertEqual(form.errors['time'][0], "Time must be an integer.")
 
-    def test_invalid_mark(self):
+    def test_invalid_mark(self): #Fails
         form_data = {
             'time': 10,
             'question_text': 'What is 2 + 2?',
@@ -40,7 +40,7 @@ class MultipleChoiceQuestionFormTest(TestCase):
         self.assertIn('mark', form.errors)
         self.assertEqual(form.errors['mark'][0], "Mark must be an integer.")
 
-    def test_options_with_less_than_two(self):
+    def test_options_with_less_than_two(self): #Fails
         form_data = {
             'time': 10,
             'question_text': 'What is 2 + 2?',
@@ -52,7 +52,7 @@ class MultipleChoiceQuestionFormTest(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('options', form.errors)
 
-    def test_correct_option_not_in_options(self):
+    def test_correct_option_not_in_options(self): #Fails
         form_data = {
             'time': 10,
             'question_text': 'What is 2 + 2?',
@@ -64,7 +64,7 @@ class MultipleChoiceQuestionFormTest(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('correct_answer', form.errors)
 
-    def test_correct_option_with_whitespace(self):
+    def test_correct_option_with_whitespace(self): #Fails
         form_data = {
             'time': 10,
             'question_text': 'What is 2 + 2?',
