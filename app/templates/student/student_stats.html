@@ -84,9 +84,7 @@
             </div>
         {% endif %}
          <!-- Pass Quiz Data to JavaScript -->
-        <script id="quiz-data" type="application/json">
-            {{ quiz_history|json_script:"quiz-data" }}
-        </script>
+        {{ quiz_history|json_script:"quiz-data" }}
         <!-- Table to display the responses -->
         {% if quiz_history %}
             <div class="table-responsive">
