@@ -22,7 +22,8 @@
         <h4>Questions</h4>
         <ul id="questions-list" class="list-group">
           {% for question in questions %}
-            <li class="question-item" data-id="{{ question.id }}">
+            {% load quiz_extras %}
+            <li class="question-item" data-id="{{ question.id }}" data-type="{{ question|get_question_type }}">
               <span><i class="fa-solid fa-question-circle"></i> {{ question.question_text|truncatewords:5 }}</span>
               <button class="delete-question" aria-label="Delete question"><i class="fas fa-trash-alt"></i></button>
             </li>
@@ -143,9 +144,9 @@
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
   <script>
     $(function(){
-      // sortable questions
+      // Make the list sortable and draggable as before
       $("#questions-list").sortable({
-        cancel: ".question-type", // Prevents draggable conflict
+        cancel: ".question-type",
         update: function(event, ui) {
           var order = $(this).sortable('toArray', { attribute: 'data-id' });
           console.log("New order:", order);
@@ -166,12 +167,12 @@
           });
         }
       });
-      // draggable question
+      
       $(".question-type").draggable({
         helper: "clone",
         opacity: 0.7
       });
-      // you can drop quistions in the box
+      
       $("#editor").droppable({
         accept: ".question-type",
         drop: function(event, ui){
@@ -179,7 +180,8 @@
           loadForm(type);
         }
       });
-      // load the form in the box
+      
+      // load the form in the editor
       function loadForm(type, data) {
         $(".ui-draggable-dragging").remove();
         data = data || {};
@@ -190,7 +192,6 @@
           $("#editor").find("[name='question_text']").val(data.question_text || "");
           $("#editor").find("[name='time']").val(data.time || "");
           $("#editor").find("[name='mark']").val(data.mark || "");
-          console.log("Image URL:", data.image);
           if(data.image) {
             $("#editor").find("#" + type + "-image-preview")
                       .attr("src", data.image)
@@ -198,8 +199,7 @@
           } else {
             $("#editor").find("#" + type + "-image-preview").hide();
           }
-
-          //to check if it should create or edit a question 
+          // Insert question_id if editing
           if(data.id) {
             if ($("#editor").find("[name='question_id']").length === 0) {
               $("#editor").find("form").append("<input type='hidden' name='question_id' value='" + data.id + "'>");
@@ -207,14 +207,12 @@
               $("#editor").find("[name='question_id']").val(data.id);
             }
           }
-
-          // add other types uniqe fields here
-          if (type === "integer" || type == "text" || type == "decimal")  {
+          // Set the correct_answer or unique fields for specific types:
+          if (type === "integer" || type === "text" || type === "decimal") {
             $("#editor").find("[name='correct_answer']").val(data.correct_answer || "");
-          } else if (type == "true_false") {
+          } else if (type === "true_false") {
             $("#editor").find("[name='correct_answer']").prop("checked", data.correct_answer === true || data.correct_answer === "True"); 
-          } else if (type == "multiple_choice") {
-            
+          } else if (type === "multiple_choice") {
             data.options.forEach(function(option, index) {
               var optionInput = $("#editor").find("[name='options[]']").eq(index);
               if (optionInput.length) {
@@ -231,86 +229,45 @@
                 $("#editor").find("#multiple-choice-options-container").append(newOptionDiv);
               }
             });
-
             $("#editor").find("[name='correct_answer']").val(data.correct_answer || "");
           } else if (type === "numerical_range") {
             $("#editor").find("[name='min_value']").val(data.min_value || "");
             $("#editor").find("[name='max_value']").val(data.max_value || "");
           }
-
-          //This subroutine allows multiple choice questions to add or remove options
-          if (type === "multiple_choice") {
-            var addOptionBtn = document.getElementById("add-option");
-            var removeOptionBtn = document.getElementById("remove-option");
-
-            if (addOptionBtn) {
-              addOptionBtn.addEventListener("click", function(){
-                var container = document.getElementById("multiple-choice-options-container");
-                if (container) {
-                  var newDiv = document.createElement("div");
-                  newDiv.className = "option-input";
-                  var input = document.createElement("input");
-                  input.type = "text";
-                  input.name = "options[]";
-                  input.value = "";
-                  input.className = "form-control";
-                  input.placeholder = "Enter option";
-                  newDiv.appendChild(input);
-                  container.appendChild(newDiv);
-                }
-              });
-            }
-
-            if (removeOptionBtn) {
-              removeOptionBtn.addEventListener("click", function(){
-                var container = document.getElementById("multiple-choice-options-container");
-                var optionInputs = container.getElementsByClassName("option-input");
-
-                if (optionInputs.length > 2) {
-                    container.removeChild(optionInputs[optionInputs.length - 1]);
-                } else {
-                    alert("You must have at least 2 options.");
-                }
-              });
-            }
-          }
-
-          // clear the image
+          
           $("#clear-image").click(function(){
-
             var questionId = $("#editor").find("input[name='question_id']").val();
-    
             if (!questionId) {
-                console.error("No question ID found.");
-                return;
+              console.error("No question ID found.");
+              return;
             }
-
             $.ajax({
               url: `/delete-question-image/${questionId}/`,
               type: "POST",
-              data: {
-                  csrfmiddlewaretoken: "{{ csrf_token }}"
-              },
+              data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
               success: function(response) {
-                  console.log("Image deleted successfully!");
-                  $("#editor").find("#" + type + "-image-preview").attr("src", "");
-                  $(".form-control-file").val("");
+                $("#editor").find("#" + type + "-image-preview").attr("src", "");
+                $(".form-control-file").val("");
               },
-              error: function() {
-                  alert("Error deleting image.");
+              error: function () {
+                alert("Error deleting image.");
               }
             });
           });
         }
       }
-
-
-      // when clicking on an added question you can see it in the box
+      
+      // When clicking a question from the list, pass its ID and type
       $(document).on("click", ".question-item", function () {
-        var questionId = $(this).data('id');
+        var li = $(this);
+        var questionId = li.data('id');
+        var questionType = li.data('type');
         $.ajax({
           url: "/get_question/{{ quiz.id }}/",
-          data: { question_id: questionId },
+          data: { 
+            question_id: questionId,
+            question_type: questionType
+          },
           success: function (data) {
             loadForm(data.question_type, data);
           },
@@ -319,7 +276,8 @@
           }
         });
       });
-      // delete question
+      
+      // Single delete handler with confirmation (remove any duplicates)
       $(document).on("click", ".delete-question", function (e) {
         e.stopPropagation();
         var li = $(this).closest(".question-item");
@@ -328,29 +286,31 @@
           $.ajax({
             url: "/delete-question/" + questionId + "/",
             type: "POST",
-            data: {
-              csrfmiddlewaretoken: "{{ csrf_token }}"
-            },
+            data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
             success: function () {
               li.remove();
+              $("#editor").html("<p>Drag & drop a question type here</p>");
+              showToast("Question deleted successfully!", "success");
             },
             error: function () {
-              alert("Error deleting question.");
+              showToast("Error deleting question.", "error");
             }
           });
         }
       });
-      // clear the box
+      
+      // Clear editor button
       $("#new-question").click(function(){
-        $("#editor").html("");
+        $("#editor").html("<p>Drag & drop a question type here</p>");
       });
-      // save clicked return to dashboard
+      
+      // Finish quiz button
       $("#finish-quiz").click(function(){
         window.location.href = "/your-quizzes/";
       });
-    });
-
-    $("#editor").on("change", "input[type='file']", function() {
+      
+      // File input change handler (for image preview)
+      $("#editor").on("change", "input[type='file']", function() {
         var fileInput = $(this);
         if (this.files && this.files[0]) {
           var reader = new FileReader();
@@ -361,6 +321,7 @@
           };
           reader.readAsDataURL(this.files[0]);
         }
+      });
     });
   </script>
 

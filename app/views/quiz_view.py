@@ -1,16 +1,14 @@
 from django.shortcuts import redirect,render, get_object_or_404
 from app.forms import QuizForm
-from app.models.quiz import Quiz, IntegerInputQuestion, TrueFalseQuestion, Question, TextInputQuestion, MultipleChoiceQuestion, DecimalInputQuestion, NumericalRangeQuestion
+from app.models.quiz import Quiz
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from app.helpers.decorators import is_tutor, redirect_unauthenticated_to_homepage
 from django.views.decorators.http import require_POST
 from django.core.files.storage import default_storage
-from app.models.room import Room, RoomParticipant
 from app.question_registry import QUESTION_FORMS, QUESTION_MODELS
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
 from app.helpers.helper_functions import getAllQuestions
+
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
@@ -155,6 +153,7 @@ def delete_question_image_view(request, question_id):
         question.save()
     return redirect('edit_quiz', quiz_id=quiz_id)
 
+
 @redirect_unauthenticated_to_homepage
 @is_tutor
 def update_question_order(request):
@@ -189,26 +188,24 @@ def update_question_order(request):
         print(f"Error updating order: {e}")  # Debugging line
         return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
+
 @redirect_unauthenticated_to_homepage
 @is_tutor
 def get_question_view(request, quiz_id):
     question_id = request.GET.get('question_id')
-    if not question_id:
-        return JsonResponse({"error": "Question ID is required"}, status=400)
+    question_type = request.GET.get('question_type')  # new parameter
+    if not question_id or not question_type:
+        return JsonResponse({"error": "Question ID and type are required"}, status=400)
     
-    question = None
-    question_type = None
-    for key, model in QUESTION_MODELS.items():
-        try:
-            question = model.objects.get(pk=question_id)
-            question_type = key
-            break
-        except model.DoesNotExist:
-            continue
-
-    if not question:
+    model = QUESTION_MODELS.get(question_type)
+    if not model:
+        return JsonResponse({"error": "Invalid question type"}, status=400)
+    
+    try:
+        question = model.objects.get(pk=question_id, quiz_id=quiz_id)
+    except model.DoesNotExist:
         return JsonResponse({"error": "Question not found"}, status=404)
-
+    
     data = {
         "id": question.id,
         "question_type": question_type,
@@ -217,10 +214,8 @@ def get_question_view(request, quiz_id):
         "time": question.time,
         "quizID": question.quiz.id,
         "mark": question.mark,
-        "image": question.image.url if hasattr(question, 'image') and question.image else "",
+        "image": question.image.url if question.image else "",
     }
-
-    #add more types here with their uniqe fields
     if question_type == "multiple_choice":
         data["options"] = question.options
         data["correct_answer"] = question.correct_answer
@@ -255,131 +250,3 @@ def delete_quiz_view(request, quiz_id):
             return HttpResponse(status=204)
     print("Standard request. Redirecting to 'your_quizzes'.")
     return redirect('your_quizzes')
-
-
-def teacher_live_quiz_view(request, quiz_id):
-    quiz = Quiz.objects.filter(id=quiz_id).first()
-
-    if not quiz:
-        # Show a message instead of crashing
-        return render(request, "tutor/live_quiz.html", {
-            "quiz": {"id": quiz_id, "title": "Sample Quiz (Not Found)"},
-            "error_message": "Quiz not found. Showing sample questions."
-        })
-
-    return render(request, "tutor/live_quiz.html", {"quiz": quiz})
-
-
-# def start_quiz(request, quiz_id):
-#     quiz = get_object_or_404(Quiz, id=quiz_id)
-#     first_question = quiz.questions.first()
-
-#     if first_question:
-#         return render(request, "partials/current_question.html", {"question": first_question})
-
-#     return JsonResponse({"message": "No questions available"}, status=404)
-
-
-# def next_question(request, quiz_id):
-#     quiz = get_object_or_404(Quiz, id=quiz_id)
-#     current_question_id = request.POST.get("current_question_id")
-
-#     if current_question_id:
-#         current_question = get_object_or_404(Question, id=current_question_id)
-#         next_question = quiz.questions.filter(id__gt=current_question.id).first()
-#     else:
-#         next_question = quiz.questions.first()
-
-#     if next_question:
-#         return render(request, "partials/current_question.html", {"question": next_question})
-
-#     return JsonResponse({"message": "No more questions"}, status=200)
-
-def start_quiz(request, join_code):
-    room = Room.objects.get(join_code=join_code)
-    room.is_quiz_active = True
-    room.current_question_index = 0
-    room.save()
-
-    first_question = room.get_current_question()
-    answer = get_correct_answer(first_question)
-    return JsonResponse({
-        'question': first_question.question_text,
-        'answer': answer,
-        'question_number': 1,
-        'total_questions': room.quiz.questions.count()
-    })
-
-# def next_question(request, join_code):
-#     room = Room.objects.get(join_code=join_code)
-#     next_q = room.next_question()
-#     answer = get_correct_answer(next_q)
-
-#     if next_q:
-#         return JsonResponse({
-#             'question': next_q.question_text,
-#             'answer': answer,  # Handle different question types
-#             'question_number': room.current_question_index + 1,
-#             'total_questions': room.quiz.questions.count()
-#         })
-#     return JsonResponse({'message': 'No more questions'}, status=404)
-
-def next_question(request, join_code):
-    room = get_object_or_404(Room, join_code=join_code)
-    current_q = room.get_current_question()
-
-    if current_q:
-        # Broadcast to WebSocket group
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            f"live_quiz_{join_code}",
-            {
-                "type": "send.question_update",
-                "question": current_q.question_text,
-                "answer": current_q.get_correct_answer(),
-                "question_number": room.current_question_index + 1
-            }
-        )
-        return JsonResponse({'status': 'success'})
-    return JsonResponse({'status': 'quiz_complete'}, status=400)
-
-
-def end_quiz(request, quiz_id):
-    return JsonResponse({"message": "Quiz ended!"})
-
-
-def get_live_responses(request, quiz_id):
-    return JsonResponse({"responses": ["Student A: Answer 1", "Student B: Answer 2"]})
-
-def get_correct_answer(question):
-    if isinstance(question, IntegerInputQuestion):
-        return question.correct_answer
-    elif isinstance(question, TrueFalseQuestion):
-        return question.correct_answer
-    elif isinstance(question, TextInputQuestion):
-        return question.correct_answer
-    # Add more elif blocks for other question types
-    return None
-
-def tutor_live_quiz(request, join_code):
-    """View for the tutor to conduct a live quiz"""
-    room = get_object_or_404(Room, join_code=join_code)
-
-    # Get participants excluding tutors
-    participants = RoomParticipant.objects.filter(room=room).exclude(user__role="tutor")
-    participant_count = participants.count()
-
-    # If the quiz hasn't started, make sure it's ready
-    if not room.is_quiz_active:
-        room.current_question_index = 0
-        room.save()
-
-    context = {
-        'room': room,
-        'quiz': room.quiz,
-        'join_code': join_code,
-        'participants': participants,
-        'participant_count': participant_count,
-    }
-
-    return render(request, 'tutor/live_quiz.html', context)
