@@ -176,9 +176,7 @@ class NumericalRangeQuestion(Question):
 
 class SortingQuestion(Question):
 
-    items = models.TextField()
-   
-    correct_answer = models.CharField(max_length=200)
+    options = models.JSONField()
 
     quiz = models.ForeignKey(
         Quiz,
@@ -191,9 +189,5 @@ class SortingQuestion(Question):
 
     def get_items(self):
         
-        return self.items.split(',')
-
-    def get_correct_order(self):
-        
-        return [int(x) for x in self.correct_answer.split(',')]
+        return self.options
 

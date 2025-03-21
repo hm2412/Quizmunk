@@ -13,22 +13,22 @@ class MultipleChoiceOptionsWidget(forms.Widget):
         for option in value:
             html += (
                 '<div class="option-input">'
-                f'<input type="text" name="{name}" value="{option}" class="form-control" placeholder="Enter option" />'
+                f'<input type="text" name="{name}[]" value="{option}" class="form-control" placeholder="Enter option" />'
                 '</div>'
             )
         html += '</div>'
         
         html += '''
             <div style="display: flex; gap: 8px; margin-top: 10px;">
-                <button type="button" id="add-option" class="btn btn-primary" style="width: 40px;">+</button>
-                <button type="button" id="remove-option" class="btn btn-danger" style="width: 40px;">-</button>
+                <button type="button" id="add-multi-option" class="btn btn-primary" style="width: 40px;">+</button>
+                <button type="button" id="remove-multi-option" class="btn btn-danger" style="width: 40px;">-</button>
             </div>
             '''
 
         return mark_safe(html)
 
     def value_from_datadict(self, data, files, name):
-        return data.getlist(name)
+        return data.getlist(name + '[]')
 
 class MultipleChoiceQuestionForm(forms.ModelForm):
     options = forms.CharField(
@@ -61,18 +61,16 @@ class MultipleChoiceQuestionForm(forms.ModelForm):
 
     def clean_options(self):
         options = self.cleaned_data.get('options')
-        options_list = [option.strip() for option in options.splitlines() if option.strip()]
-
-        if isinstance(options, str):
-            try:
-                options = eval(options) # potential security issue
-            except:
-                options = options.splitlines()
-
+        if not isinstance(options, list):
+            options = eval(options)
+        
         options_list = [option.strip() for option in options if option.strip()]
+
+        print("Cleaned options:", options_list)  # Debug output
 
         if len(options_list) < 2:
             raise forms.ValidationError("Please enter at least two options.")
+        
         return options_list
     
     def clean(self):

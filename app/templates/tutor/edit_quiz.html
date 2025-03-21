@@ -62,6 +62,9 @@
           <div class="question-type" data-type="numerical_range" aria-label="Numerical range question">
             <i class="fas fa-sliders-h"></i>Numerical Range Question
           </div>
+          <div class="question-type" data-type="sorting" aria-label="Sorting question">
+            <i class="fas fa-sliders-h"></i>Sorting Question
+          </div>
         </div>
       </div>
     </div>
@@ -208,45 +211,62 @@
           } else if (type === "numerical_range") {
             $("#editor").find("[name='min_value']").val(data.min_value || "");
             $("#editor").find("[name='max_value']").val(data.max_value || "");
+          } else if (type == "sorting") {
+            
+            data.options.forEach(function(option, index) {
+              var optionInput = $("#editor").find("[name='options[]']").eq(index);
+              if (optionInput.length) {
+                optionInput.val(option);
+              } else {
+                var newOptionDiv = $("<div>").addClass("option-input");
+                var newOptionInput = $("<input>").attr({
+                  type: "text",
+                  name: "options[]",
+                  class: "form-control",
+                  placeholder: "Enter item"
+                }).val(option);
+                newOptionDiv.append(newOptionInput);
+                $("#editor").find("#sorting-options-container").append(newOptionDiv);
+              }
+            });
           }
 
-          //This subroutine allows multiple choice questions to add or remove options
+          //These subroutines allow multiple choice or sorting questions to add or remove options, note it only works on saved questions
           if (type === "multiple_choice") {
-            var addOptionBtn = document.getElementById("add-option");
-            var removeOptionBtn = document.getElementById("remove-option");
+            $(document).on("click", "#add-multi-option", function(){
+              var container = $("#multiple-choice-options-container");
+              var newOption = $('<div class="option-input"><input type="text" name="options[]" class="form-control" placeholder="Enter item"></div>');
+              container.append(newOption);
+            });
 
-            if (addOptionBtn) {
-              addOptionBtn.addEventListener("click", function(){
-                var container = document.getElementById("multiple-choice-options-container");
-                if (container) {
-                  var newDiv = document.createElement("div");
-                  newDiv.className = "option-input";
-                  var input = document.createElement("input");
-                  input.type = "text";
-                  input.name = "options[]";
-                  input.value = "";
-                  input.className = "form-control";
-                  input.placeholder = "Enter option";
-                  newDiv.appendChild(input);
-                  container.appendChild(newDiv);
-                }
-              });
-            }
-
-            if (removeOptionBtn) {
-              removeOptionBtn.addEventListener("click", function(){
-                var container = document.getElementById("multiple-choice-options-container");
-                var optionInputs = container.getElementsByClassName("option-input");
-
-                if (optionInputs.length > 2) {
-                    container.removeChild(optionInputs[optionInputs.length - 1]);
-                } else {
-                    alert("You must have at least 2 options.");
-                }
-              });
-            }
+            $(document).on("click", "#remove-multi-option", function(){
+              var container = $("#multiple-choice-options-container");
+              var optionInputs = container.find(".option-input");
+              if (optionInputs.length > 2) {
+                optionInputs.last().remove();
+              } else {
+                showToast("You must have at least 2 options.", "error");
+              }
+            });
           }
 
+          if (type === "sorting") {
+            $(document).on("click", "#add-sorting-option", function () {
+              var container = $("#sorting-options-container");
+              var newOption = $('<div class="option-input"><input type="text" name="options" class="form-control" placeholder="Enter item"></div>');
+              container.append(newOption);
+            });
+          
+            $(document).on("click", "#remove-sorting-option", function () {
+                var container = $("#sorting-options-container");
+                var optionInputs = container.find(".option-input");
+                if (optionInputs.length > 2) {
+                    optionInputs.last().remove();
+                } else {
+                  showToast("You must have at least 2 options.", "error");
+              }
+            });
+          }
           // clear the image
           $("#clear-image").click(function(){
 

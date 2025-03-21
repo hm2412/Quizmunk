@@ -1,6 +1,6 @@
 from django.shortcuts import redirect,render, get_object_or_404
 from app.forms import QuizForm
-from app.models.quiz import Quiz, IntegerInputQuestion, TrueFalseQuestion, Question, TextInputQuestion, MultipleChoiceQuestion, DecimalInputQuestion, NumericalRangeQuestion
+from app.models.quiz import Quiz, IntegerInputQuestion, TrueFalseQuestion, Question, TextInputQuestion, MultipleChoiceQuestion, DecimalInputQuestion, NumericalRangeQuestion, SortingQuestion
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from app.helpers.decorators import is_tutor, redirect_unauthenticated_to_homepage
@@ -213,10 +213,12 @@ def get_question_view(request, quiz_id):
         "image": question.image.url if hasattr(question, 'image') and question.image else "",
     }
 
-    #add more types here with their uniqe fields
+    #add more types here with their unique fields
     if question_type == "multiple_choice":
         data["options"] = question.options
         data["correct_answer"] = question.correct_answer
+    if question_type == "sorting":
+        data["options"] = getattr(question, "options", [])
     elif question_type == "numerical_range":
         data["min_value"] = question.min_value
         data["max_value"] = question.max_value

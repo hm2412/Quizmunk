@@ -1,16 +1,48 @@
+
 from django import forms
 from app.models.quiz import SortingQuestion
+from django.utils.safestring import mark_safe
+
+class SortingOptionsWidget(forms.Widget):
+    def render(self, name, value, attrs=None, renderer=None):
+        if value is None:
+            value = ["", "", ""]
+        elif isinstance(value, str):
+            value = value.splitlines()
+        
+        html = '<div id="sorting-options-container">'
+        for option in value:
+            html += (
+                '<div class="option-input">'
+                f'<input type="text" name="{name}[]" value="{option}" class="form-control" placeholder="Enter item" />'
+                '</div>'
+            )
+        html += '</div>'
+
+        html += '''
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+                <button type="button" id="add-sorting-option" class="btn btn-primary" style="width: 40px;">+</button>
+                <button type="button" id="remove-sorting-option" class="btn btn-danger" style="width: 40px;">-</button>
+            </div>
+            '''
+        return mark_safe(html)
+
+    def value_from_datadict(self, data, files, name):
+        return data.getlist(name + "[]")
 
 class SortingQuestionForm(forms.ModelForm):
+    options = forms.CharField(
+        help_text="Use the + button to add options, and the - button to remove them.\n Put the options in the already sorted order.",
+        widget=SortingOptionsWidget(),
+    )
+
     class Meta:
         model = SortingQuestion
-        fields = ['time', 'question_text', 'mark', 'items', 'correct_order', 'image']
+        fields = ['time', 'question_text', 'mark', 'options', 'image']
         widgets = {
-            'time': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
+            'time': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter time'}),
             'question_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter question text'}),
-            'mark': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
-            'items': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter items, separated by commas'}),
-            'correct_order': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter correct order, separated by commas'}),
+            'mark': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter mark'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }
 
@@ -26,16 +58,21 @@ class SortingQuestionForm(forms.ModelForm):
             raise forms.ValidationError("Mark must be an integer.")
         return mark
 
-    def clean_items(self):
-        items = self.cleaned_data.get('items')
-        if not items:
-            raise forms.ValidationError("Items field cannot be empty.")
-        return items
+    def clean_options(self):
+        options = self.cleaned_data.get('options')
+        if not isinstance(options, list):
+            options = eval(options)
+        
+        options_list = [option.strip() for option in options if option.strip()]
 
-    def clean_correct_order(self):
-        correct_order = self.cleaned_data.get('correct_order')
-        try:
-            order_list = [int(x.strip()) for x in correct_order.split(',')]
-        except ValueError:
-            raise forms.ValidationError("Correct order must be a comma-separated list of answers.")
-        return correct_order
+        print("Cleaned options:", options_list)  # Debug output
+
+        if len(options_list) < 2:
+            raise forms.ValidationError("Please enter at least two options.")
+        
+        return options_list
+
+    def clean(self):
+        cleaned_data = super().clean()
+        options_list = cleaned_data.get('options')
+        return cleaned_data
