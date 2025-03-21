@@ -18,7 +18,7 @@ def login_view(request):
             user = authenticate(request, email_address=email_address, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, "Login successful!")
+                #messages.success(request, "Login successful!")
                 if user.role == 'student':
                     return HttpResponseRedirect(reverse('student_dashboard'))
                 elif user.role == 'tutor':

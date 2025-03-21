@@ -52,20 +52,22 @@
     </main>
 
 <script>
+    const ws = new WebSocket(`ws://${window.location.host}/ws/lobby/{{ join_code }}/`);
     var userRole = "{{ request.user.role|default:'guest' }}";
     console.log("User role:", userRole);
-
-    const ws = new WebSocket(`ws://${window.location.host}/ws/lobby/{{ join_code }}/`);
-
+    let quizStarted = false; 
 
     ws.onmessage = function(event) {
         const data = JSON.parse(event.data);
         if (data.action && data.action == "quiz_started"){
-            if(userRole == "tutor"){
-                window.location.href = data.tutor_quiz_url;
-            }else{
-                window.location.href = data.student_quiz_url;
-            }
+                if (!quizStarted) {
+                    quizStarted = true; 
+                    if(userRole == "tutor"){
+                        window.location.href = data.tutor_quiz_url;
+                    }else{
+                        window.location.href = data.student_quiz_url;
+                    }
+                }
         }else if (data.participants) {
             const participantsList = document.getElementById("participants-list");
             participantsList.innerHTML = "";

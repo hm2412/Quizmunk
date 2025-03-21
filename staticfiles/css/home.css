@@ -1,0 +1,42 @@
+.home-box {
+    max-width: 50%;
+    height: 75%;
+    padding: 125px 30px;
+    text-align: center;
+    background: rgb(42,122,140);
+    background: linear-gradient(41deg, rgba(42,122,140,1) 15%, rgba(98,160,173,1) 75%);
+    border-radius: 10px;
+    box-shadow: 0px 8px 15px;
+}
+
+.home-box img{
+    max-width: 200px;
+}
+
+.home-box h1 {
+    color: white;
+    padding: 20px 0px;
+    font-size: 4rem;
+    word-wrap: break-word;
+    font-weight: 800;
+}
+
+.home-box .highlight {
+    box-shadow: inset 0 0 0 0 #2a7a8c;
+    color: white;
+    margin: 0 -.25rem;
+    padding: 0 .25rem;
+    transition: color .4s ease-in-out, box-shadow .4s ease-in-out;
+}
+
+.home-box .highlight:hover {
+    box-shadow: inset 350px 0 0 0 white;
+    color: #2a7a8c;
+}
+
+.home-box p {
+    color: white;
+    padding: 30px;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}

@@ -1,13 +1,13 @@
- <!DOCTYPE html>
- {% load static %}
- <html lang="en">
- <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Create Quiz</title>
-   <link rel="stylesheet" href="{% static 'css/quiz_form.css' %}">
-   <link rel="stylesheet" href="{% static 'css/style.css' %}">
- </head>
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Quiz</title>
+  <link rel="stylesheet" href="{% static 'css/quiz_form.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
 
 
 <body>
@@ -19,8 +19,25 @@
        </div>
        <form method="post" hx-post="{% url 'create_quiz' %}" hx-target="#quiz-form-container" hx-swap="innerHTML" enctype="multipart/form-data">
            {% csrf_token %}
-           {{ form.as_p }}
-           <button type="submit">Submit</button>
+           {{ form.name.label_tag }}
+           {{ form.name }}
+           
+           {{ form.subject.label_tag }}
+           {{ form.subject }}
+           
+           {{ form.difficulty.label_tag }}
+           {{ form.difficulty }}
+           
+           {{ form.quiz_img.label_tag }}
+           {{ form.quiz_img }}
+           
+           <div class="form-group">
+               <label for="{{ form.is_public.id_for_label }}">Make Quiz Public:</label>
+               {{ form.is_public }}
+               <small class="form-text text-muted">If checked, other tutors will be able to see and use this quiz</small>
+           </div>
+           
+           <button type="submit">Create Quiz</button>
        </form>
    </div>
 </div>

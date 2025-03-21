@@ -11,20 +11,21 @@
   <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
 <body>
-  <div class="page-container">
-    <div class="main-content">
-      <div class="content-area">
+      <div id="start-message" class="start-message">
+        <p>Press "Start Quiz" to begin!</p>
+      </div>
+      <div class="main-area">
         <div class="question-container">
           <h2 id="question-number" class="h4">Question 1</h2>
           <p id="question-text" class="question">Press "Start Quiz" to begin!</p>
-        </div>
-        <div class="row d-flex justify-content-center">
-          <div class="col-sm-6">
-            <h2 class="h4">Correct Answer</h2>
-            <p id="answer-text" class="answer">Answer will be revealed here.</p>
+          <div id="question-image-container" style="display: none;">
+            <img id="question-image" src="" alt="Question Image" class="question-image" />
           </div>
         </div>
-        <div class="leaderboard-container" style="width: 600px; margin: 0 auto;">
+        <div class="answer-container">
+            <p id="answer-text" class="answer">Answer will be revealed here.</p>
+        </div>
+        <div class="leaderboard-container">
           <h2 class="h5">Leaderboard</h2>
           <ul id="leaderboard" class="list-group mt-2"></ul>
         </div>
@@ -41,82 +42,106 @@
         </div>
         <div class="circle" style="color: black;">
           <div>
-            <p id="participants-count" class="mb-0 h5">0 / {{ participant_number }}</p>
+            <p id="participants-count" class="mb-0 h5">0</p>
+            <p class="small">Participants</p>
+          </div>
+        </div>
+        <div class="circle" style="color: black;">
+          <div>
+            <p id="answered-count" class="mb-0 h5">0</p>
+            <p class="small">Answered</p>
           </div>
         </div>
         <div id="quiz-controls">
-          <button id="start-quiz-btn" class="btn btn-success">▶ Start Quiz</button>
-          <button id="end-question-btn" class="btn btn-primary" style="display: none;">⏭ End Question</button>
-          <button id="next-question-btn" class="btn btn-primary" style="display: none;">⏭ Next Question</button>
-          <button id="end-quiz-btn" class="btn btn-danger">⏹ End Quiz</button>
+          <button id="start-quiz-btn" class="start-quiz btn">▶ Start Quiz</button>
+          <button id="end-question-btn" class="end-question btn" style="display: none;">⏸︎ End Question</button>
+          <button id="next-question-btn" class="next-question btn" style="display: none;">⏭ Next Question</button>
+          <button id="end-quiz-btn" class="end-quiz btn">⏹ End Quiz</button>
         </div>
-      </div>
     </div>
     <footer>{% include 'partials/footer.html' %}</footer>
-  </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    document.addEventListener("DOMContentLoaded", function() {
+    const startBtn = document.getElementById("start-quiz-btn");
+    const startMessage = document.getElementById("start-message");
+    const endQuestionBtn = document.getElementById("end-question-btn");
+    const nextQuestionBtn = document.getElementById("next-question-btn");
+    const endQuizBtn = document.getElementById("end-quiz-btn");
+    const questionTextEl = document.getElementById("question-text");
+    const questionNumberEl = document.getElementById("question-number");
+    const answerTextEl = document.getElementById("answer-text");
+    const timerEl = document.getElementById("timer");
+    const participantsCountEl = document.getElementById("participants-count");
+    const progressBarEl = document.getElementById("progress-bar");
+    const questionImageEl = document.getElementById("question-image");
+    let currentQuestionNumber = 0;
     let questionActive = false;
     let currentTimer = null;
-    let ws;
-    
+
     function startTimer(seconds) {
-      const timerEl = document.getElementById("timer");
-      if (currentTimer) { clearInterval(currentTimer); }
-      let remaining = seconds;
-      questionActive = true;
-      timerEl.textContent = remaining;
-      currentTimer = setInterval(() => {
-        remaining--;
+        if (currentTimer) { clearInterval(currentTimer); }
+        let remaining = seconds;
+        questionActive = true;
         timerEl.textContent = remaining;
-        // Only trigger end_question if the question is still open.
-        if (remaining <= 0 && questionActive) {
-          clearInterval(currentTimer);
-          ws.send(JSON.stringify({ action: "end_question" }));
-          document.getElementById("end-question-btn").style.display = "none";
-          questionActive = false;
-        }
-      }, 1000);
+        currentTimer = setInterval(() => {
+            remaining--;
+            timerEl.textContent = remaining;
+            if (remaining <= 0 && questionActive) {
+                clearInterval(currentTimer);
+                ws.send(JSON.stringify({ action: "end_question" }));
+                endQuestionBtn.style.display = "none";
+                questionActive = false;
+            }
+        }, 1000);
     }
-    
-    document.addEventListener("DOMContentLoaded", function() {
-      const startBtn = document.getElementById("start-quiz-btn");
-      const endQuestionBtn = document.getElementById("end-question-btn");
-      const nextQuestionBtn = document.getElementById("next-question-btn");
-      const endQuizBtn = document.getElementById("end-quiz-btn");
-      const questionTextEl = document.getElementById("question-text");
-      const questionNumberEl = document.getElementById("question-number");
-      const answerTextEl = document.getElementById("answer-text");
-      const timerEl = document.getElementById("timer");
-      const participantsCountEl = document.getElementById("participants-count");
-      const progressBarEl = document.getElementById("progress-bar");
-      let currentQuestionNumber = 0;
-      
-      ws = new WebSocket(`ws://${window.location.host}/ws/live-quiz/{{ room.join_code }}/`);
-      
-      ws.onopen = () => console.log("WebSocket connected!");
-      
-      ws.onmessage = function(event) {
+
+    const ws = new WebSocket(`ws://${window.location.host}/ws/live-quiz/{{ room.join_code }}/`);
+
+    ws.onopen = () => console.log("WebSocket connected!");
+
+    ws.onmessage = function(event) {
         const data = JSON.parse(event.data);
         if (data.type === "quiz_update") {
-          const msg = data.message;
-          questionActive = true;
-          currentQuestionNumber = msg.question_number;
-          questionNumberEl.textContent = `Question ${msg.question_number} of ${msg.total_questions}`;
-          questionTextEl.textContent = msg.question;
-          answerTextEl.textContent = msg.answer ? msg.answer : "Answer will be revealed...";
-          // Only start the timer if time > 0 and no answer is revealed.
-          if (msg.time && !msg.answer) {
-            startTimer(msg.time);
-          } else {
-            $(".answer-box, input, textarea").prop("disabled", true);
-          }
-          startBtn.style.display = "none";
-          endQuestionBtn.style.display = "inline-block";
-          nextQuestionBtn.style.display = "inline-block";
-          const progressPercent = (msg.question_number / msg.total_questions) * 100;
-          progressBarEl.style.width = `${progressPercent}%`;
-          progressBarEl.textContent = `${Math.round(progressPercent)}%`;
+            const msg = data.message;
+            questionActive = true;
+            currentQuestionNumber = msg.question_number;
+            questionNumberEl.textContent = `Question ${msg.question_number} of ${msg.total_questions}`;
+
+            // Ensure an image is always displayed
+            const defaultImage = "/static/images/default_thumbnail.png";
+            questionImageEl.src = msg.image ? msg.image : defaultImage;
+            document.getElementById("question-image-container").style.display = "block";
+
+            questionTextEl.textContent = msg.question;
+
+            // Hide next question button
+            nextQuestionBtn.style.display = "none";
+
+            // Display the answer immediately if it's available (i.e., after "end_question")
+            if (msg.answer) {
+                answerTextEl.textContent = `Correct Answer: ${msg.answer}`;
+                nextQuestionBtn.style.display = "inline-block";
+            } else {
+                answerTextEl.textContent = "Answer will be revealed after the question time is over...";
+            }
+
+            // Start the timer if applicable
+            if (msg.time && !msg.answer) {
+                startTimer(msg.time);
+            } else {
+                $(".answer-box, input, textarea").prop("disabled", true);
+            }
+
+            // Hide start button and show end question button
+            startBtn.style.display = "none";
+            endQuestionBtn.style.display = "inline-block";
+            // nextQuestionBtn.style.display = "inline-block";
+
+            // Update progress bar
+            const progressPercent = (msg.question_number / msg.total_questions) * 100;
+            progressBarEl.style.width = `${progressPercent}%`;
+            progressBarEl.textContent = `${Math.round(progressPercent)}%`;
         }
         else if (data.type === "leaderboard_update") {
           const leaderboardEl = document.getElementById("leaderboard");
@@ -127,47 +152,59 @@
             li.textContent = `#${entry.rank} ${entry.participant}: ${entry.score}`;
             leaderboardEl.appendChild(li);
           });
+          if (data.participant_number !== undefined) {
+            document.getElementById("participants-count").textContent = data.participant_number;
+          }
+          if (data.answered_count !== undefined) {
+            document.getElementById("answered-count").textContent = data.answered_count;
+          }
         }
         else if (data.type === "quiz_ended") {
-          questionActive = false;
-          if (currentTimer) { clearInterval(currentTimer); }
-          questionTextEl.textContent = data.message;
-          startBtn.style.display = "none";
-          endQuestionBtn.style.display = "none";
-          nextQuestionBtn.style.display = "none";
-          ws.close();
-          setTimeout(() => {
-            window.location.href = "/tutor-dashboard/"; 
-          }, 2000);
+            questionTextEl.textContent = data.message;
+            startBtn.style.display = "none";
+            endQuestionBtn.style.display = "none";
+            nextQuestionBtn.style.display = "none";
+
+            // Show correct answer
+            answerTextEl.textContent = `Thanks for playing!`;
+
+            questionImageEl.src = "/static/images/default_thumbnail.png";
+
+            ws.close();
+            setTimeout(() => {
+                window.location.href = "/tutor-dashboard/"; 
+            }, 2000);
         }
         else if (data.action === "update_participants") {
-          participantsCountEl.textContent = `${data.participant_number} / {{ participant_number }}`;
+            participantsCountEl.textContent = `${data.participant_number} / {{ participant_number }}`;
         }
-      };
-      
-      startBtn.addEventListener("click", function() {
-        ws.send(JSON.stringify({ action: "start_quiz" }));
-      });
-      
-      endQuestionBtn.addEventListener("click", function() {
+    };
+
+    startBtn.addEventListener("click", function() {
+      startMessage.style.display = "none";  // Hide the start message
+      ws.send(JSON.stringify({ action: "start_quiz" }));
+    });
+
+    endQuestionBtn.addEventListener("click", function() {
         ws.send(JSON.stringify({ action: "end_question" }));
         if (currentTimer) { clearInterval(currentTimer); }
         endQuestionBtn.style.display = "none";
+        nextQuestionBtn.style.display = "inline-block";
         questionActive = false;
-      });
-      
-      nextQuestionBtn.addEventListener("click", function() {
-        ws.send(JSON.stringify({ action: "next_question" }));
-      });
-      
-      endQuizBtn.addEventListener("click", function() {
-        if (confirm("Are you sure you want to end the quiz?")) {
-          ws.send(JSON.stringify({ action: "end_quiz" }));
-          if (currentTimer) { clearInterval(currentTimer); }
-          questionActive = false;
-        }
-      });
     });
+
+    nextQuestionBtn.addEventListener("click", function() {
+        ws.send(JSON.stringify({ action: "next_question" }));
+    });
+
+    endQuizBtn.addEventListener("click", function() {
+        if (confirm("Are you sure you want to end the quiz?")) {
+            ws.send(JSON.stringify({ action: "end_quiz" }));
+            if (currentTimer) { clearInterval(currentTimer); }
+            questionActive = false;
+        }
+    });
+});
   </script>
 </body>
 </html>

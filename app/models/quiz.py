@@ -20,6 +20,7 @@ class Quiz(models.Model):
     subject = models.CharField(blank=True, max_length=50)
     difficulty = models.CharField(blank=True, max_length=1, choices=DIFFICULTIES)
     type = models.CharField(max_length=1, choices=TYPES, blank=True)
+    is_public = models.BooleanField(default=False, help_text="If true, quiz will be visible to all tutors")
     tutor = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -29,11 +30,11 @@ class Quiz(models.Model):
         help_text="The tutor that creates this quiz."
     )
     quiz_img = models.ImageField(
-        upload_to='quiz_images/',
-        default='quiz_images/default_quiz.png',  # Default image
+        upload_to='quiz_thumbnail/',
         null=True,
         blank=True
     )
+
     # room = models.OneToOneField("Room", related_name="quiz_room", on_delete=models.SET_NULL, null=True, blank=True)
     # I believe this should be removed, as it's redundant? 
 
