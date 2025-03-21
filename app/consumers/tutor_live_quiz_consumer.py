@@ -164,8 +164,13 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
             "question_number": room.current_question_index + 1,
             "total_questions": len(room.get_questions()),
             "time": question.time,
-            "question_type": "unknown"
+            "question_type": "unknown",
+            "image": "/static/images/default_thumbnail.png"
         }
+
+        if question.image:
+            question_data["image"] = question.image.url
+
         from app.models import MultipleChoiceQuestion, TrueFalseQuestion, IntegerInputQuestion, TextInputQuestion, DecimalInputQuestion, NumericalRangeQuestion, SortingQuestion
         if isinstance(question, MultipleChoiceQuestion):
             question_data["options"] = question.options
