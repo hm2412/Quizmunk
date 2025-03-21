@@ -67,7 +67,7 @@ class PasswordResetFormTestCase(TestCase):
         self.assertFalse(form.is_valid())
 
 #This test fails right now, the validator being used in the form does not work (also tested on the site and you can submit a weakpass)
-    def test_new_password_fails_strong_validation(self): #Test Written with assistance from generative AI
+    def test_new_password_fails_strong_validation(self):
         self.form_input['new_password'] = 'weakpass'
         self.form_input['confirm_password'] = 'weakpass'
         form = PasswordResetForm(data=self.form_input, user=self.user)
