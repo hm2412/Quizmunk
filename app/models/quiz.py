@@ -30,11 +30,11 @@ class Quiz(models.Model):
         help_text="The tutor that creates this quiz."
     )
     quiz_img = models.ImageField(
-        upload_to='quiz_images/',
-        default='quiz_images/default_quiz.png',  # Default image
+        upload_to='quiz_thumbnail/',
         null=True,
         blank=True
     )
+
     # room = models.OneToOneField("Room", related_name="quiz_room", on_delete=models.SET_NULL, null=True, blank=True)
     # I believe this should be removed, as it's redundant? 
 

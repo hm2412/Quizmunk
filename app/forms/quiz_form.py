@@ -12,7 +12,7 @@ class QuizForm(forms.ModelForm):
             'subject': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter subject'}),
             'difficulty': forms.Select(attrs={'class': 'form-control'}),
             'is_public': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'quiz_img': forms.FileInput(attrs={'accept': 'image/*'})
+            'quiz_img': forms.ClearableFileInput(attrs={'class': 'form-control-file', 'accept': 'image/*'})
         }
 
     def __init__(self, *args, **kwargs):
