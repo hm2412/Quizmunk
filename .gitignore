@@ -12,12 +12,11 @@ db.sqlite3-journal
 # Ignore everything inside media subfolders, but keep the subfolders themselves
 /media/*/
 !media/questions_images/
-!media/another_subfolder/
+!media/quiz_thumbnail/
 
 # Ignore everything inside the subfolders
 /media/questions_images/*
-/media/questions_images/*/
-
+/media/quiz_thumbnail/*
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
 # in your Git repository. Update and uncomment the following line accordingly.
