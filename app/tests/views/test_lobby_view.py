@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+
+from app.models import Classroom, Quiz
 from app.models.room import Room
 
 User = get_user_model()
@@ -26,6 +28,12 @@ class ViewTests(TestCase):
         # Create a room
         self.room = Room.objects.create(name="myRoom", join_code="12345678")
 
+        # Create a classroom
+        self.classroom = Classroom.objects.create(id=1, name="my_classroom", tutor=self.tutor_user, description="A test classroom")
+
+        # Create a quiz
+        self.quiz = Quiz.objects.create(id=1, name="my_quiz", type="L", tutor=self.tutor_user, )
+
     def test_student_can_access_join_quiz(self):
         """Students should be able to access the quiz lobby page"""
         self.client.login(email_address="student@example.org", password="password123")
@@ -44,4 +52,20 @@ class ViewTests(TestCase):
         self.client.login(email_address="tutor@example.org", password="123")
         response = self.client.get(reverse("lobby", args=["12345678"]))
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed("lobby.html")
+
+    def test_setup_quiz(self):
+        """Quiz setup should redirect to lobby page"""
+        self.client.login(email_address="tutor@example.org", password="123")
+        response = self.client.get(reverse("setup_quiz", args=[1]))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTemplateUsed("lobby.html")
+
+    def test_classroom_setup_quiz(self):
+        """Classroom quiz setup should redirect to the lobby page"""
+        self.client.login(email_address="tutor@example.org", password="123")
+        response = self.client.get(reverse("setup_classroom_quiz", args=[1, 1]))
+
+        self.assertEqual(response.status_code, 302)
         self.assertTemplateUsed("lobby.html")
