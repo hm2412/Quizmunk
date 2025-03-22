@@ -174,6 +174,11 @@ class NumericalRangeQuestion(Question):
     
     def __str__(self):
         return f"NumericalRangeQuestion: {self.question_text}, Accepted Range: {self.min_value}-{self.max_value}"
+    
+    @property
+    def correct_answer(self):
+        # Return the accepted range as a string.
+        return f"{self.min_value} - {self.max_value}"
 
 class SortingQuestion(Question):
 

@@ -72,6 +72,16 @@
         });
       }
 
+      // Function to validate the answer for integer and decimal types.
+      function validateAnswer(answer, type) {
+        if (type === "integer") {
+          return /^-?\d+$/.test(answer);
+        } else if (type === "decimal") {
+          return /^-?\d+(\.\d+)?$/.test(answer);
+        }
+        return true;
+      }
+
       ws.onopen = () => console.log("WebSocket connected!");
 
       ws.onmessage = (event) => {
@@ -154,6 +164,12 @@
         } else {
           answer = fullText;
         }
+        // Validate answer if type is integer or decimal.
+        if ((currentQuestionType === "integer" || currentQuestionType === "decimal") &&
+            !validateAnswer(answer, currentQuestionType)) {
+          alert("Invalid answer. Please enter a valid " + currentQuestionType + " value.");
+          return;
+        }
         ws.send(JSON.stringify({
           action: "submit_answer",
           answer: answer,
@@ -168,15 +184,12 @@
 
       // Handle submission for input-based answers.
       $(document).on('click', '.submit-answer-btn', function () {
-        let answer;
-        if (currentQuestionType === "sorting") {
-          let sortedItems = [];
-          $('.sortable li').each(function () {
-            sortedItems.push($(this).text());
-          });
-          answer = sortedItems;
-        } else {
-          answer = $(".answer-container input, .answer-container textarea").val();
+        let answer = $(".answer-container input, .answer-container textarea").val().trim();
+        // Validate answer for integer and decimal types.
+        if ((currentQuestionType === "integer" || currentQuestionType === "decimal") &&
+            !validateAnswer(answer, currentQuestionType)) {
+          alert("Invalid answer. Please ensure your answer is a valid " + currentQuestionType + " value. (A lone '-' or forbidden characters are not allowed.)");
+          return;
         }
         ws.send(JSON.stringify({
           action: "submit_answer",

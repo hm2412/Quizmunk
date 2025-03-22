@@ -1,5 +1,5 @@
 <div class="question">
-    <input type="number" step="0.01" class="form-control input-field" placeholder="Enter answer within range">
+    <input type="number" step="0.01" onkeydown="if(['e','E','.'].includes(event.key)) { event.preventDefault(); }" class="form-control input-field" placeholder="Enter answer within range">
 </div>
 <button class="btn btn-primary submit-answer-btn mt-2">Submit Answer</button>
 
