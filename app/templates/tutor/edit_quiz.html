@@ -238,28 +238,31 @@
             $("#editor").find("[name='min_value']").val(data.min_value || "");
             $("#editor").find("[name='max_value']").val(data.max_value || "");
           }
-          
-          $("#clear-image").click(function(){
-            var questionId = $("#editor").find("input[name='question_id']").val();
-            if (!questionId) {
-              console.error("No question ID found.");
-              return;
-            }
-            $.ajax({
-              url: `/delete-question-image/${questionId}/`,
-              type: "POST",
-              data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
-              success: function(response) {
-                $("#editor").find("#" + type + "-image-preview").attr("src", "");
-                $(".form-control-file").val("");
-              },
-              error: function () {
-                alert("Error deleting image.");
-              }
-            });
-          });
         }
       }
+      
+      // delete image
+      $("#editor").on("click", "#clear-image", function(e) {
+        e.preventDefault();
+        var $form = $(this).closest("form");
+        var questionId = $form.find("input[name='question_id']").val();
+        if (!questionId) {
+          console.error("No question ID found.");
+          return;
+        }
+        $.ajax({
+          url: "/delete-question-image/" + questionId + "/",
+          type: "POST",
+          data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
+          success: function(response) {
+            $form.find("img[id$='-image-preview']").attr("src", "").hide();
+            $form.find("input[type='file']").val("");
+          },
+          error: function () {
+            alert("Error deleting image.");
+          }
+        });
+      });
       
       // Load question form when a saved question is clicked
       $(document).on("click", ".question-item", function () {
@@ -293,10 +296,14 @@
           url: "/delete-question/" + questionId + "/",
           type: "POST",
           data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
-          success: function () {
-            li.remove();
-            $("#editor").html("<p>Drag & drop a question type here</p>");
-            showToast("Question deleted successfully!", "success");
+          success: function (response) {
+            if (response.status === "success") {
+              li.remove();
+              $("#editor").html("<p>Drag & drop a question type here</p>");
+              showToast("Question deleted successfully!", "success");
+            } else {
+              showToast("Error deleting question.", "error");
+            }
           },
           error: function () {
             showToast("Error deleting question.", "error");

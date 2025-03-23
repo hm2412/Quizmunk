@@ -132,11 +132,9 @@ def delete_question_view(request, question_id):
             continue
 
     if not question:
-        return HttpResponse("Question not found", status=404)
-    
-    quiz_id = question.quiz.id
+        return JsonResponse({"error": "Question not found"}, status=404)
     question.delete()
-    return redirect('edit_quiz', quiz_id=quiz_id)
+    return JsonResponse({"status": "success"})
 
 
 @redirect_unauthenticated_to_homepage
@@ -151,15 +149,14 @@ def delete_question_image_view(request, question_id):
             continue
 
     if not question:
-        return HttpResponse("Question not found", status=404)
+        return JsonResponse({"error": "Question not found"}, status=404)
     
-    quiz_id = question.quiz.id
     if question.image:
         if default_storage.exists(question.image.name):
             default_storage.delete(question.image.name)
         question.image = None
         question.save()
-    return redirect('edit_quiz', quiz_id=quiz_id)
+    return JsonResponse({"status": "success"})
 
 
 @redirect_unauthenticated_to_homepage
