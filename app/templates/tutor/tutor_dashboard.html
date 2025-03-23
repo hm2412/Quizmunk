@@ -40,3 +40,16 @@
         </div>
     </div>
 {% endblock %}
+{% block extra_js %}
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+        // Add a fake history entry to prevent the user from going back to the quiz page
+        history.pushState({ page: 'dashboard' }, 'Dashboard');
+
+        // If they try to press back, force them forward to prevent going to the quiz page
+        window.addEventListener('popstate', function (event) {
+            window.history.forward();
+        });
+    });
+</script>
+{% endblock %}

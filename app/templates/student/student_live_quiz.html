@@ -79,6 +79,12 @@
 
       ws.onopen = () => console.log("WebSocket connected!");
 
+      window.history.pushState(null, "", window.location.href);
+      window.onpopstate = function() {
+          window.history.pushState(null, "", window.location.href);
+          alert("Please use the quiz controls instead of browser navigation.");
+      };
+
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === "question_update") {

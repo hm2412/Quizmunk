@@ -96,6 +96,8 @@
         }, 1000);
     }
 
+    
+
     const ws = new WebSocket(`ws://${window.location.host}/ws/live-quiz/{{ room.join_code }}/`);
 
     ws.onopen = () => console.log("WebSocket connected!");
@@ -202,8 +204,37 @@
             ws.send(JSON.stringify({ action: "end_quiz" }));
             if (currentTimer) { clearInterval(currentTimer); }
             questionActive = false;
+            window.location.replace("/tutor-dashboard/");
         }
     });
+
+    
+    history.pushState({ page: 'quiz' }, 'Quiz', location.href);
+
+    window.addEventListener('popstate', function (event) {
+        const shouldExit = confirm("Are you sure you want to go back? This will end the quiz.");
+
+        if (shouldExit) {
+            ws.send(JSON.stringify({ action: "end_quiz" }));
+            if (currentTimer) clearInterval(currentTimer);
+            questionActive = false;
+
+            setTimeout(() => {
+                window.location.href = "/tutor-dashboard/";
+            }, 100);
+
+            history.pushState({ page: 'quiz-ended' }, 'Quiz Ended', location.href);
+        } else {
+            history.pushState({ page: 'quiz' }, 'Quiz', location.href);
+        }
+    });
+
+    
+
+    
+
+
+    
 });
   </script>
 </body>

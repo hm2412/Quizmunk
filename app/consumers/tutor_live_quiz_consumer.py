@@ -143,6 +143,7 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         await self.update_quiz_state(room, current_question_index=-1, quiz_started=False)
         from app.helpers.helper_functions import create_quiz_stats
         await database_sync_to_async(create_quiz_stats)(room)
+        await database_sync_to_async(room.save)()
         await self.send_quiz_ended("Quiz ended! Redirecting...")
         await self.channel_layer.group_send(
             f"student_{self.join_code}",
