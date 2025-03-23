@@ -20,8 +20,8 @@ class MultipleChoiceOptionsWidget(forms.Widget):
         html += '</div>'
         html += '''
             <div style="display: flex; gap: 8px; margin-top: 10px;">
-                <button type="button" id="add-option" class="btn btn-primary" style="width: 40px;">+</button>
-                <button type="button" id="remove-option" class="btn btn-danger" style="width: 40px;">-</button>
+                <button type="button" class="btn btn-primary add-option" style="width: 40px;">+</button>
+                <button type="button" class="btn btn-danger remove-option" style="width: 40px;">-</button>
             </div>
             '''
         return mark_safe(html)

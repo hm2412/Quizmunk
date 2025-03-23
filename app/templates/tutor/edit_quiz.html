@@ -335,6 +335,25 @@
         }
       });
 
+      // make the add/reomve buttons for multi functional
+      $(document).on("click", ".add-option", function(e) {
+          e.preventDefault();
+          var container = $(this).closest("form").find("#multiple-choice-options-container");
+          var newOptionDiv = $('<div class="option-input"><input type="text" name="options[]" class="form-control" placeholder="Enter option" /></div>');
+          container.append(newOptionDiv);
+      });
+
+      $(document).on("click", ".remove-option", function(e) {
+          e.preventDefault();
+          var container = $(this).closest("form").find("#multiple-choice-options-container");
+          var options = container.find(".option-input");
+          if (options.length > 2) {
+              options.last().remove();
+          } else {
+              alert("Please enter at least two options.");
+          }
+      });
+
       //make it so you can drag a question in the form template from htmx 
       document.body.addEventListener("htmx:afterSwap", (e) => {
         if (e.detail.target.id === "editor") {
