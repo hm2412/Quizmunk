@@ -1,23 +1,36 @@
 <div id="editor" class="editor-container droppable-area" aria-label="Question editor">
-  <form id="{{ form_type }}-question-form" method="post" action="{% url 'edit_quiz' quiz_id=quiz.id %}" enctype="multipart/form-data"
-        hx-post="{% url 'edit_quiz' quiz_id=quiz.id %}" hx-target="#editor" hx-swap="outerHTML">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-    {% for field in form %}
-      <div class="mb-3">
-        {{ field.label_tag }} {{ field }}
-        {% if field.errors %}
-          <div class="text-danger">
-            {{ field.errors }}
+    <form id="{{ form_type }}-question-form" method="post" action="{% url 'edit_quiz' quiz_id=quiz.id %}" enctype="multipart/form-data" hx-post="{% url 'edit_quiz' quiz_id=quiz.id %}" hx-target="#editor" hx-swap="outerHTML">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% if form_type == "numerical_range" %}
+        <p>{{ form.question_text.label_tag }} {{ form.question_text }}</p>
+        <p>{{ form.time.label_tag }} {{ form.time }}</p>
+        <p>{{ form.mark.label_tag }} {{ form.mark }}</p>
+        <div class="row">
+          <div class="col-md-6">
+            <label for="{{ form.min_value.id_for_label }}">{{ form.min_value.label }}</label>
+            {{ form.min_value }}
           </div>
-        {% endif %}
-      </div>
-    {% endfor %}
-    <input type="hidden" name="{{ form_type }}" value="true">
-    <input type="hidden" name="quizID" value="{{ quiz.id }}">
-    {% if form.initial.question_id %}
-      <input type="hidden" name="question_id" value="{{ form.initial.question_id }}">
-    {% endif %}
-    <button type="submit" class="btn btn-primary">Save {{ form_type|capfirst }} Question</button>
-  </form>
-</div>
+          <div class="col-md-6">
+            <label for="{{ form.max_value.id_for_label }}">{{ form.max_value.label }}</label>
+            {{ form.max_value }}
+          </div>
+        </div>
+        <div id="{{ form_type }}-image-preview-container" style="margin-top: 10px;">
+          <img id="{{ form_type }}-image-preview" src="{% if form.instance.image %}{{ form.instance.image.url }}{% endif %}" alt="No image uploaded" style="max-width: 100%; {% if not form.instance.image %}display: none;{% endif %}" />
+        </div>
+        <p>{{ form.image.label_tag }} {{ form.image }}</p>
+      {% else %}
+        {{ form.as_p }}
+        <div id="{{ form_type }}-image-preview-container" style="margin-top: 10px;">
+          <img id="{{ form_type }}-image-preview" src="{% if form.instance.image %}{{ form.instance.image.url }}{% endif %}" alt="No image uploaded" style="max-width: 100%; {% if not form.instance.image %}display: none;{% endif %}" />
+        </div>
+      {% endif %}
+      <input type="hidden" name="{{ form_type }}" value="true">
+      <input type="hidden" name="quizID" value="{{ quiz.id }}">
+      {% if form.instance.pk %}
+        <input type="hidden" name="question_id" value="{{ form.instance.pk }}">
+      {% endif %}
+      <button type="submit" class="btn btn-primary">Save {{ form_type|capfirst }} Question</button>
+    </form>
+</div>  

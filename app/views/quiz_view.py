@@ -46,11 +46,7 @@ def edit_quiz_view(request, quiz_id):
     form = None
 
     if request.method == 'POST':
-        # Debug: print whether the request was made via HTMX.
         hx_request = request.headers.get('HX-Request')
-        print("HX-Request header:", hx_request)
-
-        # Identify which question form is being submitted
         for key in QUESTION_FORMS:
             if key in request.POST:
                 form_type = key
@@ -70,18 +66,14 @@ def edit_quiz_view(request, quiz_id):
                 question = form.save(commit=False)
                 question.quiz = quiz
                 question.save()
-                print("Question saved successfully!")
                 if hx_request:
-                    # Use HX-Redirect to force a full page refresh so saved questions are updated.
                     response = HttpResponse()
                     response['HX-Redirect'] = reverse('edit_quiz', kwargs={'quiz_id': quiz.id})
                     return response
                 else:
                     return redirect('edit_quiz', quiz_id=quiz.id)
             else:
-                print("Form validation failed:", form.errors)
                 if hx_request:
-                    # Return the partial with the form (including errors)
                     return render(request, 'partials/question_editor.html', {
                         'quiz': quiz,
                         'form': form,
@@ -101,14 +93,12 @@ def edit_quiz_view(request, quiz_id):
                         'question_forms': question_forms,
                     })
 
-        # Handle quiz image update if provided.
         if 'quiz_img' in request.FILES:
             quiz.quiz_img = request.FILES['quiz_img']
             quiz.save()
 
         return redirect('edit_quiz', quiz_id=quiz.id)
     else:
-        # On GET, check if a specific form type is requested.
         for key in QUESTION_FORMS:
             if key in request.GET:
                 form_type = key
@@ -118,7 +108,6 @@ def edit_quiz_view(request, quiz_id):
             form_class = QUESTION_FORMS.get(form_type)
             form = form_class(initial={'quizID': str(quiz.id)})
 
-    # Prepare all hidden question form templates
     question_forms = {}
     for key, form_class in QUESTION_FORMS.items():
         question_forms[key] = form_class(initial={'quizID': str(quiz.id)})
@@ -212,7 +201,7 @@ def update_question_order(request):
 @is_tutor
 def get_question_view(request, quiz_id):
     question_id = request.GET.get('question_id')
-    question_type = request.GET.get('question_type')  # new parameter
+    question_type = request.GET.get('question_type') 
     if not question_id or not question_type:
         return JsonResponse({"error": "Question ID and type are required"}, status=400)
     

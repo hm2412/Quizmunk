@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Edit Quiz: {{ quiz.name }}</title>
-  
   <link rel="stylesheet" href="{% static 'css/edit_quiz.css' %}">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <!-- Bootstrap 5 -->
@@ -19,6 +18,7 @@
 <body>
   <div class="container-fluid">
     <div class="row">
+
       <!-- Questions List -->
       <div class="col-md-3">
         <h4>Questions</h4>
@@ -36,6 +36,7 @@
           {% endfor %}
         </ul>
       </div>
+
       <!-- Question Editor -->
       <div class="col-md-6">
         <h4>Question Editor</h4>
@@ -44,6 +45,7 @@
         </div>
         <button id="new-question" class="btn btn-secondary mt-3">Clear</button>
       </div>
+
       <!-- Question Types -->
       <div class="col-md-3">
         <h4>Question Types</h4>
@@ -137,7 +139,6 @@
   </div>
   {% endfor %}
 
-  <!-- jQuery and jQuery UI -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
   <script>
@@ -178,14 +179,14 @@
         }
       });
       
-      // Function to load the form in the editor and process hx-attributes
+      // Function to load the form in the editor
       function loadForm(type, data) {
         $(".ui-draggable-dragging").remove();
         data = data || {};
         var formHtml = $("#" + type + "-form-template").html();
         $("#editor").html(formHtml);
         
-        // Manually process the new content so HTMX activates the hx-attributes.
+        // load the htmx 
         if (window.htmx) {
           htmx.process(document.getElementById("editor"));
           console.log("HTMX processed the new form.");
@@ -260,7 +261,7 @@
         }
       }
       
-      // Load question form when a question is clicked
+      // Load question form when a saved question is clicked
       $(document).on("click", ".question-item", function () {
         var li = $(this);
         var questionId = li.data('id');
@@ -324,6 +325,20 @@
                      .show();
           };
           reader.readAsDataURL(this.files[0]);
+        }
+      });
+
+      //make it so you can drag a question in the form template from htmx 
+      document.body.addEventListener("htmx:afterSwap", (e) => {
+        if (e.detail.target.id === "editor") {
+          $("#editor").droppable({
+            accept: ".question-type",
+            drop: function(event, ui) {
+              var type = ui.helper.data('type');
+              loadForm(type);
+            }
+          });
+          console.log("Reinitialized droppable on #editor after swap.");
         }
       });
     });
