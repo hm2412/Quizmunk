@@ -40,18 +40,22 @@ def create_quiz_view(request):
 @is_tutor
 def edit_quiz_view(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-
     questions = getAllQuestions(quiz=quiz)
     questions.sort(key=lambda q: (q.position if q.position is not None else float('inf')))
-
     form_type = None
     form = None
-    
+
     if request.method == 'POST':
+        # Debug: print whether the request was made via HTMX.
+        hx_request = request.headers.get('HX-Request')
+        print("HX-Request header:", hx_request)
+
+        # Identify which question form is being submitted
         for key in QUESTION_FORMS:
             if key in request.POST:
                 form_type = key
                 break
+
         if form_type:
             question_id = request.POST.get("question_id")
             form_class = QUESTION_FORMS.get(form_type)
@@ -61,36 +65,50 @@ def edit_quiz_view(request, quiz_id):
                 form = form_class(request.POST, request.FILES, instance=instance)
             else:
                 form = form_class(request.POST, request.FILES)
+
             if form.is_valid():
                 question = form.save(commit=False)
                 question.quiz = quiz
                 question.save()
                 print("Question saved successfully!")
-                return redirect('edit_quiz', quiz_id=quiz.id)
+                if hx_request:
+                    # Use HX-Redirect to force a full page refresh so saved questions are updated.
+                    response = HttpResponse()
+                    response['HX-Redirect'] = reverse('edit_quiz', kwargs={'quiz_id': quiz.id})
+                    return response
+                else:
+                    return redirect('edit_quiz', quiz_id=quiz.id)
             else:
                 print("Form validation failed:", form.errors)
-                question_forms = {}
-                for key, form_class in QUESTION_FORMS.items():
-                    if key == form_type:
-                        question_forms[key] = form
-                    else:
-                        question_forms[key] = form_class(initial={'quizID': str(quiz.id)})
-                return render(request, 'tutor/edit_quiz.html', {
-                    'quiz': quiz,
-                    'form': form,
-                    'questions': questions,
-                    'question_forms': question_forms,
-                })
+                if hx_request:
+                    # Return the partial with the form (including errors)
+                    return render(request, 'partials/question_editor.html', {
+                        'quiz': quiz,
+                        'form': form,
+                        'form_type': form_type
+                    })
+                else:
+                    question_forms = {}
+                    for key, form_class in QUESTION_FORMS.items():
+                        if key == form_type:
+                            question_forms[key] = form
+                        else:
+                            question_forms[key] = form_class(initial={'quizID': str(quiz.id)})
+                    return render(request, 'tutor/edit_quiz.html', {
+                        'quiz': quiz,
+                        'form': form,
+                        'questions': questions,
+                        'question_forms': question_forms,
+                    })
 
-        # Handle the image file separately
+        # Handle quiz image update if provided.
         if 'quiz_img' in request.FILES:
             quiz.quiz_img = request.FILES['quiz_img']
             quiz.save()
 
         return redirect('edit_quiz', quiz_id=quiz.id)
-    
     else:
-        # Initialize form based on the selected form type
+        # On GET, check if a specific form type is requested.
         for key in QUESTION_FORMS:
             if key in request.GET:
                 form_type = key
@@ -100,7 +118,7 @@ def edit_quiz_view(request, quiz_id):
             form_class = QUESTION_FORMS.get(form_type)
             form = form_class(initial={'quizID': str(quiz.id)})
 
-    # Makes loading the forms easier 
+    # Prepare all hidden question form templates
     question_forms = {}
     for key, form_class in QUESTION_FORMS.items():
         question_forms[key] = form_class(initial={'quizID': str(quiz.id)})
@@ -130,6 +148,7 @@ def delete_question_view(request, question_id):
     quiz_id = question.quiz.id
     question.delete()
     return redirect('edit_quiz', quiz_id=quiz_id)
+
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
@@ -228,6 +247,7 @@ def get_question_view(request, quiz_id):
 
 
 #this is for the your Quizzes page
+
 
 @redirect_unauthenticated_to_homepage
 @is_tutor

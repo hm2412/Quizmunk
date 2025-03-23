@@ -1,0 +1,23 @@
+<div id="editor" class="editor-container droppable-area" aria-label="Question editor">
+  <form id="{{ form_type }}-question-form" method="post" action="{% url 'edit_quiz' quiz_id=quiz.id %}" enctype="multipart/form-data"
+        hx-post="{% url 'edit_quiz' quiz_id=quiz.id %}" hx-target="#editor" hx-swap="outerHTML">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      <div class="mb-3">
+        {{ field.label_tag }} {{ field }}
+        {% if field.errors %}
+          <div class="text-danger">
+            {{ field.errors }}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+    <input type="hidden" name="{{ form_type }}" value="true">
+    <input type="hidden" name="quizID" value="{{ quiz.id }}">
+    {% if form.initial.question_id %}
+      <input type="hidden" name="question_id" value="{{ form.initial.question_id }}">
+    {% endif %}
+    <button type="submit" class="btn btn-primary">Save {{ form_type|capfirst }} Question</button>
+  </form>
+</div>
