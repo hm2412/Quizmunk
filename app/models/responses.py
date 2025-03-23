@@ -66,13 +66,6 @@ class DecimalInputResponse(Response):
     question = models.ForeignKey(DecimalInputQuestion, on_delete=models.CASCADE)
     answer = models.DecimalField(max_digits=10, decimal_places=2)
 
-    def __str__(self):
-        if self.player:
-            actor = self.player.email_address
-        else:
-            actor = f"Guest ({self.guest_access.session_id[:8]})"
-        return f"Decimal Input Answer by {actor} for question {self.question}"
-
 class MultipleChoiceResponse(Response):
     question = models.ForeignKey(MultipleChoiceQuestion, on_delete=models.CASCADE)
     answer = models.CharField(max_length=255)
@@ -85,12 +78,6 @@ class MultipleChoiceResponse(Response):
         self.clean()
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        if self.player:
-            actor = self.player.email_address
-        else:
-            actor = f"Guest ({self.guest_access.session_id[:8]})"
-        return f"Multiple Choice Answer by {actor} for question {self.question}"
 
 class NumericalRangeResponse(Response):
     question = models.ForeignKey(NumericalRangeQuestion, on_delete=models.CASCADE)
