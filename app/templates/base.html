@@ -24,7 +24,10 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        document.querySelector(".right-box").classList.add("loaded");
+        const rightBox = document.querySelector(".right-box");
+        if (rightBox) {
+            rightBox.classList.add("loaded");
+        }
     });
 </script>
 

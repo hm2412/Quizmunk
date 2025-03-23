@@ -1,21 +1,24 @@
 .home-box {
-    max-width: 50%;
-    height: 75%;
-    padding: 125px 30px;
+    max-width: 45%;
+    padding: 50px 0;
     text-align: center;
-    background: rgb(42,122,140);
     background: linear-gradient(41deg, rgba(42,122,140,1) 15%, rgba(98,160,173,1) 75%);
     border-radius: 10px;
     box-shadow: 0px 8px 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Ensure everything inside is centered */
+    margin: 0 auto;
 }
 
+
 .home-box img{
-    max-width: 200px;
+    max-width: 30%
 }
 
 .home-box h1 {
     color: white;
-    padding: 20px 0px;
     font-size: 4rem;
     word-wrap: break-word;
     font-weight: 800;
@@ -36,7 +39,5 @@
 
 .home-box p {
     color: white;
-    padding: 30px;
     font-size: 1.5rem;
-    margin-bottom: 20px;
 }
