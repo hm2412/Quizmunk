@@ -50,7 +50,7 @@ urlpatterns = [
 
     path('create-quiz/', create_quiz_view, name='create_quiz'),
     path('edit-quiz/<int:quiz_id>/', edit_quiz_view, name='edit_quiz'),
-    path('delete-question/<int:question_id>/', delete_question_view, name='delete_question'),
+    path('delete-question/<str:question_type>/<int:question_id>/', delete_question_view, name='delete_question'),
     path('delete-question-image/<int:question_id>/', delete_question_image_view, name='delete_question_image'),
     path('get_question/<int:quiz_id>/', get_question_view, name='get_question'),
     path('update-question-order/', update_question_order, name='update-question-order'),

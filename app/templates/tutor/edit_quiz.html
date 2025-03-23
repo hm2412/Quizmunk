@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+{% load quiz_extras %}
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -24,13 +25,31 @@
         <h4>Questions</h4>
         <ul id="questions-list" class="list-group">
           {% for question in questions %}
-            {% load quiz_extras %}
-            <li class="question-item" data-id="{{ question.id }}" data-type="{{ question|get_question_type }}">
-              <span><i class="fa-solid fa-question-circle"></i> {{ question.question_text|truncatewords:5 }}</span>
+            {% with qtype=question|get_question_type %}
+            <li class="question-item" data-id="{{ qtype }}-{{ question.id }}" data-type="{{ qtype }}">
+              <span>
+                {% if qtype == "integer" %}
+                  <i class="fas fa-calculator"></i>
+                {% elif qtype == "true_false" %}
+                  <i class="fas fa-check-circle"></i>
+                {% elif qtype == "text" %}
+                  <i class="fas fa-keyboard"></i>
+                {% elif qtype == "multiple_choice" %}
+                  <i class="fas fa-list"></i>
+                {% elif qtype == "decimal" %}
+                  <i class="fas fa-hashtag"></i>
+                {% elif qtype == "numerical_range" %}
+                  <i class="fas fa-sliders-h"></i>
+                {% else %}
+                  <i class="fa-solid fa-question-circle"></i>
+                {% endif %}
+                &nbsp;{{ question.question_text|truncatewords:5 }}
+              </span>
               <button class="delete-question" aria-label="Delete question">
                 <i class="fas fa-trash-alt"></i>
               </button>
             </li>
+            {% endwith %}
           {% empty %}
             <li class="list-group-item">No questions added yet.</li>
           {% endfor %}
@@ -146,7 +165,7 @@
       // Make the list sortable and draggable
       $("#questions-list").sortable({
         cancel: ".question-type",
-        update: function(event, ui) {
+        stop: function(event, ui) {
           var order = $(this).sortable('toArray', { attribute: 'data-id' });
           console.log("New order:", order);
           $.ajax({
@@ -154,6 +173,7 @@
             type: "POST",
             data: {
               order: JSON.stringify(order),
+               quiz_id: "{{ quiz.id }}",
               csrfmiddlewaretoken: "{{ csrf_token }}"
             },
             success: function(response) {
@@ -286,29 +306,30 @@
       
       // Delete question
       $(document).off("click", ".delete-question").on("click", ".delete-question", function (e) {
-        e.stopPropagation();
-        var li = $(this).closest(".question-item");
-        var questionId = li.data('id');
-        if (!confirm("Are you sure you want to delete this question?")) {
-          return; 
-        }
-        $.ajax({
-          url: "/delete-question/" + questionId + "/",
-          type: "POST",
-          data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
-          success: function (response) {
-            if (response.status === "success") {
-              li.remove();
-              $("#editor").html("<p>Drag & drop a question type here</p>");
-              showToast("Question deleted successfully!", "success");
-            } else {
-              showToast("Error deleting question.", "error");
-            }
-          },
-          error: function () {
-            showToast("Error deleting question.", "error");
+          e.stopPropagation();
+          var li = $(this).closest(".question-item");
+          var questionId = li.data('id');
+          var questionType = li.data('type'); 
+          if (!confirm("Are you sure you want to delete this question?")) {
+              return; 
           }
-        });
+          $.ajax({
+              url: "/delete-question/" + questionType + "/" + questionId + "/",
+              type: "POST",
+              data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
+              success: function (response) {
+                  if (response.status === "success") {
+                      li.remove();
+                      $("#editor").html("<p>Drag & drop a question type here</p>");
+                      showToast("Question deleted successfully!", "success");
+                  } else {
+                      showToast("Error deleting question.", "error");
+                  }
+              },
+              error: function () {
+                  showToast("Error deleting question.", "error");
+              }
+          });
       });
       
       // Clear editor button

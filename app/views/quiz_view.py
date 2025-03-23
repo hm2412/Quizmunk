@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import redirect,render, get_object_or_404
 from app.forms import QuizForm
 from app.models.quiz import Quiz
@@ -65,6 +66,10 @@ def edit_quiz_view(request, quiz_id):
             if form.is_valid():
                 question = form.save(commit=False)
                 question.quiz = quiz
+                if not question.pk or question.position is None:
+                    existing_questions = getAllQuestions(quiz=quiz)
+                    max_position = max((q.position for q in existing_questions if q.position is not None), default=0)
+                    question.position = max_position + 1
                 question.save()
                 if hx_request:
                     response = HttpResponse()
@@ -122,16 +127,14 @@ def edit_quiz_view(request, quiz_id):
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
-def delete_question_view(request, question_id):
-    question = None
-    for key, model in QUESTION_MODELS.items():
-        try:
-            question = model.objects.get(pk=question_id)
-            break
-        except model.DoesNotExist:
-            continue
-
-    if not question:
+def delete_question_view(request, question_type, question_id):
+    model = QUESTION_MODELS.get(question_type)
+    if not model:
+        return JsonResponse({"error": "Invalid question type"}, status=400)
+    
+    try:
+        question = model.objects.get(pk=question_id)
+    except model.DoesNotExist:
         return JsonResponse({"error": "Question not found"}, status=404)
     question.delete()
     return JsonResponse({"status": "success"})
@@ -162,35 +165,33 @@ def delete_question_image_view(request, question_id):
 @redirect_unauthenticated_to_homepage
 @is_tutor
 def update_question_order(request):
-    import json
-
     if request.method != "POST":
         return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
-
     try:
-        print("Received request to update order")  # Debugging line
+        quiz_id = request.POST.get("quiz_id")
+        if not quiz_id:
+            return JsonResponse({"status": "error", "message": "Quiz ID is required"}, status=400)
         data = json.loads(request.POST.get("order", "[]"))
-        print("Received order:", data)  # Debugging line
+        for index, identifier in enumerate(data, start=1):
+            try:
+                question_type, question_id = identifier.split("-", 1)
+            except ValueError:
+                return JsonResponse({"status": "error", "message": "Invalid identifier format"}, status=400)
 
-        for index, question_id in enumerate(data, start=1):
-            question = None
-            for key, model in QUESTION_MODELS.items():
-                try:
-                    question = model.objects.get(id=question_id)
-                    break
-                except model.DoesNotExist:
-                    continue
+            model = QUESTION_MODELS.get(question_type)
+            if not model:
+                return JsonResponse({"status": "error", "message": f"Invalid question type: {question_type}"}, status=400)
 
-            if not question:
-                return JsonResponse({"status": "error", "message": f"Question with ID {question_id} not found"}, status=404)
+            try:
+                question = model.objects.get(id=question_id, quiz_id=quiz_id)
+            except model.DoesNotExist:
+                return JsonResponse({"status": "error", "message": f"Question with ID {question_id} not found in this quiz"}, status=404)
 
             question.position = index
             question.save()
 
         return JsonResponse({"status": "success"})
-
     except Exception as e:
-        print(f"Error updating order: {e}")  # Debugging line
         return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
 
