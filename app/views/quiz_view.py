@@ -58,7 +58,7 @@ def edit_quiz_view(request, quiz_id):
             form_class = QUESTION_FORMS.get(form_type)
             if question_id:
                 model_class = QUESTION_MODELS.get(form_type)
-                instance = get_object_or_404(model_class, pk=question_id)
+                instance = get_object_or_404(model_class, pk=question_id, quiz=quiz)
                 form = form_class(request.POST, request.FILES, instance=instance)
             else:
                 form = form_class(request.POST, request.FILES)
@@ -97,11 +97,6 @@ def edit_quiz_view(request, quiz_id):
                         'questions': questions,
                         'question_forms': question_forms,
                     })
-
-        if 'quiz_img' in request.FILES:
-            quiz.quiz_img = request.FILES['quiz_img']
-            quiz.save()
-
         return redirect('edit_quiz', quiz_id=quiz.id)
     else:
         for key in QUESTION_FORMS:

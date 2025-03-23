@@ -91,28 +91,7 @@
       </div>
     </div>
 
-    <!-- Quiz Thumbnail and Save Quiz Form -->
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      <div class="mb-3">
-        <label class="btn choose-thumbnail">
-          Choose Thumbnail
-          <input type="file" name="quiz_img" id="quiz_img" accept="image/*" style="display: none;">
-        </label>
-        <span id="file-name" class="file-name ms-2">
-          {% if quiz.quiz_img %}
-            {{ quiz.quiz_img.name }}
-          {% else %}
-            No file chosen
-          {% endif %}
-        </span>
-      </div>
-      {% if quiz.quiz_img %}
-        <img src="{{ quiz.quiz_img.url }}" id="quiz-thumbnail" alt="Quiz Thumbnail" style="max-width: 150px; display: block; margin-top: 10px;">
-      {% endif %}
-      <button type="submit" class="btn save-quiz mt-3">Save Quiz</button>
-    </form>
-
+    <!-- button to quit edit quiz -->
     <div class="mt-4 text-center">
       <button id="finish-quiz" class="btn btn-success">Finish Quiz</button>
     </div>
@@ -140,13 +119,14 @@
           </div>
         </div>
         <div id="{{ key }}-image-preview-container" style="margin-top: 10px;">
-          <img id="{{ key }}-image-preview" src="" alt="No image uploaded" style="max-width: 100%; display: none;" />
+          {# Append a cache buster query parameter so that if the image is removed the URL changes #}
+          <img id="{{ key }}-image-preview" src="{% if form.instance.image %}{{ form.instance.image.url }}?v={{ form.instance.pk }}{% endif %}" alt="No image uploaded" style="max-width: 100%; {% if not form.instance.image %}display: none;{% endif %}" />
         </div>
         <p>{{ form.image.label_tag }} {{ form.image }}</p>
       {% else %}
         {{ form.as_p }}
         <div id="{{ key }}-image-preview-container" style="margin-top: 10px;">
-          <img id="{{ key }}-image-preview" src="" alt="No image uploaded" style="max-width: 100%; display: none;" />
+          <img id="{{ key }}-image-preview" src="{% if form.instance.image %}{{ form.instance.image.url }}?v={{ form.instance.pk }}{% endif %}" alt="No image uploaded" style="max-width: 100%; {% if not form.instance.image %}display: none;{% endif %}" />
         </div>
       {% endif %}
       <!-- Hidden fields to identify the form type and quiz -->
@@ -167,13 +147,14 @@
         cancel: ".question-type",
         stop: function(event, ui) {
           var order = $(this).sortable('toArray', { attribute: 'data-id' });
+          order = order.filter((item, pos) => order.indexOf(item) === pos);
           console.log("New order:", order);
           $.ajax({
             url: "/update-question-order/",
             type: "POST",
             data: {
               order: JSON.stringify(order),
-               quiz_id: "{{ quiz.id }}",
+              quiz_id: "{{ quiz.id }}",
               csrfmiddlewaretoken: "{{ csrf_token }}"
             },
             success: function(response) {
@@ -218,7 +199,7 @@
           $("#editor").find("[name='mark']").val(data.mark || "");
           if(data.image) {
             $("#editor").find("#" + type + "-image-preview")
-                      .attr("src", data.image)
+                      .attr("src", data.image + "?v=" + data.id)
                       .show();
           } else {
             $("#editor").find("#" + type + "-image-preview").hide();
@@ -267,7 +248,8 @@
         var $form = $(this).closest("form");
         var questionId = $form.find("input[name='question_id']").val();
         if (!questionId) {
-          console.error("No question ID found.");
+          $form.find("img[id$='-image-preview']").attr("src", "").hide();
+          $form.find("input[type='file']").val("");
           return;
         }
         $.ajax({
@@ -277,6 +259,22 @@
           success: function(response) {
             $form.find("img[id$='-image-preview']").attr("src", "").hide();
             $form.find("input[type='file']").val("");
+            var formId = $form.attr("id");
+            var questionType = formId.split("-")[0];
+            $.ajax({
+              url: "/get_question/{{ quiz.id }}/",
+              data: { 
+                question_id: questionId,
+                question_type: questionType
+              },
+              success: function(data) {
+                loadForm(data.question_type, data);
+                showToast("Image deleted successfully!", "success");
+              },
+              error: function() {
+                alert("Error reloading question form.");
+              }
+            });
           },
           error: function () {
             alert("Error deleting image.");
@@ -287,7 +285,7 @@
       // Load question form when a saved question is clicked
       $(document).on("click", ".question-item", function () {
         var li = $(this);
-        var questionId = li.data('id');
+        var questionId = li.data('id').split("-")[1];
         var questionType = li.data('type');
         $.ajax({
           url: "/get_question/{{ quiz.id }}/",
@@ -308,8 +306,10 @@
       $(document).off("click", ".delete-question").on("click", ".delete-question", function (e) {
           e.stopPropagation();
           var li = $(this).closest(".question-item");
-          var questionId = li.data('id');
-          var questionType = li.data('type'); 
+          var identifier = li.data('id');
+          var parts = identifier.split("-");
+          var questionType = parts[0];
+          var questionId = parts[1];
           if (!confirm("Are you sure you want to delete this question?")) {
               return; 
           }
@@ -415,21 +415,6 @@
           window.location.href = "/your-quizzes/";
         }, 2000);
       });
-    });
-    document.getElementById("quiz_img").addEventListener("change", function(event) {
-      const file = event.target.files[0];
-      let fileName = file ? file.name : "No file chosen";
-      document.getElementById('file-name').textContent = fileName;
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          document.getElementById("quiz-thumbnail").src = e.target.result;
-          document.getElementById("quiz-thumbnail").style.display = "block";
-        };
-        reader.readAsDataURL(file);
-      } else {
-        document.getElementById("quiz-thumbnail").style.display = "none";
-      }
     });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
