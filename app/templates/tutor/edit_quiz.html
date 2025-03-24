@@ -242,7 +242,6 @@
             $("#editor").find("[name='min_value']").val(data.min_value || "");
             $("#editor").find("[name='max_value']").val(data.max_value || "");
           } else if (type == "sorting") {
-            
             data.options.forEach(function(option, index) {
               var optionInput = $("#editor").find("[name='options[]']").eq(index);
               if (optionInput.length) {
@@ -375,6 +374,25 @@
           };
           reader.readAsDataURL(this.files[0]);
         }
+      });
+
+      //make the add/reomve buttons for sorting functional
+      $(document).on("click", "#add-sorting-option", function(e) {
+          e.preventDefault();
+          var container = $(this).closest("form").find("#sorting-options-container");
+          var newOptionDiv = $('<div class="option-input"><input type="text" name="options[]" class="form-control" placeholder="Enter item" /></div>');
+          container.append(newOptionDiv);
+      });
+
+      $(document).on("click", "#remove-sorting-option", function(e) {
+          e.preventDefault();
+          var container = $(this).closest("form").find("#sorting-options-container");
+          var options = container.find(".option-input");
+          if(options.length > 1) {
+              options.last().remove();
+          } else {
+              alert("At least one item is required.");
+          }
       });
 
       // make the add/reomve buttons for multi functional
