@@ -47,23 +47,27 @@
         <main>
             <section class="classroom-details">
                 <div class="description-card">
-                    <h2>{{ classroom.name }}</h2>
-                    <div class="description-container">
-                        <p id="description-text">{{ classroom.description }}</p>
-                        <button class="btn edit-btn" onclick="showEditDescription()">Edit Description</button>
-                    </div>
-                    <form method="POST" id="edit-description-form" style="display: none;">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="edit_description">
-                        <textarea name="description" required>{{ classroom.description }}</textarea>
-                        <div style="display: flex; gap: 10px; margin-top: 10px;">
-                            <button type="button" class="btn cancel" onclick="hideEditDescription()">Cancel</button>
-                            <button type="submit" class="btn save">Save</button>
+                    <div class="container mt-4">
+                        <div class="card shadow p-4">
+                            <h2>{{ classroom.name }}</h2>
+                            <div class="description-container">
+                                <p id="description-text">{{ classroom.description }}</p>
+                                <button class="btn edit-btn" onclick="showEditDescription()">Edit Description</button>
+                            </div>
+                            <form method="POST" id="edit-description-form" style="display: none;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="edit_description">
+                                <textarea name="description" required>{{ classroom.description }}</textarea>
+                                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                    <button type="button" class="btn cancel" onclick="hideEditDescription()">Cancel</button>
+                                    <button type="submit" class="btn save">Save</button>
+                                </div>
+                            </form>
+                            <a href="#create-invite-modal" class="add-student btn invite-btn">Invite</a>
+                            {% comment %} <a href="{% url 'setup_classroom_quiz' classroom_id=classroom.id quiz_id=1  %}" class="btn assign-btn">Assign Quiz</a> {% endcomment %}
+                            <a href="#create-quiz-modal" class="create-quiz btn assign-btn">Assign Quiz</a>
                         </div>
-                    </form>
-                    <a href="#create-invite-modal" class="add-student btn invite-btn">Invite</a>
-                    {% comment %} <a href="{% url 'setup_classroom_quiz' classroom_id=classroom.id quiz_id=1  %}" class="btn assign-btn">Assign Quiz</a> {% endcomment %}
-                    <a href="#create-quiz-modal" class="create-quiz btn assign-btn">Assign Quiz</a>
+                    </div>
                 </div>
 
                 <div class="classroom-actions">
