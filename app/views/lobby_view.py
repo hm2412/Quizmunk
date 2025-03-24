@@ -54,17 +54,10 @@ def lobby(request, join_code):
         qr.make(fit=True)
         img = qr.make_image(fill_color="black", back_color="white")
         img.save(qr_code_path)
-        
-    except Exception as e:
-        messages.error(request, f"QR Code generation failed: {e}") 
-        qr_code_path = None  
 
-    #if not room.quiz:
-    #    messages.error(request, 'Invalid code!')
-    #    return redirect('join_quiz')
-    # if request.method == 'POST':
-    #     # Redirect to start quiz functionality
-    #     return redirect(start_quiz, join_code=room.join_code)
+    except Exception as e:
+        messages.error(request, f"QR Code generation failed: {e}")
+        qr_code_path = None
     
     context = {
         'room': room,

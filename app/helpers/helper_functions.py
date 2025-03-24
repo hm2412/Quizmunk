@@ -1,4 +1,6 @@
 from itertools import chain
+from typing import Any
+
 from django.contrib.contenttypes.models import ContentType
 from app.models import Quiz, IntegerInputQuestion, Response, TrueFalseQuestion, NumericalRangeResponse, RoomParticipant, \
     TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion, SortingQuestion, quiz, \
@@ -119,7 +121,7 @@ def calculate_user_score(user,room):
         else: #incorrect answer resets streak
             streak_count=0
     #update the participant's score in the database ie without the added bonuses in order to use for stats page later
-    #RoomParticipant.objects.filter(user=user, room=room).update(score=base_score)
+    RoomParticipant.objects.filter(user=user, room=room).update(score=base_score)
     return total_score
 
 def get_leaderboard(room):
@@ -181,7 +183,7 @@ def get_all_responses_question(room, question):
     responses = get_response_model_class(question_type).objects.filter(room=room, question=question)
     return responses
 
-def get_responses_by_player_in_room(player, room):
+def get_responses_by_player_in_room(player: object, room: object) -> list[Any] | None:
     if isinstance(player, User) and isinstance(room, Room):
         responses_tf = list(TrueFalseResponse.objects.filter(player=player, room=room))
         responses_int = list(IntegerInputResponse.objects.filter(player=player, room=room))

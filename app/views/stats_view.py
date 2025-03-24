@@ -6,7 +6,9 @@ from app.helpers.decorators import is_tutor
 from app.models.stats import QuestionStats
 import csv
 import datetime
-from app.helpers.helper_functions import get_responses_by_player_in_room, get_all_responses_question, get_student_quiz_history, calculate_average_score, find_best_and_worst_scores, get_guest_responses, isCorrectAnswer
+from app.helpers.helper_functions import get_responses_by_player_in_room, get_all_responses_question, \
+    get_student_quiz_history, calculate_average_score, find_best_and_worst_scores, get_guest_responses, isCorrectAnswer, \
+    get_responses
 import json
 
 
@@ -78,7 +80,7 @@ def player_responses(request, room_id, player_id):
     room = get_object_or_404(Room, id=room_id)
     stats = Stats.objects.filter(room=room).first()
     if player.user:
-        responses = get_responses_by_player_in_room(player.user, room)
+        responses = get_responses(player.user, room)
         identifier = player.user.email_address
     else:
         responses = get_guest_responses(player.guest_access, room)
