@@ -1,4 +1,4 @@
-.home-box {
+/*.home-box {
     max-width: 50%;
     height: 75%;
     padding: 125px 30px;
@@ -7,7 +7,21 @@
     background: linear-gradient(41deg, rgba(42,122,140,1) 15%, rgba(98,160,173,1) 75%);
     border-radius: 10px;
     box-shadow: 0px 8px 15px;
+}*/
+
+.home-box {
+    max-width: 50%;
+    text-align: center;
+    background: linear-gradient(41deg, rgba(42,122,140,1) 15%, rgba(98,160,173,1) 75%);
+    border-radius: 10px;
+    box-shadow: 0px 8px 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Ensure everything inside is centered */
+    gap: 15px; /* Space out elements inside */
 }
+
 
 .home-box img{
     max-width: 200px;
@@ -15,7 +29,6 @@
 
 .home-box h1 {
     color: white;
-    padding: 20px 0px;
     font-size: 4rem;
     word-wrap: break-word;
     font-weight: 800;

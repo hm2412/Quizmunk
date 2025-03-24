@@ -76,21 +76,21 @@ h2 { font-weight: 600; }
     color: #e0e0e0;
 }
 
-/* Make Content Shift to the Right */
 .main-content {
+    padding: 30px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    width: 100%;
-    height: 100%;
-    padding: 20px;
-    margin-left: 220px; /* Adjust based on the width of the sidebar */
-    width: calc(100% - 220px); /* Ensure it takes full remaining width */
-    min-height: 100vh;
+    width: calc(100% - 220px);
+    min-height: calc(100vh - 50px); /* Ensure it accounts for the footer */
     justify-content: center;
     align-items: center;
     text-align: center;
+    overflow: hidden; /* Prevent extra scrolling */
+    margin-left: 220px;
 }
+
+
 
 footer {
     text-align: center;
@@ -125,10 +125,10 @@ button:hover {
 
 /* Button Container */
 .button-group {
+    padding-top: 20px;
     display: flex;
     gap: 20px;
     justify-content: center;
-    margin-top: 20px;
 }
 
 /* Buttons */
@@ -176,4 +176,78 @@ button:hover {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.hamburger {
+    display: none; /* Hide by default */
+}
+
+@media (max-width: 768px) {
+    /* Hide sidebar by default and show a hamburger menu */
+    .sidebar {
+        z-index: 1000;
+        width: 100%;
+        height: auto;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background-color: #2a7a8c;
+        text-align: center;
+        padding: 10px 0;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        display: none; /* Hide by default */
+    }
+
+    .sidebar.active {
+        display: block; /* Show when toggled */
+    }
+
+    .sidebar ul {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar ul li {
+        padding: 10px;
+    }
+
+    /* Hamburger Menu */
+    .hamburger {
+        display: block;
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        z-index: 1000;
+        font-size: 24px;
+        cursor: pointer;
+        color: white;
+        background: #2a7a8c;
+        border: none;
+    }
+
+    /* Main Content */
+    .main-content {
+        width: 100%; /* Full width */
+        margin-left: 0; /* No sidebar offset */
+        padding: 15px;
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    /* Footer */
+    footer {
+        width: 100%;
+        margin-left: 0; /* No sidebar offset */
+    }
+
+    /* Text Scaling */
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.5rem; }
+    p { font-size: 1rem; }
+
+    /* Button Adjustments */
+    .btn, .inverse-btn {
+        font-size: 1rem;
+        padding: 10px 16px;
+    }
 }
