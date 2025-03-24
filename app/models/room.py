@@ -66,14 +66,6 @@ class Room(models.Model):
         self.save()
         return self.get_current_question()
 
-    classroom = models.ForeignKey(
-         Classroom,
-         related_name="locked_rooms",
-         on_delete=models.CASCADE,
-         null=True,
-         blank=True,
-         help_text="The Classroom associated with this room"
-    )    
     quiz_started = models.BooleanField(default=False)
     current_question_index = models.PositiveIntegerField(default=0)
     is_quiz_active = models.BooleanField(default=False)
