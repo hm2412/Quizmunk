@@ -46,12 +46,14 @@ class MultipleChoiceOptionsWidget(forms.Widget):
 
 class MultipleChoiceQuestionForm(forms.ModelForm):
     time = forms.IntegerField(
+        min_value=0,
         error_messages={'invalid': "Time must be an integer."},
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'})
+        widget=forms.NumberInput(attrs={'min': '0', 'class': 'form-control', 'placeholder': 'Enter the time'})
     )
     mark = forms.IntegerField(
+        min_value=0,
         error_messages={'invalid': "Mark must be an integer."},
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'})
+        widget=forms.NumberInput(attrs={'min': '0', 'class': 'form-control', 'placeholder': 'Enter the mark'})
     )
     options = forms.CharField(
         help_text="Use the + button to add options, and the - button to remove them",
@@ -95,6 +97,7 @@ class MultipleChoiceQuestionForm(forms.ModelForm):
         options_list = [opt.strip() for opt in options_list if opt.strip()]
         if len(options_list) < 2:
             raise forms.ValidationError("Please enter at least two options.")
+        
         return options_list
     
     def clean(self):

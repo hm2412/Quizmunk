@@ -87,6 +87,9 @@
           <div class="question-type" data-type="numerical_range" aria-label="Numerical range question">
             <i class="fas fa-sliders-h"></i>Numerical Range Question
           </div>
+          <div class="question-type" data-type="sorting" aria-label="Sorting question">
+            <i class="fas fa-sliders-h"></i>Sorting Question
+          </div>
         </div>
       </div>
     </div>
@@ -238,6 +241,24 @@
           } else if (type === "numerical_range") {
             $("#editor").find("[name='min_value']").val(data.min_value || "");
             $("#editor").find("[name='max_value']").val(data.max_value || "");
+          } else if (type == "sorting") {
+            
+            data.options.forEach(function(option, index) {
+              var optionInput = $("#editor").find("[name='options[]']").eq(index);
+              if (optionInput.length) {
+                optionInput.val(option);
+              } else {
+                var newOptionDiv = $("<div>").addClass("option-input");
+                var newOptionInput = $("<input>").attr({
+                  type: "text",
+                  name: "options[]",
+                  class: "form-control",
+                  placeholder: "Enter item"
+                }).val(option);
+                newOptionDiv.append(newOptionInput);
+                $("#editor").find("#sorting-options-container").append(newOptionDiv);
+              }
+            });
           }
         }
       }
