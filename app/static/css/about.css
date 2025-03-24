@@ -1,45 +1,30 @@
 .about {
-    display: grid;
+    display: grid; 
     grid-template-columns: 2fr 1fr;
-    grid-template-rows: 1fr 1fr;
+    grid-template-rows: auto 1fr; 
     gap: 10px;
-    height: 100%;
     width: 100%;
-    padding: 10px;
-
-}
-
-.box {
-    align-items: center;
-    justify-content: center;
-}
-
-.top-left-box h1 {
-    padding-top: 75px;
-    font-size: 2.9rem;
-    font-weight: 600;
-}
-
-.top-left-box p {
-    padding: 25px;
-    font-size: 1.7rem;
-    text-align: left;
+    min-height: calc(100vh - 50px); /* Ensure it doesn't overflow with the footer */
 }
 
 .top-left-box {
     border: 10px solid #2a7a8c;
     border-radius: 10px;
+    grid-column: 1 / 2; 
 }
 
-/* Nested grid inside the left-bottom section */
 .left-bottom {
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: center;
+    gap: 5px;
+    grid-column: 1 / 2; 
+    overflow: auto; /* Ensure it doesn't overflow the page */
+    padding-bottom: 10px; 
 }
 
 .left-bottom p {
-    font-size: 2.25rem;
+    font-size: 1.75rem;
 }
 
 .left-bottom .rating {
@@ -51,8 +36,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 5px;
-    overflow: hidden; 
+    overflow: hidden;
+    grid-column: 2 / 3; 
 }
 
 .phone-img {
@@ -60,14 +45,63 @@
     height: auto;
     max-height: 90%;
     position: absolute;
-    bottom: -100%;
+    bottom: -75%;
     transition: transform 1s ease-out;
     border: #0056b3;
 }
 
 .right-box.loaded .phone-img {
-    transform: translateY(-100%);
+    transform: translateY(-75%);
 }
 
+.top-left-box h1 {
+    padding-top: 5%;
+    padding-left: 1%;
+    font-size: 2.1rem;
+    font-weight: 600;
+}
 
+.top-left-box p {
+    padding: 2% 4%;
+    font-size: 1.2rem;
+    text-align: left;
+}
 
+.top-left-box .emphasis {
+    color: #2a7a8c;
+}
+
+@media (max-width: 768px) {
+    .about {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .top-left-box {
+        width: 90%;
+    }
+
+    .left-bottom {
+        display: flex;
+        flex-direction: column;
+        width: 90%;
+        gap: 10px;
+    }
+
+    .right-box {
+        order: 3; /* Ensure it comes after the other sections */
+        width: 90%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .phone-img {
+        position: static; /* Remove absolute positioning */
+        width: 70%;
+        max-width: 300px;
+        transform: none;
+        margin-top: 125%; /* Add spacing below the left-bottom section */
+    }
+}

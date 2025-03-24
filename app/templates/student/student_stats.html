@@ -3,50 +3,119 @@
 {% load static %}
 {% block title %}Student Statistics{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/style.css' %}">{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const quizDataElement = document.getElementById("quiz-data");
+        if (!quizDataElement) {
+            console.warn("No quiz data available.");
+            return;
+        }
 
+        const quizData = JSON.parse(quizDataElement.textContent);
+
+        if (quizData.length === 0) {
+            console.warn("Quiz data is empty. Chart will not render.");
+            return;
+        }
+
+        const labels = quizData.map(q => q.date_played);
+        const scores = quizData.map(q => q.score);
+
+        const ctx = document.getElementById("quizChart").getContext("2d");
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Quiz Scores',
+                    data: scores,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Date"
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Score"
+                        },
+                        min: 0,
+                        max: 100
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}
 {% block content %}
-    <h2>Quiz History for {{ student.email_address }}</h2>
-    
-    <!--  display average score , best performance and worst performance-->
-    <div class="mb-4">
-        <p><strong>Average Score:</strong> {{ average_score|floatformat:2 }}</p>
-        {% if best_score %}
-            <p><strong>Best Performance:</strong> {{ best_score.quiz_title}} (Score:{{ best_score.score |floatformat:2}})</p>
+<div class="container mt-4">
+    <div class="card shadow p-4">
+        <h2>Quiz History for {{ student.email_address }}</h2>
+        
+        <!--  display average score , best performance and worst performance-->
+        <div class="mb-4">
+            <p><strong>Average Score:</strong> {{ average_score|floatformat:2 }}</p>
+            {% if best_score %}
+                <p><strong>Best Performance:</strong> {{ best_score.quiz_title}} (Score:{{ best_score.score |floatformat:2}})</p>
+            {% endif %}
+            {% if worst_score %}
+                <p><strong>Worst Performance:</strong> {{ worst_score.quiz_title}} (Score:{{ worst_score.score|floatformat:2 }})</p>
+            {% endif %}
+        </div>
+         <!-- Quiz Performance Chart -->
+        {% if quiz_history %}
+            <div class="mb-4">
+                <canvas id="quizChart"></canvas>
+            </div>
         {% endif %}
-        {% if worst_score %}
-            <p><strong>Worst Performance:</strong> {{ worst_score.quiz_title}} (Score:{{ worst_score.score|floatformat:2 }})</p>
+         <!-- Pass Quiz Data to JavaScript -->
+        {{ quiz_history|json_script:"quiz-data" }}
+        <!-- Table to display the responses -->
+        {% if quiz_history %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Quiz Name</th>
+                            <th>Date Played</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for quiz in quiz_history %}
+                        <tr>
+                            <td>{{ quiz.quiz_title }}</td>
+                            <td>{{ quiz.date_played|date:"Y-m-d H:i" }}</td>
+                            <td>{{ quiz.score }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center">No quiz history found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="alert alert-warning">No quiz history found for this student.</p>
         {% endif %}
     </div>
-
-    <!-- Table to display the responses -->
-    {% if quiz_history %}
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Quiz Name</th>
-                        <th>Date Played</th>
-                        <th>Score</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for quiz in quiz_history %}
-                    <tr>
-                        <td>{{ quiz.quiz_title }}</td>
-                        <td>{{ quiz.date_played|date:"Y-m-d H:i" }}</td>
-                        <td>{{ quiz.score }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="3" class="text-center">No quiz history found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% else %}
-        <p class="alert alert-warning">No quiz history found for this student.</p>
-    {% endif %}
+</div>    
 {% endblock %}
 
 

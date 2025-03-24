@@ -196,6 +196,8 @@ def get_responses_by_player_in_room(player, room):
             responses_decimal + responses_mcq + responses_num_range + responses_sorting
         )
 
+        for response in all_responses:
+            isCorrectAnswer(response)
         return all_responses
     return None
 
@@ -262,18 +264,17 @@ def count_answers_for_question(room, question):
 
 
 def get_guest_responses(guest_access, room):
-    tf_responses = TrueFalseResponse.objects.filter(guest_access=guest_access, room=room)
-    int_responses = IntegerInputResponse.objects.filter(guest_access=guest_access, room=room)
-    text_responses = TextInputResponse.objects.filter(guest_access=guest_access, room=room)
-    decimal_responses = DecimalInputResponse.objects.filter(guest_access=guest_access, room=room)
-    mc_responses = MultipleChoiceResponse.objects.filter(guest_access=guest_access, room=room)
-    range_responses = NumericalRangeResponse.objects.filter(guest_access=guest_access, room=room)
-    sorting_responses = SortingResponse.objects.filter(guest_access=guest_access, room=room)
-    responses = sorted(
-        chain(tf_responses, int_responses, text_responses, decimal_responses, mc_responses, range_responses, sorting_responses),
-        key=lambda r: r.timestamp 
-    )
-    return responses
+    tf_responses = list(TrueFalseResponse.objects.filter(guest_access=guest_access, room=room))
+    int_responses = list(IntegerInputResponse.objects.filter(guest_access=guest_access, room=room))
+    text_responses = list(TextInputResponse.objects.filter(guest_access=guest_access, room=room))
+    decimal_responses = list(DecimalInputResponse.objects.filter(guest_access=guest_access, room=room))
+    mc_responses = list(MultipleChoiceResponse.objects.filter(guest_access=guest_access, room=room))
+    range_responses = list(NumericalRangeResponse.objects.filter(guest_access=guest_access, room=room))
+    sorting_responses = list(SortingResponse.objects.filter(guest_access=guest_access, room=room))
+    all_responses = (tf_responses + int_responses + text_responses + decimal_responses + mc_responses + range_responses + sorting_responses)
+    for response in all_responses:
+        isCorrectAnswer(response)
+    return sorted(all_responses, key=lambda r: r.timestamp)
 
 
 def calculate_guest_score(guest_access, room):

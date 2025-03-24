@@ -41,9 +41,10 @@
                         <tr>
                             <td>
                                 {% if participant.user %}
-                                    <a href="{% url 'player_responses' stats.room.id participant.user.id %}">
+                                    <a href="{% url 'player_responses' stats.room.id participant.id %}">
                                     {{ participant.user.email_address }}
                                 {% else %}
+                                    <a href="{% url 'player_responses' stats.room.id participant.id %}">
                                     Guest ({{ participant.guest_access.session_id|slice:":8" }})
                                 {% endif %}
                             </td>
@@ -56,6 +57,7 @@
             {% else %}
                 <p class="alert alert-warning">No participants for this quiz.</p>
             {% endif %}
+            <a href="{% url 'stats_download_player' stats.id %}" class="btn btn-secondary mt-3">Download CSV</a>
         </div>
 
         <!-- Questions Tab -->
@@ -76,7 +78,7 @@
                         <tr>
                             <td>
                                 <a href="{% url 'question_responses' stats.room.id question_stat.question.id %}">
-                                    {{ question_stat.question_text }}
+                                    {{ question_stat.question.question_text }}
                                 </a>
                             </td>
                             <td>{{ question_stat.responses_received }}</td>
@@ -90,10 +92,10 @@
             {% else %}
                 <p class="alert alert-warning">No question data available.</p>
             {% endif %}
+            <a href="{% url 'stats_download_question' stats.id %}" class="btn btn-secondary mt-3">Download CSV</a>
         </div>
     </div>
     
-    <a href="{% url 'stats_download' stats.id %}" class="btn btn-secondary mt-3">Download CSV</a>
     <a href="{% url 'stats' %}" class="btn btn-outline-primary mt-3">Back to Stats List</a>
     </div>
 </div>

@@ -31,7 +31,7 @@ from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_
 from app.views.live_quiz_view import tutor_live_quiz, start_quiz, next_question, end_quiz, student_live_quiz, load_partial
 from app.views.password_reset_view import password_reset
 from app.views.classroom_view import tutor_classroom_view, tutor_classroom_detail_view, student_classroom_view, accept_classroom_invite, decline_classroom_invite, student_classroom_detail_view
-from app.views.stats_view import stats_view, stats_details, csv_download, player_responses,classroom_stats_view, student_stats, question_responses
+from app.views.stats_view import stats_view, stats_details, player_responses,classroom_stats_view, student_stats, question_responses, csv_download_player, csv_download_question
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -46,7 +46,7 @@ urlpatterns = [
     path('tutor-dashboard/', tutor_dashboard, name='tutor_dashboard'),
     path('student-profile/', student_profile, name='student_profile'),
     path('tutor-profile/', tutor_profile, name='tutor_profile'),
-     path("password-reset/", password_reset, name="password_reset"),
+    path("password-reset/", password_reset, name="password_reset"),
 
     path('create-quiz/', create_quiz_view, name='create_quiz'),
     path('edit-quiz/<int:quiz_id>/', edit_quiz_view, name='edit_quiz'),
@@ -60,7 +60,9 @@ urlpatterns = [
     path('setup-classroom-quiz/<int:classroom_id>/<int:quiz_id>/', setup_classroom_quiz, name='setup_classroom_quiz'),
     path('lobby/<str:join_code>', lobby, name='lobby'),
     path('live-quiz/<int:quiz_id>/<str:join_code>/', tutor_live_quiz, name='tutor_live_quiz'),
-
+    path("student/live-quiz/<str:room_code>/", student_live_quiz, name="student_live_quiz"),
+    path('load-partial/<str:partial_name>/', load_partial, name='load_partial'),
+    
     path('start-quiz/<str:join_code>/', start_quiz, name='start_quiz'),
     path('next-question/<str:join_code>/', next_question, name='next_question'),
     path('end-quiz/<str:join_code>/', end_quiz, name='end_quiz'),
@@ -74,11 +76,11 @@ urlpatterns = [
     path('student-classrooms/<int:classroom_id>/', student_classroom_detail_view, name='student_classroom_detail_view'),
     path('accept-classroom-invite/<int:invite_id>/', accept_classroom_invite, name="accept_classroom_invite"),
     path('decline-classroom-invite/<int:invite_id>/', decline_classroom_invite, name="decline_classroom_invite"),
-    path("student/live-quiz/<str:room_code>/", student_live_quiz, name="student_live_quiz"),
 
     path("tutor-stats/", stats_view, name='stats'),
     path("tutor-stats/<int:stats_id>/", stats_details, name='stats_details'),
-    path("tutor-stats/<int:stats_id>/download/", csv_download, name='stats_download'),
+    path("tutor-stats/<int:stats_id>/download/player/", csv_download_player, name='stats_download_player'),
+    path("tutor-stats/<int:stats_id>/download/question/", csv_download_question, name='stats_download_question'),
     path('player-responses/<int:room_id>/<int:player_id>/', player_responses, name='player_responses'),
     path('question-responses/<int:room_id>/<int:question_id>/', question_responses, name='question_responses'),
     path('classroom/<int:classroom_id>/stats/', classroom_stats_view, name='classroom_stats_view'),

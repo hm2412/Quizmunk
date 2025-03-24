@@ -3,6 +3,42 @@
 {% load static %}
 {% block title %}{{ classroom.name }}{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/classrooms.css' %}">{% endblock %}
+{% block extra_js %}
+<script>
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                window.location.hash = 'create-invite-modal';
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    
+    document.querySelector('.cancel').addEventListener('click', function(e) {
+        e.preventDefault();
+        window.location.hash = '';
+    });
+    
+    document.getElementById('inviteForm').addEventListener('submit', function(e) {
+        const email = document.getElementById('student_email').value;
+        if (!email) {
+            e.preventDefault();
+            window.location.hash = 'create-invite-modal';
+        }
+    });
+    
+    function showEditDescription() {
+        document.getElementById('description-text').style.display = 'none';
+        document.querySelector('.edit-btn').style.display = 'none';
+        document.getElementById('edit-description-form').style.display = 'block';
+    }
+        
+    function hideEditDescription() {                
+        document.getElementById('description-text').style.display = 'block';
+        document.querySelector('.edit-btn').style.display = 'block';
+        document.getElementById('edit-description-form').style.display = 'none';
+    }
+</script>
+{% endblock %}
 {% block content %}
         <div class="dashboard-header">
             <h1>{{ classroom.name }}</h1>
@@ -32,6 +68,7 @@
 
                 <div class="classroom-actions">
                     <a href="{% url 'tutor_classroom_view' %}" class="btn back-btn">← Back</a>
+                    <a href="{% url 'classroom_stats_view' classroom_id=classroom.id %}" class="btn stats-btn">View Classroom Stats</a>
                     <form method="POST" onsubmit="return confirm('Are you sure you want to delete this classroom? This action cannot be undone.');">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="delete_classroom">
@@ -126,38 +163,4 @@
             </div>
         </div>
 
-        <script>
-{% if messages %}
-    {% for message in messages %}
-        {% if message.tags == 'error' %}
-            window.location.hash = 'create-invite-modal';
-        {% endif %}
-    {% endfor %}
-{% endif %}
-
-document.querySelector('.cancel').addEventListener('click', function(e) {
-    e.preventDefault();
-    window.location.hash = '';
-});
-
-document.getElementById('inviteForm').addEventListener('submit', function(e) {
-    const email = document.getElementById('student_email').value;
-    if (!email) {
-        e.preventDefault();
-        window.location.hash = 'create-invite-modal';
-    }
-});
-
-            function showEditDescription() {
-                document.getElementById('description-text').style.display = 'none';
-                document.querySelector('.edit-btn').style.display = 'none';
-                document.getElementById('edit-description-form').style.display = 'block';
-            }
-    
-            function hideEditDescription() {
-                document.getElementById('description-text').style.display = 'block';
-                document.querySelector('.edit-btn').style.display = 'block';
-                document.getElementById('edit-description-form').style.display = 'none';
-            }
-        </script>
 {% endblock %}
