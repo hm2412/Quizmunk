@@ -97,6 +97,7 @@ class MultipleChoiceQuestionForm(forms.ModelForm):
         options_list = [opt.strip() for opt in options_list if opt.strip()]
         if len(options_list) < 2:
             raise forms.ValidationError("Please enter at least two options.")
+        
         return options_list
     
     def clean(self):
