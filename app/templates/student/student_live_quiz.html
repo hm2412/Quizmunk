@@ -153,6 +153,22 @@
             return $(this).text().includes(data.answer);
           }).addClass("btn-success");
         }
+        else if (data.type === "question_end") {
+        const correctAnswer = data.correct_answer;
+        
+        $(".answer-box").each(function () {
+            let fullText = $(this).text().trim();
+            let answer = fullText.indexOf('. ') !== -1 ? fullText.split('. ')[1] : fullText;
+            
+            if (answer === correctAnswer) {
+                $(this).addClass("correct");
+            } else if ($(this).hasClass("selected")) {
+                $(this).addClass("wrong");
+            }
+        });
+
+        $(".answer-box").prop("disabled", true);
+        }
       };
 
       // Timer function
@@ -174,6 +190,10 @@
 
       // Submission for button-based answers
       $(document).on('click', '.answer-box', function () {
+        // Remove previous selection
+        $(".answer-box").removeClass("selected");
+        // Add selected class
+        $(this).addClass("selected");
         let fullText = $(this).text().trim();
         let answer = fullText.indexOf('. ') !== -1 ? fullText.split('. ')[1] : fullText;
         if ((currentQuestionType === "integer" || currentQuestionType === "decimal") &&
@@ -188,9 +208,10 @@
           question_id: currentQuestionId,
           question_type: currentQuestionType
         }));
-        $("#answer-container").find("button, input, textarea, .submit-answer-btn").prop("disabled", true);
+        /*$("#answer-container").find("button, input, textarea, .submit-answer-btn").prop("disabled", true);
         $(".answer-box").removeClass("active btn-primary");
-        $(this).addClass("active btn-primary");
+        $(this).addClass("active btn-primary");*/
+        $(".answer-box").prop("disabled", true);
       });
 
       // Submission for input-based answers

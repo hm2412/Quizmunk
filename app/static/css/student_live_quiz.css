@@ -83,6 +83,28 @@ body {
         animation: spin 1.5s linear infinite; /* Infinite spinning effect */
     }
 
+    /* Selected answer (blue) */
+  .selected {
+    background-color: #37717e !important;
+    color: white !important;
+    opacity: 1 !important;
+  }
+
+  /* Correct answer (green border) */
+  .correct {
+    border: 3px solid #28a745 !important;
+    background-color: #d4edda !important;
+    color: black !important;
+  }
+
+  /* Wrong answer (red) */
+  .wrong {
+    background-color: #e74c3c !important;
+    color: white !important;
+    border-color: #c0392b !important;
+  }
+
+
     @keyframes spin {
         from {
             transform: rotate(0deg);
