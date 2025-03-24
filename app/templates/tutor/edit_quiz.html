@@ -122,7 +122,26 @@
             <img id="{{ key }}-image-preview" src="" alt="No image uploaded" style="max-width: 100%; display: none;" />
           </div>
           <p>{{ form.image.label_tag }} {{ form.image }}</p>
-  
+        {% elif key == "true_false" %}
+          <p>{{ form.question_text.label_tag }} {{ form.question_text }}</p>
+          <p>{{ form.time.label_tag }} {{ form.time }}</p>
+          <p>{{ form.mark.label_tag }} {{ form.mark }}</p>
+
+          <label>Correct Answer</label>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="correct_answer" id="true-option" value="True">
+            <label class="form-check-label" for="true-option">True</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="correct_answer" id="false-option" value="False">
+            <label class="form-check-label" for="false-option">False</label>
+          </div>
+          
+
+          <div id="{{ key }}-image-preview-container" style="margin-top: 10px;">
+            <img id="{{ key }}-image-preview" src="" alt="No image uploaded" style="max-width: 100%; display: none;" />
+          </div>
+          <p>{{ form.image.label_tag }} {{ form.image }}</p>
         {% else %}
           <!-- Default Hidden Form -->
           {{ form.as_p }}
