@@ -77,18 +77,6 @@ class Room(models.Model):
     quiz_started = models.BooleanField(default=False)
     current_question_index = models.PositiveIntegerField(default=0)
     is_quiz_active = models.BooleanField(default=False)
- 
- 
-    def get_current_question(self):
-         questions = self.get_questions()
-         if 0 <= self.current_question_index < len(questions):
-             return questions[self.current_question_index]
-         return None
-     
-    def next_question(self):
-         self.current_question_index += 1
-         self.save()
-         return self.get_current_question()
     
     def __str__(self):
         return f"Room: {self.name} (Code: {self.join_code})"
