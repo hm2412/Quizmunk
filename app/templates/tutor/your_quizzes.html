@@ -5,7 +5,7 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/your_quizzes.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.2"></script> <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
 {% endblock %}
 {% block content %}
 <h2 class="your-quizzes">Your Quizzes</h2>
@@ -16,6 +16,9 @@
             <li class="list-group-item d-flex align-items-center" id="quiz-{{ quiz.id }}">
                 <span>
                     <strong>{{ quiz.name }}</strong> ({{ quiz.subject }})
+                    <span class="badge {% if quiz.is_public %}bg-success{% else %}bg-secondary{% endif %}">
+                        {% if quiz.is_public %}Public{% else %}Private{% endif %}
+                    </span>
                 </span>
                 <div class="quiz-buttons"> 
                   <a href="{% url 'edit_quiz'  quiz_id=quiz.id %}" class="btn">Edit Quiz</a>
@@ -46,7 +49,6 @@ function deleteQuiz(quizId) {
     success: function () {
       $("#quiz-" + quizId).remove(); 
       showToast("Quiz deleted successfully!", "success");
-      
     },
     error: function () {
       showToast("Error deleting quiz!", "error");

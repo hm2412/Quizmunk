@@ -36,6 +36,18 @@ class SortingQuestionForm(forms.ModelForm):
         widget=SortingOptionsWidget(),
     )
 
+    time = forms.IntegerField(
+        min_value=0,
+        widget=forms.NumberInput(attrs={'min': '0', 'class': 'form-control', 'placeholder': 'Enter the time'}),
+        error_messages={'invalid': "Time must be an integer."}
+    )
+
+    mark = forms.IntegerField(
+        min_value=0,
+        widget=forms.NumberInput(attrs={'min': '0', 'class': 'form-control', 'placeholder': 'Enter the mark'}),
+        error_messages={'invalid': "Mark must be an integer."}
+    )
+   
     class Meta:
         model = SortingQuestion
         fields = ['time', 'question_text', 'mark', 'options', 'image']

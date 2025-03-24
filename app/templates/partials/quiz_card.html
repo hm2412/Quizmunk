@@ -1,8 +1,11 @@
+{% load static %}
 <div class="card" style="width: 18rem;">
-  <img src="{% if quiz.quiz_img %}{{ quiz.quiz_img.url }}{% else %}{{ MEDIA_URL }}quiz_images/default_quiz.png{% endif %}" alt="Quiz Image">
+  <div class="image-container">
+    <img src="{% if quiz.quiz_img %}{{ quiz.quiz_img.url }}{% else %}{% static 'images/default_thumbnail.png' %}{% endif %}" alt="Quiz Image" class="quiz-image">
+  </div>
   <div class="card-body">
-    <h5 class="card-title">{{ quiz_title }}</h5>
-    <p class="card-text">{{ quiz_description }}</p>
+    <h5 class="card-title">{{ quiz_name|default:"No name available" }}</h5>
+    <p class="card-text">{{ quiz_description|default:"No description available" }}</p>
     <a href="{% url 'setup_quiz' quiz.id %}" class="btn">Start!</a>
   </div>
 </div>

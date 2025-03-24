@@ -1,0 +1,40 @@
+<div class="question">
+    <input type="number" step="0.01" class="form-control input-field" placeholder="Enter decimal answer" onkeydown="return blockForbiddenKeys(event)" oninput="fixMinusDecimal(this)">
+</div>
+<button class="btn btn-primary submit-answer-btn mt-2">Submit Answer</button>
+  
+<script>
+function blockForbiddenKeys(event) {
+    const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab'];
+    if (allowedKeys.includes(event.key)) return true;
+    if (['e','E','+'].includes(event.key)) {
+        event.preventDefault();
+        return false;
+    }
+    return true;
+}
+
+function fixMinusDecimal(input) {
+    let value = input.value;
+    if (value.indexOf('-') > 0) {
+        input.value = value[0] === '-' ? '-' + value.slice(1).replace(/-/g, '') : value.replace(/-/g, '');
+    }
+}
+</script>
+  
+<style>
+.question {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.input-field {
+    padding: 10px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 300px;
+}
+</style>
