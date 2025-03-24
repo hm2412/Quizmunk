@@ -96,7 +96,7 @@ class MultipleChoiceResponse(Response):
 
 class NumericalRangeResponse(Response):
     question = models.ForeignKey(NumericalRangeQuestion, on_delete=models.CASCADE)
-    answer = models.IntegerField()
+    answer = models.FloatField()
 
     def __str__(self):
         if self.player:
