@@ -30,6 +30,11 @@
   <div class="container-fluid p-0">
     {% include 'partials/footer.html' %}
   </div>
+  <div id='stats-popup' class='stats-popup'>
+    <p><strong>Correct Answer: </strong> <span id='correct-answer'></span></p>
+    <p><strong>Total Responses: </strong> <span id='responses-received'></span></p>
+    <p><strong>Correct Responses: </strong> <span id='correct-responses'></span></p>
+  </div>
   <script>
     $(document).ready(function() {
       let currentQuestionNumber = 0;
@@ -116,6 +121,9 @@
             }
           });
         }
+        if (data.type === 'show_stats') {
+          handleShowStats(data);
+        }
         else if (data.type === "answer_received") {
           // Optionally highlight the selected answer.
           $(".answer-box").removeClass("btn-success");
@@ -188,6 +196,30 @@
         $(".answer-box, input, textarea, .submit-answer-btn").prop("disabled", true);
       });
     });
+
+    function handleShowStats(message) {
+      const correctAnswer = message.correct_answer;
+      const responsesReceived = message.responses_received;
+      const correctResponses = message.correct_responses;
+  
+      console.log("Correct Answer: ", correctAnswer);
+      console.log("Responses Received: ", responsesReceived);
+      console.log("Correct Responses: ", correctResponses);
+  
+      document.getElementById('correct-answer').innerText = correctAnswer;
+      document.getElementById('responses-received').innerText = responsesReceived;
+      document.getElementById('correct-responses').innerText = correctResponses;
+
+      showStatsPopup();
+    }
+
+    function showStatsPopup(stats) {
+      // Update the stats popup
+      $("#stats-popup").fadeIn();
+      setTimeout(() => {
+        $("#stats-popup").fadeOut();
+      }, 10000);
+    }
   </script>
 </body>
 </html>

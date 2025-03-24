@@ -172,3 +172,12 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
             "participant_number": event.get("participant_number"),
             "participants": event.get("participants")
         }))
+
+    async def show_stats(self, event):
+        stats_data = {
+            "type": "show_stats",
+            "correct_answer": event.get("correct_answer", ""),
+            "responses_received": event.get("responses_received", -2),
+            "correct_responses": event.get("correct_responses", -2),
+        }
+        await self.send(text_data=json.dumps(stats_data))
