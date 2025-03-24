@@ -19,18 +19,24 @@
        </div>
        <form method="post" hx-post="{% url 'create_quiz' %}" hx-target="#quiz-form-container" hx-swap="innerHTML" enctype="multipart/form-data">
            {% csrf_token %}
-           {{ form.name.label_tag }}
-           {{ form.name }}
+           <div>
+                {{ form.name.label_tag }}
+                {{ form.name }}
+           </div>
+           <div>
+                {{ form.subject.label_tag }}
+                {{ form.subject }} 
+           </div>
            
-           {{ form.subject.label_tag }}
-           {{ form.subject }}
-           
-           {{ form.difficulty.label_tag }}
-           {{ form.difficulty }}
-           
-           {{ form.quiz_img.label_tag }}
-           {{ form.quiz_img }}
-           
+           <div>
+                {{ form.difficulty.label_tag }}
+                {{ form.difficulty }}
+                
+            </div>
+            <div>
+                {{ form.quiz_img.label_tag }}
+                {{ form.quiz_img }}
+            </div>
            <div class="form-group">
                <label for="{{ form.is_public.id_for_label }}">Make Quiz Public:</label>
                {{ form.is_public }}
@@ -42,14 +48,17 @@
    </div>
 </div>
 {% if form.errors %}
-   <div class="alert alert-danger">
-       <strong>Form submission failed:</strong>
-       <ul>
-           {% for field, errors in form.errors.items %}
-               <li>{{ field }}: {{ errors|join:", " }}</li>
-           {% endfor %}
-       </ul>
-   </div>
+    <div class="form-error-container">
+        <div class="form-error-header">
+            <strong>Oops! Something went wrong:</strong>
+            <p>Please correct the following fields:</p>
+        </div>
+        <ul class="form-error-list">
+            {% for field, errors in form.errors.items %}
+                <li><strong>{{ field|capfirst }}</strong>: {{ errors|join:", " }}</li>
+            {% endfor %}
+        </ul>
+    </div>
 {% endif %}
 <script>
    document.body.addEventListener('htmx:configRequest', (event) => {
