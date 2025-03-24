@@ -67,6 +67,9 @@
     </div>
     <div class="question-card" id="question-card">
       <h3 id="question-text" class="fw-bold">Loading question...</h3>
+      <div id="question-image-container" style="display: none; margin: 1rem 0;">
+        <img id="question-image" src="" alt="Question Image" class="img-fluid" />
+      </div>
       <div id="timer-container" class="my-3">
         <span class="timer" id="timer">0</span> seconds remaining
       </div>
@@ -151,6 +154,14 @@
               $("#answer-container").find("button, input, textarea").prop("disabled", false);
             }
           });
+
+          if (data.image && data.image.trim() !== "") {
+            $("#question-image").attr("src", data.image);
+            $("#question-image-container").show();
+          } else {
+            $("#question-image-container").hide();
+          }
+
           // Start timer if applicable
           if (data.time && !data.answer) {
             startTimer(data.time);

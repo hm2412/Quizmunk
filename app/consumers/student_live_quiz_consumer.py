@@ -137,7 +137,8 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
             "total_questions": event.get("message").get("total_questions"),
             "time": event.get("message").get("time"),
             "question_type": event.get("message").get("question_type", "multiple_choice"),
-            "items": event.get("message").get("items", [])
+            "items": event.get("message").get("items", []),
+            "image": event.get("message").get("image", "")
         }
         await self.send(text_data=json.dumps(response))
 
