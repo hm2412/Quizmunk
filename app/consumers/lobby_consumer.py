@@ -3,7 +3,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async as sync_to_async, aclose_old_connections
-from app.models import Room, RoomParticipant
+
 
 class LobbyConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -55,6 +55,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
 
 
     async def send_updated_participants(self):
+        from app.models import Room
         try:
             room = await sync_to_async(Room.objects.get)(join_code=self.join_code)
             participants = await self.get_participants(room)
@@ -80,6 +81,6 @@ class LobbyConsumer(AsyncWebsocketConsumer):
     async def quiz_started(self, event):
         await self.send(text_data=json.dumps({
             "action": "quiz_started",
-            "student_quiz_url": event.get("student_quiz_url"),
-            "tutor_quiz_url": event.get("tutor_quiz_url")
+            "student_quiz_url": event["student_quiz_url"],
+            "tutor_quiz_url": event["tutor_quiz_url"],
         }))

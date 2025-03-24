@@ -3,18 +3,18 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async, aclose_old_connections
-from app.models import Room, RoomParticipant, QuizState
-from app.models.quiz import MultipleChoiceQuestion, TrueFalseQuestion, IntegerInputQuestion, DecimalInputQuestion, TextInputQuestion, NumericalRangeQuestion, SortingQuestion
-from app.helpers.helper_functions import create_quiz_stats, calculate_user_score
+
 
 class TutorQuizConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_room(self, join_code):
+        from app.models import Room
         return Room.objects.get(join_code=join_code)
     
 
     @database_sync_to_async
     def update_quiz_state(self, room, **kwargs):
+        from app.models import QuizState
         qs, _ = QuizState.objects.get_or_create(room=room)
         for key, value in kwargs.items():
             setattr(qs, key, value)
@@ -26,10 +26,15 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
     def get_leaderboard(self, room):
         if not room:
             return []
+        from app.models import RoomParticipant
         participants = RoomParticipant.objects.filter(room=room).exclude(user__role__iexact="tutor")
         for participant in participants:
             if participant.user:
+                from app.helpers.helper_functions import calculate_user_score
                 participant.score = calculate_user_score(participant.user, room)
+            elif participant.guest_access:
+                from app.helpers.helper_functions import calculate_guest_score
+                participant.score = calculate_guest_score(participant.guest_access, room)
         RoomParticipant.objects.bulk_update(participants, ['score'])
         leaderboard_data = (
             participants.order_by('-score', 'joined_at')
@@ -43,8 +48,8 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
             }
             for rank, participant in enumerate(leaderboard_data, start=1)
         ]
-    
 
+    
     @database_sync_to_async
     def get_current_question(self, room):
         return room.get_current_question()
@@ -60,7 +65,7 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         self.room_group_name = f"live_quiz_{self.join_code}"
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
-        await self.send_updated_participants()
+        #await self.send_updated_participants()
     
 
     async def disconnect(self, close_code):
@@ -120,6 +125,7 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
             await self.send_question_update(question_data)
             await self.send_student_question(question_data)
         else:
+            from app.helpers.helper_functions import create_quiz_stats
             await database_sync_to_async(create_quiz_stats)(room)
             message = "No more questions!"
             await self.channel_layer.group_send(
@@ -131,10 +137,11 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
                 {"type": "quiz_ended", "message": message}
             )
 
-
+    
     async def handle_end_quiz(self):
         room = await self.get_room(self.join_code)
         await self.update_quiz_state(room, current_question_index=-1, quiz_started=False)
+        from app.helpers.helper_functions import create_quiz_stats
         await database_sync_to_async(create_quiz_stats)(room)
         await self.send_quiz_ended("Quiz ended! Redirecting...")
         await self.channel_layer.group_send(
@@ -142,7 +149,6 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
             {"type": "quiz_ended", "message": "Quiz ended! Redirecting..."}
         )
     
-
     async def send_quiz_ended(self, message):
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -158,8 +164,14 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
             "question_number": room.current_question_index + 1,
             "total_questions": len(room.get_questions()),
             "time": question.time,
-            "question_type": "unknown"
+            "question_type": "unknown",
+            "image": "/static/images/default_thumbnail.png"
         }
+
+        if question.image:
+            question_data["image"] = question.image.url
+
+        from app.models import MultipleChoiceQuestion, TrueFalseQuestion, IntegerInputQuestion, TextInputQuestion, DecimalInputQuestion, NumericalRangeQuestion, SortingQuestion
         if isinstance(question, MultipleChoiceQuestion):
             question_data["options"] = question.options
             question_data["question_type"] = "multiple_choice"
@@ -210,27 +222,43 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         }))
         room = await self.get_room(self.join_code)
         leaderboard = await self.get_leaderboard(room)
+        participants = await self.get_participants(room)
+        participant_number = len(participants)
+        
+        current_question = await self.get_current_question(room)
+        answered_count = 0
+        if current_question:
+            from app.helpers.helper_functions import count_answers_for_question
+            answered_count = await database_sync_to_async(count_answers_for_question)(room, current_question)
+        
         await self.send(text_data=json.dumps({
             "type": "leaderboard_update",
-            "leaderboard": leaderboard
+            "leaderboard": leaderboard,
+            "participant_number": participant_number,
+            "answered_count": answered_count
         }))
-    
+
 
     async def answer_received(self, event):
         room = await self.get_room(self.join_code)
         leaderboard = await self.get_leaderboard(room)
-        await self.channel_layer.group_send(
-            f"live_quiz_{self.join_code}",
-            {"type": "leaderboard_update", "leaderboard": leaderboard}
-        )
-        await self.channel_layer.group_send(
-            f"student_{self.join_code}",
-            {"type": "leaderboard_update", "leaderboard": leaderboard}
-        )
+        current_question = await self.get_current_question(room)
+        answered_count = 0
+        if current_question:
+            from app.helpers.helper_functions import count_answers_for_question
+            answered_count = await database_sync_to_async(count_answers_for_question)(room, current_question)
+        update_payload = {
+            "type": "leaderboard_update",
+            "leaderboard": leaderboard,
+            "answered_count": answered_count
+        }
+        await self.channel_layer.group_send(f"live_quiz_{self.join_code}", update_payload)
+        await self.channel_layer.group_send(f"student_{self.join_code}", update_payload)
     
 
     async def send_updated_participants(self):
         try:
+            from app.models import Room
             room = await database_sync_to_async(Room.objects.get)(join_code=self.join_code)
             participants = await self.get_participants(room)
             participant_number = len(participants)
@@ -261,7 +289,12 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
     
 
     async def leaderboard_update(self, event):
-        await self.send(text_data=json.dumps({
+        response = {
             "type": "leaderboard_update",
             "leaderboard": event.get("leaderboard")
-        }))
+        }
+        if "answered_count" in event:
+            response["answered_count"] = event["answered_count"]
+        if "participant_number" in event:
+            response["participant_number"] = event["participant_number"]
+        await self.send(text_data=json.dumps(response))

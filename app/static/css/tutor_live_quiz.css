@@ -2,26 +2,45 @@
 html, body {
   height: 100%;
   margin: 0;
-}
-
-.page-container {
   display: flex;
   flex-direction: column;
+}
+
+.start-message {
+  position: absolute;  /* Position it relative to the main-area */
+  top: 0;
+  left: 220px;  /* Start after the sidebar (assuming sidebar width is 220px) */
+  width: calc(100% - 220px);  /* Cover the rest of the width */
   height: 100%;
-}
-
-.main-content {
-  flex: 1;
+  background-color: #398AA2;
   display: flex;
-  overflow: hidden;
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  color: white;
+  z-index: 10;  /* Ensure it's above the content but below the sidebar */
+  font-size: 6rem;
+  font-weight: 800;
+  margin: auto;
 }
 
-.content-area {
-  flex-grow: 1;
-  padding: 20px;
+.start-message p {
+  text-align: center;  /* Ensure text is centered within the p element */
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+}
+
+
+.main-area {
+  padding-top: 20px;  /* Adjust this value to control the offset */
   display: flex;
   flex-direction: column;
+  margin-left: 220px;  /* Ensure it accounts for the sidebar width */
+  width: calc(100% - 220px);  /* Full width minus the sidebar */
+  position: relative;
+  overflow-y: auto;
+  flex-grow: 1;
+  z-index: 1; /* Make sure it is below the start-message */
 }
+
 
 /* Styling for question, leaderboard, and answer sections */
 .question-container, 
@@ -34,45 +53,60 @@ html, body {
   margin-bottom: 20px;
 }
 
-.question-container{
+.question-container {
   text-align: center;
   background-color: #398AA2;
   color: white;
+  width: 100%;  /* Ensures it stretches across the full width */
 }
 
-.question{
-  font-size: 35px;
+.question {
+  font-size: 30px;
   color: #398AA2;
   background-color: white;
+  border-radius: 5px;
 }
 
+.answer-container {
+  text-align: center;
+  background-color: rgb(70, 174, 61);
+  width: 100%;  /* Ensures it stretches across the full width */
+  max-height: 500px;
+}
+
+.row {
+  text-align: center;
+  background-color: #28a745;
+  color: white;
+}
+
+.answer {
+  padding-top: 12px;
+  font-size: 1.5rem;
+}
+
+/* Leaderboard styling */
 .leaderboard-container {
-  flex-grow: 0;  /* Prevent it from taking too much space */
-  max-width: 300px;  /* Adjust width */
-  width: 100%;  /* Make sure it doesn't exceed max-width */
+  text-align: center;
+  flex-grow: 0;  
+  max-width: 800px;  
+  width: 80%;  
+  margin-left: auto;
+  margin-right: auto; /* Centers the leaderboard */
   overflow-y: auto;
-  margin: 0 auto; /* Centers it */
 }
 
-.answer-container{
-  text-align: center;
-  background-color: #28a745;
-  color: white;
-}
-
-.row{
-  text-align: center;
-  background-color: #28a745;
-  color: white;
-}
-
-.answer{
-  font-size: 35px;
+.progress {
+  position: fixed;
+  width: calc(100% - 220px);  /* Full width minus the sidebar */
+  bottom: 50px;
+  left: 220px;
+  width: 100%;
 }
 
 /* Sidebar styles */
 .sidebar {
-  width: 10%;
+  width: 15%;  /* Increase the sidebar width to give it more space */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -99,11 +133,55 @@ html, body {
 }
 
 .time-text {
-  color: black;  /* Change to any color */
+  color: black;  
   font-weight: italic;
 }
 
 .seconds-text {
-  color: black;  /* Change to any color */
+  color: black;  
   font-style: italic;
+}
+
+.btn.start-quiz {
+  background-color: #0a7a0a;
+  border: 2px solid black;
+}
+
+.btn.end-question {
+  background-color: #9d4b4b;
+  border: 2px solid black;
+}
+
+.btn.next-question {
+  background-color: #4e934e;
+  border: 2px solid black;
+}
+
+.btn.end-quiz {
+  background-color: #a41d1d;
+  border: 2px solid black;
+}
+
+#quiz-controls {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;  
+  gap: 10px;
+  
+}
+
+#question-image-container {
+  margin-top: 15px;
+  text-align: center;
+  max-height: 250px; /* Limits the height of the container */
+  overflow: hidden; /* Prevents overflow if the image is too large */
+}
+
+.question-image {
+  width: auto; /* Ensures aspect ratio is maintained */
+  max-width: 100%; /* Ensures the image doesn't exceed container width */
+  height: 150px; /* Forces the image to fit the container height */
+  object-fit: contain; /* Ensures the entire image is visible without distortion */
+  display: block;
+  margin: 0 auto;
 }

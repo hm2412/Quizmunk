@@ -9,12 +9,14 @@
                 <li><a href="{% url 'your_quizzes' %}">Your Quizzes</a></li>
                 <li><a href="{% url 'public_quizzes'%}">Public Quizzes</a></li>
                 <li><a href="{% url 'tutor_classroom_view' %}">Classrooms</a></li>
-                <li><a href="#">Stats</a></li>
+                <li><a href="{% url 'stats' %}">Stats</a></li>
                 <li><a href="{% url 'tutor_profile' %}">Profile</a></li>
             {% elif user.role == "student" %}
                 <li><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
                 <li><a href="{% url 'student_classroom_view' %}">Classrooms</a></li>
                 <li><a href="{% url 'student_profile' %}">Profile</a></li>
+                <li><a href="{% url 'student_stats' user.id %}">Stats</a></li>
+                <li><a href="{% url 'join_quiz' %}">Join Room</a></li>
             {% endif %}
             <li><a href="{% url 'logout' %}">Logout</a></li>
         {% else %}

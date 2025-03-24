@@ -1,0 +1,234 @@
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+}
+
+.dropdown-btn img.gravatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.dropdown-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0);
+    border-radius: 50%;
+}
+
+.dropdown-btn:hover::after {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    min-width: 150px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.dropdown-content a {
+    color: #333;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.profile-dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.profile-table {
+    width: 50%;
+    margin: auto;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.profile-table th, .profile-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.profile-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+/* Expands dashboard to fill available space */
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+}
+
+/* Ensures dashboard content fills space */
+.dashboard-content {
+    padding-top: 30px;
+    flex-grow: 1;
+    width: 100%;
+    max-width: none;
+}
+
+/* Aligns dashboard header */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.dashboard-top {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    width: 100%;
+    height: auto;
+    text-align: center;
+    background-color: #2a7a8c;
+    padding: 50px;
+    border-radius: 10px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.dashboard-info {
+    min-width: 250px; 
+    max-width: 50%; /* Prevents overflow */
+    flex-grow: 1; 
+    word-wrap: break-word;
+}
+
+.description {
+    font-size: 1.5rem;
+}
+
+.create-quiz {
+    width: 200px;
+    padding: 25px;
+    font-size: 1.6rem;
+}
+
+/* Ensure quiz list and sections expand fully */
+.quiz-section {
+    padding-top: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start !important;
+    align-items: flex-start !important; 
+    text-align: left !important; 
+    width: 100%;
+    text-align: center;
+}
+
+.quiz-list {
+    padding-top: 20px;
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+.results-section {
+    padding-top: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start !important;
+    align-items: flex-start !important; 
+    text-align: left !important; 
+    width: 100%;
+    text-align: center;
+}
+
+.results-list {
+    padding-top: 20px;
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+.profile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+    margin-top: 10vh; /* Adjust for proper spacing */
+}
+
+.profile-table {
+    width: 50%;
+    margin: auto;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.profile-table th, .profile-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.profile-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+
+.image-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%;  /* 16:9 aspect ratio */
+    overflow: hidden;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+}
+
+
+.quiz-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);  /* Center the image */
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    border-radius: 10px;
+    max-width: 100%;
+    max-height: 100%;
+}
+

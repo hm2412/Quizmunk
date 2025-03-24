@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -25,7 +26,14 @@ SECRET_KEY = 'django-insecure-$m9!6--l9awn!1%)7izh%y-qb9xq9b@mzz3mz=d@#xxgj$flx9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['teamchipmunk.pythonanywhere.com', '127.0.0.1', 'localhost', '138.68.136.99']
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://teamchipmunk.pythonanywhere.com',  # Add the domain you are deploying to
+    'https://127.0.0.1',  # Localhost for development
+    'https://localhost',  # Localhost for development
+
+]
 
 
 # Application definition
@@ -39,12 +47,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_password_eye',
-    'app',
     'channels',
+    'app',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -98,6 +107,8 @@ DATABASES = {
     }
 }
 
+APPEND_SLASH = True
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -135,7 +146,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT =os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'app', 'static'),
+]
+
+if not DEBUG:  # Only needed in production
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

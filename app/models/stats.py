@@ -3,9 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.aggregates import Avg
 from django.db.models.expressions import result
-
-from app.models import Room, RoomParticipant, Response, Quiz, Question, IntegerInputResponse, TrueFalseResponse, \
-    TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, NumericalRangeResponse, SortingResponse, User
+from app.models import Room, RoomParticipant, Response, Quiz, Question, IntegerInputResponse, TrueFalseResponse, TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, NumericalRangeResponse, SortingResponse, User
 
 
 class Stats(models.Model):
@@ -18,7 +16,7 @@ class Stats(models.Model):
 
 
     def calculate_median(self):
-        scores = RoomParticipant.objects.filter(room=self.room).values_list('score', flat=True).order_by('score')
+        scores = RoomParticipant.objects.filter(room=self.room).exclude(user__role__iexact="tutor").values_list('score', flat=True).order_by('score')
         total_scores = len(scores)
         if total_scores == 0:
             median = 0
@@ -31,8 +29,8 @@ class Stats(models.Model):
         return median
 
     def save(self, *args, **kwargs):
-        self.num_participants = RoomParticipant.objects.filter(room=self.room).count()
-        self.mean_score = RoomParticipant.objects.filter(room=self.room).aggregate(Avg('score'))['score__avg']
+        self.num_participants = RoomParticipant.objects.filter(room=self.room).exclude(user__role__iexact="tutor").count()
+        self.mean_score = RoomParticipant.objects.filter(room=self.room).exclude(user__role__iexact="tutor").aggregate(Avg('score'))['score__avg']
         if self.mean_score is None:
             self.mean_score = 0
         self.median_score = self.calculate_median()
@@ -51,16 +49,29 @@ class QuestionStats(models.Model):
     correct_responses = models.IntegerField()
     percentage_correct = models.DecimalField(max_digits=5, decimal_places=2)
 
-
     def save(self, *args, **kwargs):
-        from app.helpers.helper_functions import get_response_model_class
+        from app.helpers.helper_functions import get_response_model_class, isCorrectAnswer
         response_model = get_response_model_class(self.question_type)
-        self.responses_received = response_model.objects.filter(room=self.room, question=self.question).count()
-        print(self.responses_received)
-        self.correct_responses = response_model.objects.filter(room=self.room, question=self.question, correct=True).count()
+        responses = list(response_model.objects.filter(room=self.room, question_id=self.question.id))
+        self.responses_received = len(responses)
+        correct_count = 0
+        for resp in responses:
+            if isCorrectAnswer(resp):
+                correct_count += 1
+        self.correct_responses = correct_count
         if self.responses_received != 0:
             self.percentage_correct = (self.correct_responses / self.responses_received) * 100
         else:
-            self.percentage_correct = 100
-
+            self.percentage_correct = 0
         super(QuestionStats, self).save(*args, **kwargs)
+
+    @property
+    def wrong_responses(self):
+        return self.responses_received - self.correct_responses
+
+    @property
+    def avg_score(self):
+        return self.percentage_correct
+
+    def __str__(self):
+        return f"QuestionStats for Question {self.question} in Room {self.room}"

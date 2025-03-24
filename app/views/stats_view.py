@@ -1,22 +1,19 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from app.models import Stats, Room, User, Classroom
 from app.models.room import RoomParticipant
 from app.helpers.decorators import is_tutor
+from app.models.stats import QuestionStats
 import csv
 import datetime
-from app.helpers.helper_functions import get_responses_by_player_in_room, get_all_responses_question, get_student_quiz_history, calculate_average_score, find_best_and_worst_scores
+from app.helpers.helper_functions import get_responses_by_player_in_room, get_all_responses_question, get_student_quiz_history, calculate_average_score, find_best_and_worst_scores, get_guest_responses, isCorrectAnswer
+import json
 
 
 @is_tutor
 def stats_view(request):
     """show the list of the quizzes started by the tutor"""
     stats_list = Stats.objects.filter(quiz__tutor=request.user).order_by('-date_played')
-    """stats_list = [
-       {'id': 1, 'quiz': {'title': 'Python Basics Quiz'}, 'date_played': datetime.datetime(2025, 3, 11, 14, 30)},
-       {'id': 2, 'quiz': {'title': 'Django Fundamentals'}, 'date_played': datetime.datetime(2025, 3, 10, 10, 15)},
-        {'id': 3, 'quiz': {'title': 'Machine Learning Concepts'}, 'date_played': datetime.datetime(2025, 3, 9, 16, 45)},
-    ]"""
     return render(request, "tutor/stats.html", {"stats_list": stats_list})
 
 
@@ -25,56 +22,22 @@ def stats_details(request, stats_id):
     """show the stats for the live quiz"""
     stats_obj = get_object_or_404(Stats, id=stats_id, quiz__tutor=request.user)
     participants = RoomParticipant.objects.filter(room=stats_obj.room).exclude(user__role__iexact="tutor")
-    """
-    # Fake quizzes mapped by ID
-    fake_stats_data = {
-        1: {"id": 1, "quiz": {"title": "Python Basics Quiz"}, "date_played": datetime.datetime(2025, 3, 11, 14, 30), "num_participants": 3, "mean_score": 85.67, "median_score": 90.00},
-        2: {"id": 2, "quiz": {"title": "Django Fundamentals"}, "date_played": datetime.datetime(2025, 3, 10, 10, 15), "num_participants": 5, "mean_score": 78.45, "median_score": 80.00},
-        3: {"id": 3, "quiz": {"title": "Machine Learning Concepts"}, "date_played": datetime.datetime(2025, 3, 9, 16, 45), "num_participants": 4, "mean_score": 88.75, "median_score": 85.50},
-    }
-    # Fetch the correct fake quiz using `stats_id`
-    stats_obj = fake_stats_data.get(int(stats_id), None)
-    
-    if not stats_obj:
-        return HttpResponse("Quiz stats not found.", status=404)
-
-    # Fake participants mapped by quiz ID
-    fake_participants = {
-        1: [
-            {"user": {"email_address": "student1@example.com"}, "joined_at": "2025-03-11 14:35", "score": 92},
-            {"user": {"email_address": "student2@example.com"}, "joined_at": "2025-03-11 14:37", "score": 78},
-            {"guest_access": {"session_id": "abcd1234"}, "joined_at": "2025-03-11 14:40", "score": 87},
-        ],
-        2: [
-            {"user": {"email_address": "learner1@example.com"}, "joined_at": "2025-03-10 10:05", "score": 75},
-            {"user": {"email_address": "learner2@example.com"}, "joined_at": "2025-03-10 10:10", "score": 82},
-        ],
-        3: [
-            {"user": {"email_address": "ml_student@example.com"}, "joined_at": "2025-03-09 16:50", "score": 95},
-            {"guest_access": {"session_id": "xyz7890"}, "joined_at": "2025-03-09 16:55", "score": 88},
-        ],
-    }
-
-    participants = fake_participants.get(int(stats_id), [])
-    """
+    questions_stats = QuestionStats.objects.filter(room=stats_obj.room)
     context = {
         "stats": stats_obj,
-        "participants": participants
+        "participants": participants,
+        "questions_stats": questions_stats,
     }
     return render(request, "tutor/stats_detail.html", context)
 
+
 @is_tutor
-def csv_download(request, stats_id):
-    #genrate a csv file for the stats
-    
+def csv_download_player(request, stats_id):
     stats_obj = get_object_or_404(Stats, id=stats_id, quiz__tutor=request.user)
     room = stats_obj.room
-    participants = RoomParticipant.objects.filter(room=stats_obj.room)
-
+    participants = RoomParticipant.objects.filter(room=room).exclude(user__role__iexact="tutor")
     response = HttpResponse(content_type="text/csv")
-    #this is the best way right now to seprate quizzes states as a quiz can create multiple live quizzes
-    response['Content-Disposition'] = f'attachment; filename="quiz_stats_{room.join_code}.csv"'
-
+    response['Content-Disposition'] = f'attachment; filename="player_stats_{room.join_code}.csv"'
     writer = csv.writer(response)
     writer.writerow(["Participant", "Joined At", "Score"])
 
@@ -82,41 +45,103 @@ def csv_download(request, stats_id):
         if participant.user:
             identifier = participant.user.email_address
         else:
-            identifier = participant.guest_access.session_id[:8]
-        writer.writerow([identifier, participant.joined_at, participant.score])
+            identifier = f"Guest ({participant.guest_access.session_id[:8]})"
+        writer.writerow([
+            identifier,
+            participant.joined_at.strftime("%Y-%m-%d %H:%M:%S"),
+            participant.score
+        ])
+    return response
 
-def player_responses(request, room_id,player_id):
+
+@is_tutor
+def csv_download_question(request, stats_id):
+    stats_obj = get_object_or_404(Stats, id=stats_id, quiz__tutor=request.user)
+    question_stats = QuestionStats.objects.filter(room=stats_obj.room)
+    response = HttpResponse(content_type="text/csv")
+    response['Content-Disposition'] = f'attachment; filename="question_stats_{stats_obj.room.join_code}.csv"'
+    writer = csv.writer(response)
+    writer.writerow(["Question", "Total Responses", "Correct Responses", "Incorrect Responses", "Percentage Correct"])
+
+    for qs in question_stats:
+        question_text = getattr(qs.question, "question_text", "N/A")
+        total = qs.responses_received
+        correct = qs.correct_responses
+        incorrect = qs.wrong_responses 
+        percentage = qs.percentage_correct
+        writer.writerow([question_text, total, correct, incorrect, f"{percentage:.2f}%"])
+    return response
+
+
+def player_responses(request, room_id, player_id):
+    player = get_object_or_404(RoomParticipant, id = player_id)
     room = get_object_or_404(Room, id=room_id)
-    player = get_object_or_404(User, id = player_id)
-
-    responses = get_responses_by_player_in_room(player,room)
-
+    stats = Stats.objects.filter(room=room).first()
+    if player.user:
+        responses = get_responses_by_player_in_room(player.user, room)
+        identifier = player.user.email_address
+    else:
+        responses = get_guest_responses(player.guest_access, room)
+        identifier = f"Guest ({player.guest_access.session_id[:8]})"
+    correct_count = sum(1 for r in responses if r.correct)
+    incorrect_count = len(responses) - correct_count
     context={
-        'room':room,
-        'player':player,
-        'responses':responses,
+        "player": identifier, 
+        "room": room, 
+        "responses": responses,
+        "stats_id": stats.id if stats else None,
+        "correct_count": correct_count,
+        "incorrect_count": incorrect_count
     }
-    return render(request, 'player_responses.html',context)
 
-def player_responses(request, room_id,question_id):
+    return render(request, 'tutor/player_responses.html',context)
+
+
+def question_responses(request, room_id, question_id):
     room = get_object_or_404(Room, id=room_id)
-    question = get_object_or_404(User, id = question_id)
-
-    responses = get_responses_by_player_in_room(question,room)
-
+    questions = room.get_questions()
+    question = next((q for q in questions if q.id == int(question_id)), None)
+    if not question:
+        raise Http404("Question not found.")
+    stats = Stats.objects.filter(room=room).first()
+    responses = sorted(get_all_responses_question(room, question), key=lambda r: r.timestamp)
+    for response in responses:
+        isCorrectAnswer(response)
+    correct_count = sum(1 for r in responses if r.correct)
+    incorrect_count = len(responses) - correct_count
     context={
         'room':room,
         'question':question,
         'responses':responses,
+        "stats_id": stats.id if stats else None,
+        "correct_count": correct_count,
+        "incorrect_count": incorrect_count
     }
-    return render(request, 'question_responses.html',context)
+    return render(request, 'tutor/question_responses.html',context)
+
+
+@is_tutor
+def classroom_stats_view(request, classroom_id):
+    """show the list of the quizzes started by the tutor for a classroom"""
+    classroom= get_object_or_404(Classroom, id=classroom_id)
+    stats_list = Stats.objects.filter(room__classroom=classroom, quiz__tutor=request.user).order_by('-date_played')
+    quiz_names = [stats.quiz.name for stats in stats_list]
+    scores = [float(stats.mean_score) for stats in stats_list]
+    context={
+        "classroom": classroom,
+        "stats_list":stats_list,
+        "quiz_names": json.dumps(quiz_names),
+        "scores": json.dumps(scores),
+    }
+    return render(request, "tutor/classroom_stats.html", context)
+
 
 def student_stats(request,student_id):
 
     student= get_object_or_404(User, id=student_id)
     quiz_history= get_student_quiz_history(student)
-    average_score = calculate_average_score(quiz_history)
-    best_score, worst_score = find_best_and_worst_scores(quiz_history)
+    average_score = calculate_average_score(quiz_history)  if quiz_history else 0.0
+    best_score, worst_score = find_best_and_worst_scores(quiz_history)  if quiz_history else (None,None)
 
     context={
         'student': student,
@@ -126,15 +151,4 @@ def student_stats(request,student_id):
         'worst_score': worst_score,
     }
 
-    return render(request, 'student_stats.html', context)
-
-@is_tutor
-def classroom_stats_view(request, classroom_id):
-    """show the list of the quizzes started by the tutor for a classroom"""
-    classroom= get_object_or_404(Classroom, id=classroom_id)
-    stats_list = Stats.objects.filter(room__classroom=classroom,quiz__tutor=request.user).order_by('-date_played')
-    context={
-        "classroom": classroom,
-        "stats_list":stats_list
-    }
-    return render(request, "tutor/classroom_stats.html", context)
+    return render(request, 'student/student_stats.html', context)

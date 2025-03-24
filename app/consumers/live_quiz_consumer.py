@@ -1,11 +1,9 @@
 # # Original implementation by Kyran
- """
+"""
      this will be a note for now as I connot find a way to add it to my changes
      in order for the person that did it to take his full credit of its implementation
      and take credit for my changes that were inspired by their code 
- """
- 
- 
+"""
  # import json
  # from channels.generic.websocket import AsyncWebsocketConsumer
  # from app.models import Room, RoomParticipant, GuestAccess

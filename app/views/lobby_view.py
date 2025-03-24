@@ -6,7 +6,7 @@ import qrcode
 from app.models import Room, RoomParticipant, Quiz, GuestAccess
 from app.models.classroom import Classroom, ClassroomStudent
 from app.helpers.decorators import is_tutor
-from app.views.live_quiz_view import tutor_live_quiz
+from app.views.live_quiz_view import tutor_live_quiz, start_quiz
 
 @is_tutor
 def setup_quiz(request, quiz_id):
@@ -62,9 +62,9 @@ def lobby(request, join_code):
     #if not room.quiz:
     #    messages.error(request, 'Invalid code!')
     #    return redirect('join_quiz')
-    if request.method == 'POST':
-        # Redirect to start quiz functionality
-        return redirect(tutor_live_quiz, join_code=room.join_code, )
+    # if request.method == 'POST':
+    #     # Redirect to start quiz functionality
+    #     return redirect(start_quiz, join_code=room.join_code)
     
     context = {
         'room': room,
@@ -83,5 +83,6 @@ def lobby(request, join_code):
 def setup_classroom_quiz(request, quiz_id, classroom_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     classroom = Classroom.objects.get(id=classroom_id)
+    Room.objects.filter(classroom=classroom).delete()
     room = Room.objects.create(name=f"{quiz.name} Room", quiz=quiz, classroom=classroom)
     return redirect(lobby, join_code=room.join_code)

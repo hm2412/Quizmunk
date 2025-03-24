@@ -88,6 +88,7 @@
     background-color: #e2e6ea;
     transform: scale(1.05);
   }
+
   .btn {
     padding: 14px 30px;
     border-radius: 25px;
@@ -97,7 +98,7 @@
     cursor: pointer;
   }
   
-  .btn-primary, .btn-success {
+  .btn-primary{
     background: #007bff;
     border: none;
     color: white;
@@ -117,6 +118,38 @@
     background: #c0392b;
     transform: scale(1.1);
   }    
+
+  .btn.choose-thumbnail {
+    background: #007bff;
+    color: white;
+    width: 150px;
+    height: 30px;
+    font-size: 0.75rem;
+  }
+
+  .btn.choose-thumbnail:hover {
+    background: #0056b3;
+    color: white;
+  }
+
+  .btn.save-quiz {
+    background: #007bffb9;
+    color: white;
+  }
+
+  .btn.save-quiz:hover {
+    background: #007bff;
+    transform: scale(1.1);
+    color: white;
+  }
+
+  .file-name {
+    font-size: 0.75rem;
+    text-decoration: underline;
+    color: rgba(0, 0, 0, 0.558);
+  }
+
+
   .toast {
     background: #007bff;
     color: white;
