@@ -32,7 +32,7 @@ from app.views.password_reset_view import password_reset
 from app.views.live_quiz_view import student_live_quiz, tutor_live_quiz, start_quiz, next_question, end_quiz
 from app.views.classroom_view import tutor_classroom_view, tutor_classroom_detail_view, student_classroom_view, accept_classroom_invite, decline_classroom_invite, student_classroom_detail_view
 from app.views.stats_view import stats_view, stats_details, csv_download, player_responses,classroom_stats_view, student_stats
-from app.views.public_quizzes_view import public_quizzes_view
+from app.views.public_quizzes_view import public_quizzes_view, save_public_quiz_view, quiz_preview_modal_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -73,7 +73,9 @@ urlpatterns = [
     path("tutor-stats/<int:stats_id>/download/", csv_download, name='stats_download'),
     path('player-responses/<int:room_id>/<int:player_id>/', player_responses, name='player_responses'),
     path('classroom/<int:classroom_id>/stats/', classroom_stats_view, name='classroom_stats_view'),path('student/<int:student_id>/stats/', student_stats, name='student_stats'),
-    path('public-quizzes/', public_quizzes_view ,name="public_quizzes")
+    path('public-quizzes/', public_quizzes_view ,name="public_quizzes"),
+    path('public-quizzes/<int:quiz_id>', save_public_quiz_view, name="save_public_quiz"),
+    path('preview-modal/<int:quiz_id>', quiz_preview_modal_view, name="quiz_preview_modal")
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 if settings.DEBUG:
