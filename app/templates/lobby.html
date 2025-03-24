@@ -18,9 +18,12 @@
                              {% endfor %}
                          </ul>
                          {% if room.quiz %}
-                         <form method="POST" action="{% url 'tutor_live_quiz' quiz_id=room.quiz.id join_code=join_code %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary">Start Quiz</button>
+                         {% if user.is_authenticated and user.role == "tutor" %}
+                            <form method="POST" action="{% url 'tutor_live_quiz' quiz_id=room.quiz.id join_code=join_code %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">Start Quiz</button>
+                            </form>
+                        {% endif %}
                         </form>
                         {% else %}
                         <p>No quiz associated with this room.</p>
@@ -40,10 +43,12 @@
                         {% endfor %}
                     </ul>
                     {% if room.quiz %}
-                    <form method="POST" action="{% url 'tutor_live_quiz' quiz_id=room.quiz.id join_code=join_code %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary">Start Quiz</button>
-                    </form>
+                    {% if user.is_authenticated and user.role == "tutor" %}
+                            <form method="POST" action="{% url 'tutor_live_quiz' quiz_id=room.quiz.id join_code=join_code %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">Start Quiz</button>
+                            </form>
+                        {% endif %}
                     {% else %}
                     <p>No quiz associated with this room.</p>
                     {% endif %}

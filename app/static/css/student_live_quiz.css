@@ -75,17 +75,6 @@ body {
     margin: 0 auto;
   }
 
-  .muted-answer {
-    opacity: 0.6; /* Slightly dim the unselected buttons */
-    }
-
-    .selected-answer {
-        background-color: white !important;
-        color: black !important;
-        border: 2px solid #007bff;
-        font-weight: bold;
-    }
-
 
     .spinning-acorn {
         margin-top: 10px;

@@ -209,11 +209,6 @@
           question_type: currentQuestionType
         }));
         $("#answer-container").find("button, input, textarea, .submit-answer-btn").prop("disabled", true);
-            // Reset styles for all buttons
-        $(".answer-box").removeClass("selected-answer").addClass("muted-answer");
-
-        // Apply distinct style to the selected button
-        $(this).removeClass("muted-answer").addClass("selected-answer");
       });
     });
   </script>
