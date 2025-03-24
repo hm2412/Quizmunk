@@ -14,17 +14,28 @@
     <div class="page-container">
         {% include "partials/navbar.html" %}
         <div class="main-content">
+            <button class="hamburger" onclick="toggleSidebar()">☰</button>
             {% block content %}{% endblock %}
         </div>
     </div>
     <div id="circle" class="circle"></div>
     {% include 'partials/footer.html' %}
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('active');
+        }
+    </script>
+    
 </body>
 </html>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        document.querySelector(".right-box").classList.add("loaded");
+        const rightBox = document.querySelector(".right-box");
+        if (rightBox) {
+            rightBox.classList.add("loaded");
+        }
     });
 </script>
 
