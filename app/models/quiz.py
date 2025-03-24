@@ -69,7 +69,7 @@ class Question(models.Model):
         verbose_name="Related quiz",  # Keyword argument
         help_text="The quiz this question belongs to."
     )
-    mark = models.IntegerField()
+    mark = models.PositiveIntegerField()
     image = models.ImageField(null=True, blank=True, upload_to='questions_images/')
 
     def save(self, *args, **kwargs):
