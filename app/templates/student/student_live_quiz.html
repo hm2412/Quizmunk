@@ -32,8 +32,12 @@
   </div>
   <div id='stats-popup' class='stats-popup'>
     <p><strong>Correct Answer: </strong> <span id='correct-answer'></span></p>
-    <p><strong>Total Responses: </strong> <span id='responses-received'></span></p>
-    <p><strong>Correct Responses: </strong> <span id='correct-responses'></span></p>
+    <div class="progress" style="height: 25px;">
+      <div id="progress-bar" class="progress-bar progress-bar-info progress-bar-animated" role="progressbar"
+           style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+        0%
+      </div>
+    </div>
   </div>
   <script>
     $(document).ready(function() {
@@ -201,14 +205,22 @@
       const correctAnswer = message.correct_answer;
       const responsesReceived = message.responses_received;
       const correctResponses = message.correct_responses;
+
+      let percentage = 0;
+      if (responsesReceived > 0) {
+        percentage = Math.round((correctResponses / responsesReceived) * 100);
+      }
   
       console.log("Correct Answer: ", correctAnswer);
       console.log("Responses Received: ", responsesReceived);
       console.log("Correct Responses: ", correctResponses);
   
       document.getElementById('correct-answer').innerText = correctAnswer;
-      document.getElementById('responses-received').innerText = responsesReceived;
-      document.getElementById('correct-responses').innerText = correctResponses;
+      
+      const progressBar = document.getElementById('progress-bar');
+      progressBar.style.width = percentage + "%";
+      progressBar.setAttribute("aria-valuenow", percentage);
+      progressBar.innerText = percentage + "% of students got this right!";
 
       showStatsPopup();
     }
