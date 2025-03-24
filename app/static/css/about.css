@@ -56,6 +56,7 @@
 
 .top-left-box h1 {
     padding-top: 5%;
+    padding-left: 1%;
     font-size: 2.1rem;
     font-weight: 600;
 }
@@ -70,3 +71,37 @@
     color: #2a7a8c;
 }
 
+@media (max-width: 768px) {
+    .about {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .top-left-box {
+        width: 90%;
+    }
+
+    .left-bottom {
+        display: flex;
+        flex-direction: column;
+        width: 90%;
+        gap: 10px;
+    }
+
+    .right-box {
+        order: 3; /* Ensure it comes after the other sections */
+        width: 90%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .phone-img {
+        position: static; /* Remove absolute positioning */
+        width: 70%;
+        max-width: 300px;
+        transform: none;
+        margin-top: 125%; /* Add spacing below the left-bottom section */
+    }
+}
