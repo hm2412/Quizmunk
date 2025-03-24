@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.contrib.messages import get_messages
 from app.models.classroom import Classroom, ClassroomStudent, ClassroomInvitation
 
 User = get_user_model()
@@ -48,10 +49,22 @@ class ViewTests(TestCase):
         self.assertRedirects(response, reverse("homepage"))
 
     def test_student_can_access_student_classrooms(self):
+        classroomInvite = ClassroomInvitation.objects.create(
+            student = self.student_user,
+            classroom = self.classroom_two
+        )
         self.client.login(email_address="student@example.com", password="password123")
         response = self.client.get(reverse("student_classroom_view"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "student/classrooms.html")
+        
+        classrooms = response.context['classrooms']
+        self.assertIn(self.classroom_one, classrooms)
+
+        invites = response.context['invites']
+        for invite in invites:
+            self.assertEqual(invite.classroom_name, invite.classroom.name)
+            self.assertEqual(invite.tutor_name, f"{invite.classroom.tutor.first_name} {invite.classroom.tutor.last_name}")            
     
     def test_student_cannot_access_tutor_classrooms(self):
         self.client.login(email_address="student@example.com", password="password123")
@@ -154,6 +167,21 @@ class ViewTests(TestCase):
             1
         )
         self.assertRedirects(response, f'/tutor-classrooms/{self.classroom_one.id}/#create-invite-modal')
+    
+    def test_tutor_cannot_invite_present_student(self):
+        self.client.login(email_address="tutor@example.com", password="password123")
+        response = self.client.post(
+            reverse("tutor_classroom_detail", args=[self.classroom_one.id]),
+            {
+                'action': 'invite_student',
+                'student_email': 'student@example.com'
+            }
+        )
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertIn("This student is already in your classroom", messages)
+        self.assertRedirects(response, f'/tutor-classrooms/{self.classroom_one.id}/#create-invite-modal')
+        
+
 
     def test_cannot_invite_nonexistent_student(self):
         self.client.login(email_address="tutor@example.com", password="password123")
@@ -164,6 +192,19 @@ class ViewTests(TestCase):
                 'student_email': 'nonexistent@example.com'
             }
         )
+        self.assertRedirects(response, f'/tutor-classrooms/{self.classroom_one.id}/#create-invite-modal')
+
+    def test_invite_without_email_is_invalid(self):
+        self.client.login(email_address="tutor@example.com", password="password123")
+        response = self.client.post(
+            reverse("tutor_classroom_detail", args=[self.classroom_one.id]),
+            {
+                'action': 'invite_student',
+                'student_email': ''
+            }
+        )
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertIn("Please enter an email address", messages)
         self.assertRedirects(response, f'/tutor-classrooms/{self.classroom_one.id}/#create-invite-modal')
 
     def test_cannot_invite_tutor(self):
@@ -193,6 +234,18 @@ class ViewTests(TestCase):
             ).exists()
         )
         self.assertRedirects(response, reverse("tutor_classroom_detail", args=[self.classroom_one.id]))
+    
+    def test_tutor_cannot_remove_student_not_in_class(self):
+        self.client.login(email_address="tutor@example.com", password="password123")
+        response = self.client.post(
+            reverse("tutor_classroom_detail", args=[self.classroom_two.id]),
+            {
+                'action': 'remove_student',
+                'student_id': self.student_user.id
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+
 
     def test_tutor_can_edit_description(self):
         self.client.login(email_address="tutor@example.com", password="password123")
@@ -207,3 +260,40 @@ class ViewTests(TestCase):
         self.classroom_one.refresh_from_db()
         self.assertEqual(self.classroom_one.description, new_description)
         self.assertRedirects(response, reverse("tutor_classroom_detail", args=[self.classroom_one.id]))
+
+    def test_student_can_accept_invite(self):
+        classroomInvite = ClassroomInvitation.objects.create(
+            student=self.student_two,
+            classroom=self.classroom_one
+        )
+        self.client.login(email_address="student2@example.com", password="password123")
+        response = self.client.post(
+            reverse("accept_classroom_invite", args=[classroomInvite.id]),
+            {
+                'action': 'accept'
+            }
+        )
+        self.assertTrue(ClassroomStudent.objects.filter(student=self.student_two,classroom=self.classroom_one).exists())
+        classroomInvite.refresh_from_db()
+        self.assertEqual(classroomInvite.status, "accepted")
+
+        self.assertRedirects(response, reverse("student_classroom_view"))
+
+    def test_student_can_decline_invite(self):
+        classroomInvite = ClassroomInvitation.objects.create(
+            student=self.student_two,
+            classroom=self.classroom_one
+        )
+        self.client.login(email_address="student2@example.com", password="password123")
+        response = self.client.post(
+            reverse("decline_classroom_invite", args=[classroomInvite.id]),
+            {
+                'action': 'decline'
+            }
+        )
+        self.assertFalse(ClassroomStudent.objects.filter(student=self.student_two,classroom=self.classroom_one).exists())
+        classroomInvite.refresh_from_db()
+        self.assertEqual(classroomInvite.status, "declined")
+        self.assertRedirects(response, reverse("student_classroom_view"))
+
+    
