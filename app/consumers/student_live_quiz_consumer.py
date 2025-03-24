@@ -4,6 +4,8 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 
+from app.models import RoomParticipant, GuestAccess
+
 
 class StudentQuizConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -14,6 +16,8 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
         self.answered_questions = set()
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
+        self.user = self.scope.get("user")
+        self.session = self.scope["session"]
         participants = await database_sync_to_async(list)(
             self.room.participants.exclude(user__role__iexact="tutor").values_list('user__email_address', flat=True)
         )
@@ -31,6 +35,17 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
         from app.models import Room
         room = await database_sync_to_async(Room.objects.get)(join_code=self.join_code)
+
+        if self.user and self.user.is_authenticated:
+            # When user is logged in
+            participant = await database_sync_to_async(RoomParticipant.objects.get)(user_id=self.user.id)
+        else:
+            # When user is a guest
+            guest = await database_sync_to_async(GuestAccess.objects.get)(session_id=self.session.session_key)
+            participant = await database_sync_to_async(RoomParticipant.objects.get)(guest_access=guest)
+
+        await database_sync_to_async(lambda: RoomParticipant.objects.filter(id=participant.id).delete())() # Removing the user from the participants
+
         participants = await database_sync_to_async(list)(
             room.participants.exclude(user__role__iexact="tutor").values_list('user__email_address', flat=True)
         )
