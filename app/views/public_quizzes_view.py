@@ -9,7 +9,7 @@ from app.question_registry import QUESTION_MODELS
 @redirect_unauthenticated_to_homepage
 @is_tutor
 def public_quizzes_view(request):
-    quizzes = Quiz.objects.filter(is_public=True).order_by("-id")
+    quizzes = Quiz.objects.filter(is_public=True).exclude(tutor=request.user).order_by("-id")
     return render(request, 'tutor/public_quizzes.html', {'quizzes':quizzes})
 
 @redirect_unauthenticated_to_homepage
