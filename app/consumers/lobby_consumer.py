@@ -22,22 +22,11 @@ class LobbyConsumer(AsyncWebsocketConsumer):
         await self.accept()
         await self.send_updated_participants()
 
-    
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
-
-        if self.user and self.user.is_authenticated:
-            # When user is logged in
-            participant = await sync_to_async(RoomParticipant.objects.get)(user_id=self.user.id)
-        else:
-            # When user is a guest
-            guest = await sync_to_async(GuestAccess.objects.get)(session_id=self.session.session_key)
-            participant = await sync_to_async(RoomParticipant.objects.get)(guest_access=guest)
-
-        #await sync_to_async(lambda: RoomParticipant.objects.filter(id=participant.id).delete())() # Removing the user from the participants
 
         await self.send_updated_participants()
 
@@ -46,7 +35,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        
+
         if data.get("action") == "update":
             await self.send_updated_participants()
         elif data.get("action") == "quiz_started":
@@ -60,7 +49,6 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             )
         else:
             await self.send(text_data=json.dumps({"error": "Unknown action in lobby"}))
-
 
     @sync_to_async
     def get_participants(self, room):
