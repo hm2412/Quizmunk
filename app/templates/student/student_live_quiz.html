@@ -15,7 +15,7 @@
   <div id="welcome-screen">
     <h1>Welcome to today's quiz!</h1>
     <p class="lead">Are you ready to test your knowledge?</p>
-    <img src="{% static 'images/acorn.svg' %}" alt="spinning arcon" class="spinning-acorn">
+    <img src="{% static 'images/acorn.svg' %}" alt="spinning acorn" class="spinning-acorn">
   </div>
 
   <div id="quiz-container" class="container">
@@ -43,6 +43,13 @@
     <h2 id="end-message">Quiz Over! Thanks for playing.</h2>
     <p id="final-stats" class="lead"></p>
   </div>
+
+  <div id="stats-popup" class="stats-popup">
+    <p class="correct-answer-line"><strong>Correct Answer: </strong> <span id="correct-answer"></span></p>
+    <p><strong>Total Responses: </strong> <span id="responses-received"></span></p>
+    <p><strong>Correct Responses: </strong> <span id="correct-responses"></span></p>
+  </div>
+
 
   <script>
     $(document).ready(function() {
@@ -153,6 +160,23 @@
             return $(this).text().includes(data.answer);
           }).addClass("btn-success");
         }
+        else if (data.type === "question_end") {
+          const correctAnswer = data.correct_answer;
+        }
+        else if (data.type === 'show_stats') {
+           handleShowStats(data);
+           const correctAnswer = data.correct_answer;
+           $(".answer-box").each(function () {
+              let fullText = $(this).text().trim();
+              let answer = fullText.indexOf('. ') !== -1 ? fullText.split('. ')[1] : fullText;
+              
+              if (answer === correctAnswer) {
+                  $(this).addClass("correct").removeClass("selected");
+              } else if ($(this).hasClass("selected")) {
+                  $(this).addClass("wrong").removeClass("selected");
+              }
+          });
+         }
       };
 
       // Timer function
@@ -174,6 +198,10 @@
 
       // Submission for button-based answers
       $(document).on('click', '.answer-box', function () {
+        // Remove previous selection
+        $(".answer-box").removeClass("selected");
+        // Add selected class
+        $(this).addClass("selected");
         let fullText = $(this).text().trim();
         let answer = fullText.indexOf('. ') !== -1 ? fullText.split('. ')[1] : fullText;
         if ((currentQuestionType === "integer" || currentQuestionType === "decimal") &&
@@ -188,9 +216,7 @@
           question_id: currentQuestionId,
           question_type: currentQuestionType
         }));
-        $("#answer-container").find("button, input, textarea, .submit-answer-btn").prop("disabled", true);
-        $(".answer-box").removeClass("active btn-primary");
-        $(this).addClass("active btn-primary");
+        $(".answer-box").prop("disabled", true);
       });
 
       // Submission for input-based answers
@@ -211,6 +237,30 @@
         $("#answer-container").find("button, input, textarea, .submit-answer-btn").prop("disabled", true);
       });
     });
+
+    function handleShowStats(message) {
+       const correctAnswer = message.correct_answer;
+       const responsesReceived = message.responses_received;
+       const correctResponses = message.correct_responses;
+   
+       console.log("Correct Answer: ", correctAnswer);
+       console.log("Responses Received: ", responsesReceived);
+       console.log("Correct Responses: ", correctResponses);
+   
+       document.getElementById('correct-answer').innerText = correctAnswer;
+       document.getElementById('responses-received').innerText = responsesReceived;
+       document.getElementById('correct-responses').innerText = correctResponses;
+ 
+       showStatsPopup();
+     }
+ 
+     function showStatsPopup(stats) {
+       // Update the stats popup
+       $("#stats-popup").fadeIn();
+       setTimeout(() => {
+        $("#stats-popup").fadeOut();
+       }, 5000);
+     }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
