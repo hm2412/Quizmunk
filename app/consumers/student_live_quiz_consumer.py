@@ -116,7 +116,7 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
                 return MultipleChoiceResponse.objects.create(player=user, room=self.room, question=question, answer=answer)
             elif question_type == "numerical_range":
                 question = NumericalRangeQuestion.objects.get(id=question_id)
-                return NumericalRangeResponse.objects.create(player=user, room=self.room, question=question, answer=answer)
+                return NumericalRangeResponse.objects.create(player=user, room=self.room, question=question, answer=float(answer))
             else:
                 return None
         else:
@@ -141,7 +141,7 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
                 return MultipleChoiceResponse.objects.create(guest_access=guest_access, room=self.room, question=question, answer=answer)
             elif question_type == "numerical_range":
                 question = NumericalRangeQuestion.objects.get(id=question_id)
-                return NumericalRangeResponse.objects.create(guest_access=guest_access, room=self.room, question=question, answer=answer)
+                return NumericalRangeResponse.objects.create(guest_access=guest_access, room=self.room, question=question, answer=float(answer))
             else:
                 return None
 
