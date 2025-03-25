@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.aggregates import Avg
 from django.db.models.expressions import result
-from app.models import Room, RoomParticipant, Response, Quiz, Question, IntegerInputResponse, TrueFalseResponse, TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, NumericalRangeResponse, SortingResponse, User
+from app.models import Room, RoomParticipant, Response, Quiz, Question, IntegerInputResponse, TrueFalseResponse, TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, NumericalRangeResponse, User
 
 class Stats(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)

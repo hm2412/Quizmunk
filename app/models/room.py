@@ -46,7 +46,6 @@ class Room(models.Model):
             'multiple_choice_questions',
             'decimal_questions',
             'numerical_range_questions',
-            'sorting_questions'
         ]
 
         for q_type in question_types:

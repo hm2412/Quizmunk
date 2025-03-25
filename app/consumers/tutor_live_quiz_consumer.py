@@ -171,7 +171,7 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         if question.image:
             question_data["image"] = question.image.url
 
-        from app.models import MultipleChoiceQuestion, TrueFalseQuestion, IntegerInputQuestion, TextInputQuestion, DecimalInputQuestion, NumericalRangeQuestion, SortingQuestion
+        from app.models import MultipleChoiceQuestion, TrueFalseQuestion, IntegerInputQuestion, TextInputQuestion, DecimalInputQuestion, NumericalRangeQuestion
         if isinstance(question, MultipleChoiceQuestion):
             question_data["options"] = question.options
             question_data["question_type"] = "multiple_choice"
@@ -190,9 +190,6 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         elif isinstance(question, NumericalRangeQuestion):
             question_data["options"] = []
             question_data["question_type"] = "numerical_range"
-        elif isinstance(question, SortingQuestion):
-            question_data["items"] = question.get_items() if hasattr(question, "get_items") else []
-            question_data["question_type"] = "sorting"
         if reveal_answer and hasattr(question, "correct_answer"):
             question_data["answer"] = str(question.correct_answer)
             question_data["time"] = 0

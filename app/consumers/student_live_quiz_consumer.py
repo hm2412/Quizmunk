@@ -83,8 +83,8 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def save_response(self, user, question_type, question_id, answer):
-        from app.models.quiz import TrueFalseQuestion, IntegerInputQuestion, TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion, SortingQuestion
-        from app.models.responses import TrueFalseResponse, IntegerInputResponse, TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, NumericalRangeResponse, SortingResponse
+        from app.models.quiz import TrueFalseQuestion, IntegerInputQuestion, TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion
+        from app.models.responses import TrueFalseResponse, IntegerInputResponse, TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, NumericalRangeResponse
         if user.is_authenticated:
             if question_type == "true_false":
                 question = TrueFalseQuestion.objects.get(id=question_id)
@@ -105,11 +105,6 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
             elif question_type == "numerical_range":
                 question = NumericalRangeQuestion.objects.get(id=question_id)
                 return NumericalRangeResponse.objects.create(player=user, room=self.room, question=question, answer=answer)
-            elif question_type == "sorting":
-                question = SortingQuestion.objects.get(id=question_id)
-                # If answer is sent as a list, convert it to a comma-separated string.
-                answer_str = ",".join(answer) if isinstance(answer, list) else answer
-                return SortingResponse.objects.create(player=user, room=self.room, question=question, answer=answer_str)
             else:
                 return None
         else:
@@ -135,10 +130,6 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
             elif question_type == "numerical_range":
                 question = NumericalRangeQuestion.objects.get(id=question_id)
                 return NumericalRangeResponse.objects.create(guest_access=guest_access, room=self.room, question=question, answer=answer)
-            elif question_type == "sorting":
-                question = SortingQuestion.objects.get(id=question_id)
-                answer_str = ",".join(answer) if isinstance(answer, list) else answer
-                return SortingResponse.objects.create(guest_access=guest_access, room=self.room, question=question, answer=answer_str)
             else:
                 return None
 

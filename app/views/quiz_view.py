@@ -220,8 +220,6 @@ def get_question_view(request, quiz_id):
     if question_type == "multiple_choice":
         data["options"] = question.options
         data["correct_answer"] = question.correct_answer
-    if question_type == "sorting":
-        data["options"] = getattr(question, "options", [])
     elif question_type == "numerical_range":
         data["min_value"] = question.min_value
         data["max_value"] = question.max_value
