@@ -141,5 +141,14 @@ class StatsModelTests(TestCase):
             self.fail("Question stats creation failed")
         self.assertEqual(self.intStats.responses_received,3)
         self.assertEqual(self.intStats.correct_responses,2)
+        self.assertEqual(self.intStats.wrong_responses,1)
         self.assertEqual(self.intStats.percentage_correct, (2/3)*100)
+        self.assertEqual(self.intStats.avg_score, (2/3)*100)
+
+    def test_str_stats(self):
+        self.stats = Stats.objects.create(
+            room=self.room,
+            quiz=self.quiz
+        )
+        print(self.stats.__str__())
 

@@ -76,3 +76,7 @@ class TestIsCorrectHelper(TestCase):
         self.num_range_response = NumericalRangeResponse.objects.create(question=self.num_range_question, answer=13, player=self.player, room=self.room)
         self.assertTrue(isCorrectAnswer(self.num_range_response))
         self.assertTrue(self.num_range_response.correct)
+
+    def test_num_range_incorrect_response(self):
+        self.num_range_response = NumericalRangeResponse.objects.create(question=self.num_range_question, answer=55, player=self.player, room=self.room)
+        self.assertFalse(isCorrectAnswer(self.num_range_response))

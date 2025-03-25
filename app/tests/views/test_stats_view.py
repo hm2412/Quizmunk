@@ -40,7 +40,7 @@ class StatsViewTests(TestCase):
             tutor=self.tutor_user
         )
 
-        # ✅ Create a Room for the quiz
+        # Create a Room for the quiz
         self.room = Room.objects.create(join_code="XYZ123", quiz=self.quiz)
 
         # Create stats for the quiz
@@ -103,3 +103,6 @@ class StatsViewTests(TestCase):
         self.client.login(email_address="student@example.com", password="password123")
         response = self.client.get(self.csv_download_url)
         self.assertEqual(response.status_code, 403)  # Should be forbidden
+
+    def test_get_player_responses(self):
+        response=self.client.get(self.stats_details_url)
