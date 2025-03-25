@@ -231,7 +231,13 @@
           if (type === "integer" || type === "text" || type === "decimal") {
             $("#editor").find("[name='correct_answer']").val(data.correct_answer || "");
           } else if (type === "true_false") {
-            $("#editor").find("[name='correct_answer']").prop("checked", data.correct_answer === true || data.correct_answer === "True"); 
+            if (data.correct_answer === true || data.correct_answer === "True") {
+              $("#editor").find("#true-option").prop("checked", true);
+              $("#editor").find("#false-option").prop("checked", false);
+            } else {
+              $("#editor").find("#true-option").prop("checked", false);
+              $("#editor").find("#false-option").prop("checked", true);
+            }
           } else if (type === "multiple_choice") {
             data.options.forEach(function(option, index) {
               var optionInput = $("#editor").find("[name='options[]']").eq(index);
