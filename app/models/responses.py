@@ -71,7 +71,9 @@ class MultipleChoiceResponse(Response):
     answer = models.CharField(max_length=255)
 
     def clean(self):
-        if self.answer not in self.question.options:
+        answer_stripped = self.answer.strip() if isinstance(self.answer, str) else self.answer
+        options_stripped = [option.strip() for option in self.question.options]
+        if answer_stripped not in options_stripped:
             raise ValidationError("Answer must be one of the following options: '{}'".format(self.question.options))
 
     def save(self, *args, **kwargs):
@@ -81,7 +83,7 @@ class MultipleChoiceResponse(Response):
 
 class NumericalRangeResponse(Response):
     question = models.ForeignKey(NumericalRangeQuestion, on_delete=models.CASCADE)
-    answer = models.IntegerField()
+    answer = models.FloatField()
 
     def __str__(self):
         if self.player:

@@ -176,7 +176,7 @@
             }, 2000);
         }
         else if (data.action === "update_participants") {
-            participantsCountEl.textContent = `${data.participant_number} / {{ participant_number }}`;
+            participantsCountEl.textContent = data.participant_number;
         }
     };
 

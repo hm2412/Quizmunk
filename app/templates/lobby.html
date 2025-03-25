@@ -2,25 +2,30 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}Quiz Lobby{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/lobby.css' %}">
+{% endblock %}
 {% block content %}
     <main>
         <section>
-            <h2>Lobby for {{ room.name }}</h2>
+            <h2 class="room-name">{{ room.name }}</h2>
             {% if room.classroom %}
                      {% if in_classroom %}
-                         <p>Room Code: <strong>{{ join_code }}</strong></p>
-                         <img src="{% static 'images/qr_code.png' %}" alt="Room QR Code"  width="200px" height="200px">
+                         <p class="room-code">Room Code: <strong>{{ join_code }}</strong></p>
+                         <img class="qr-code" src="{% static 'images/qr_code.png' %}" alt="Room QR Code">
 
-                         <h3>Participants:</h3>
-                         <ul id="participants-list">
-                             {% for participant in participants %}
-                             <li>{{ participant }}</li>
-                             {% endfor %}
-                         </ul>
+                         <div id="participants-list" class="participants-grid">
+                            {% for participant in participants %}
+                            <div class="participant-box">{{ participant }}</div>
+                            {% endfor %}
+                        </div> 
                          {% if room.quiz %}
-                         <form method="POST" action="{% url 'tutor_live_quiz' quiz_id=room.quiz.id join_code=join_code %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary">Start Quiz</button>
+                         {% if user.is_authenticated and user.role == "tutor" %}
+                            <form method="POST" action="{% url 'tutor_live_quiz' quiz_id=room.quiz.id join_code=join_code %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">Start Quiz</button>
+                            </form>
+                        {% endif %}
                         </form>
                         {% else %}
                         <p>No quiz associated with this room.</p>
@@ -30,20 +35,21 @@
                         <h3>Only students in this classroom can join!</h3>
                     {% endif %}
                 {% else %}
-                    <p>Room Code: <strong>{{ join_code }}</strong></p>
-                    <img src="{% static 'images/qr_code.png' %}" alt="Room QR Code"  width="200px" height="200px">
+                    <p class="room-code">Room Code: <strong>{{ join_code }}</strong></p>
+                    <img class="qr-code" src="{% static 'images/qr_code.png' %}" alt="Room QR Code">
 
-                    <h3>Participants:</h3>
-                    <ul id="participants-list">
+                    <div id="participants-list" class="participants-grid">
                         {% for participant in participants %}
-                        <li>{{ participant }}</li>
+                        <div class="participant-box">{{ participant }}</div>
                         {% endfor %}
-                    </ul>
+                    </div>                    
                     {% if room.quiz %}
-                    <form method="POST" action="{% url 'tutor_live_quiz' quiz_id=room.quiz.id join_code=join_code %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary">Start Quiz</button>
-                    </form>
+                    {% if user.is_authenticated and user.role == "tutor" %}
+                            <form method="POST" action="{% url 'tutor_live_quiz' quiz_id=room.quiz.id join_code=join_code %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">Start Quiz</button>
+                            </form>
+                        {% endif %}
                     {% else %}
                     <p>No quiz associated with this room.</p>
                     {% endif %}
@@ -72,9 +78,15 @@
             const participantsList = document.getElementById("participants-list");
             participantsList.innerHTML = "";
             data.participants.forEach(participant => {
-                const li = document.createElement("li");
-                li.textContent = participant;
-                participantsList.appendChild(li);
+                const div = document.createElement("div");
+                div.className = "participant-box";
+                div.textContent = participant;
+                
+                // Generate a random color
+                const randomColor = `hsl(${Math.random() * 360}, 70%, 50%)`;
+                div.style.backgroundColor = randomColor;
+                
+                participantsList.appendChild(div);
             });
         }
     };

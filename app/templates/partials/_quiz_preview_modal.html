@@ -1,0 +1,29 @@
+<div class="modal-header">
+    <h5 class="modal-title">{{ quiz.name }} by {{quiz.tutor}}</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body">
+    <p>{{ quiz.subject }}</p>
+    <hr>
+    {% for question in questions %}
+    <div class="question-preview">
+        <strong>Q{{ forloop.counter }}: {{ question.question_text }}</strong>
+        {% if question.options %}
+            <ul>
+                {% for choice, value in question.options.items %}
+                    <li>{{ choice }} - {{ value }}</li>
+                {% endfor %}
+            </ul>
+        {% elif question.items %}
+            <p>Sort: {{question.items}}</p>
+        {% endif %}
+        <p>Answer: {{ question.correct_answer }}</p>
+    </div>
+    <hr>
+{% endfor %}
+
+</div>
+<div class="modal-footer">
+    <a href="{% url 'save_public_quiz' quiz.id %}" class="btn btn-primary">Save to Library</a>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+</div>

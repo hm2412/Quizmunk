@@ -69,7 +69,7 @@ class Question(models.Model):
         verbose_name="Related quiz",  # Keyword argument
         help_text="The quiz this question belongs to."
     )
-    mark = models.IntegerField()
+    mark = models.PositiveIntegerField()
     image = models.ImageField(null=True, blank=True, upload_to='questions_images/')
 
     def save(self, *args, **kwargs):
@@ -174,12 +174,15 @@ class NumericalRangeQuestion(Question):
     
     def __str__(self):
         return f"NumericalRangeQuestion: {self.question_text}, Accepted Range: {self.min_value}-{self.max_value}"
+    
+    @property
+    def correct_answer(self):
+        # Return the accepted range as a string.
+        return f"{self.min_value} - {self.max_value}"
 
 class SortingQuestion(Question):
 
-    items = models.TextField()
-   
-    correct_answer = models.CharField(max_length=200)
+    options = models.JSONField()
 
     quiz = models.ForeignKey(
         Quiz,
@@ -192,9 +195,5 @@ class SortingQuestion(Question):
 
     def get_items(self):
         
-        return self.items.split(',')
-
-    def get_correct_order(self):
-        
-        return [int(x) for x in self.correct_answer.split(',')]
+        return self.options
 
