@@ -1,8 +1,29 @@
 <div class="question">
-    <input type="number" class="form-control input-field" placeholder="Enter integer answer">
+    <input type="number" step="1" class="form-control input-field" placeholder="Enter integer answer" onkeydown="return blockForbiddenKeys(event)" oninput="fixMinus(this)">
 </div>
 <button class="btn btn-primary submit-answer-btn mt-2">Submit Answer</button>
-
+  
+<script>
+// Allow navigation keys; block e, E, and +.
+function blockForbiddenKeys(event) {
+    const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab'];
+    if (allowedKeys.includes(event.key)) return true;
+    if (['e','E','+'].includes(event.key)) {
+        event.preventDefault();
+        return false;
+    }
+    return true;
+}
+    
+// Remove any '-' that appears after the first character.
+function fixMinus(input) {
+    let value = input.value;
+    if (value.indexOf('-') > 0) {
+        input.value = value[0] === '-' ? '-' + value.slice(1).replace(/-/g, '') : value.replace(/-/g, '');
+    }
+}
+</script>
+  
 <style>
 .question {
     display: flex;

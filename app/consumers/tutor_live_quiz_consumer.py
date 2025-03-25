@@ -57,8 +57,15 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_participants(self, room):
-        return list(room.participants.exclude(user__role__iexact="tutor").values_list('user__email_address', flat=True))
-    
+        participants = room.participants.exclude(user__role__iexact="tutor")
+        result = []
+        for participant in participants:
+            if participant.guest_access:
+                result.append(f"Guest ({participant.guest_access.session_id[:8]})")
+            else:
+                result.append(participant.user.email_address)
+        return result
+
 
     async def connect(self):
         self.join_code = self.scope['url_route']['kwargs']['join_code']
@@ -171,7 +178,7 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         if question.image:
             question_data["image"] = question.image.url
 
-        from app.models import MultipleChoiceQuestion, TrueFalseQuestion, IntegerInputQuestion, TextInputQuestion, DecimalInputQuestion, NumericalRangeQuestion, SortingQuestion
+        from app.models import MultipleChoiceQuestion, TrueFalseQuestion, IntegerInputQuestion, TextInputQuestion, DecimalInputQuestion, NumericalRangeQuestion
         if isinstance(question, MultipleChoiceQuestion):
             question_data["options"] = question.options
             question_data["question_type"] = "multiple_choice"
@@ -190,9 +197,6 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         elif isinstance(question, NumericalRangeQuestion):
             question_data["options"] = []
             question_data["question_type"] = "numerical_range"
-        elif isinstance(question, SortingQuestion):
-            question_data["items"] = question.get_items() if hasattr(question, "get_items") else []
-            question_data["question_type"] = "sorting"
         if reveal_answer and hasattr(question, "correct_answer"):
             question_data["answer"] = str(question.correct_answer)
             question_data["time"] = 0

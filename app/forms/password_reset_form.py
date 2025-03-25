@@ -32,6 +32,6 @@ class PasswordResetForm(forms.Form):
         confirm_password = cleaned_data.get("confirm_password")
 
         if new_password != confirm_password:
-            raise forms.ValidationError("New passwords do not match.")
+            self.add_error("confirm_password", "Passwords do not match.")
 
         return cleaned_data

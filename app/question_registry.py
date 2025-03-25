@@ -14,8 +14,7 @@ from app.models.quiz import (
     TextInputQuestion, 
     DecimalInputQuestion, 
     MultipleChoiceQuestion, 
-    NumericalRangeQuestion, 
-    SortingQuestion
+    NumericalRangeQuestion
 )
 
 QUESTION_FORMS = {
@@ -25,7 +24,7 @@ QUESTION_FORMS = {
     'text': TextInputQuestionForm,
     'multiple_choice': MultipleChoiceQuestionForm,
     'numerical_range': NumericalRangeQuestionForm,
-    'decimal': DecimalInputQuestionForm,
+    'decimal': DecimalInputQuestionForm
 }
 
 QUESTION_MODELS = {
@@ -35,5 +34,5 @@ QUESTION_MODELS = {
     'text': TextInputQuestion,
     'multiple_choice': MultipleChoiceQuestion,
     'numerical_range': NumericalRangeQuestion,
-    'decimal': DecimalInputQuestion,
+    'decimal': DecimalInputQuestion
 }

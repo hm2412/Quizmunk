@@ -50,3 +50,4 @@ class IntegerInputQuestionFormTestCase(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('correct_answer', form.errors)
         self.assertEqual(form.errors['correct_answer'][0], "Correct answer must be an integer.")
+        

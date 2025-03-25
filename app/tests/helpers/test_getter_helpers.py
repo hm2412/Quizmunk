@@ -1,7 +1,5 @@
 from itertools import count
-
 from django.test import TestCase
-
 from app.helpers.helper_functions import get_responses, get_responses_by_player_in_room, get_all_responses_question, \
     count_answers_for_question, get_streak_bonus, get_speed_bonus, calculate_user_score, calculate_user_base_score, \
     get_leaderboard, create_quiz_stats, get_student_quiz_history, calculate_average_score, find_best_and_worst_scores, \
@@ -9,7 +7,6 @@ from app.helpers.helper_functions import get_responses, get_responses_by_player_
 from app.models import User, IntegerInputQuestion, Quiz, TrueFalseQuestion, TextInputQuestion, DecimalInputQuestion, \
     MultipleChoiceQuestion, NumericalRangeQuestion, SortingQuestion, Room, IntegerInputResponse, TrueFalseResponse, \
     RoomParticipant
-
 
 class TestGetterHelpers(TestCase):
     def setUp(self):
@@ -163,7 +160,6 @@ class TestGetterHelpers(TestCase):
 
         create_quiz_stats(self.room)
 
-
     # def test_get_responses_by_player_in_room(self):
     #     responses = get_responses(self.student1, self.room)
     #     self.assertEqual(len(responses), 2)
@@ -216,4 +212,3 @@ class TestGetterHelpers(TestCase):
 
     def test_null_get_all_questions(self):
         self.assertIsNone(getAllQuestions(None))
-

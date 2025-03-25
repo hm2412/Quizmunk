@@ -31,4 +31,3 @@ class Command(BaseCommand):
         TextInputQuestion.objects.all().delete(),
         Room.objects.all().delete()
         RoomParticipant.objects.all().delete()
-

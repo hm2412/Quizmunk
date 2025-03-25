@@ -25,4 +25,4 @@ class ClassroomStudentTestCase(TestCase):
             ClassroomStudent.objects.create(classroom=None, student=self.student)
     def test_studentless_classroom_is_invalid(self):
         with self.assertRaises(IntegrityError):
-            ClassroomStudent.objects.create(classroom=self.classroom, student=None)       
+            ClassroomStudent.objects.create(classroom=self.classroom, student=None)
