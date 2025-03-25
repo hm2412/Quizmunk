@@ -190,6 +190,15 @@
         else if (data.action === "update_participants") {
             participantsCountEl.textContent = data.participant_number;
         }
+        else if (data.type === "show_stats") {  
+          answerTextEl.textContent = `Correct Answer: ${data.correct_answer}`;
+          nextQuestionBtn.style.display = "inline-block";
+          timerEl.textContent = "0";  // Force timer to 0 immediately
+          clearInterval(currentTimer); // Ensure timer stops
+
+
+        }
+        
     };
 
     startBtn.addEventListener("click", function() {
@@ -201,7 +210,10 @@
 
     endQuestionBtn.addEventListener("click", function() {
         ws.send(JSON.stringify({ action: "end_question" }));
-        if (currentTimer) { clearInterval(currentTimer); }
+        if (currentTimer) { 
+            clearInterval(currentTimer); 
+            timerEl.textContent = "0"; // Force update to 0 when question ends
+        }
         endQuestionBtn.style.display = "none";
         nextQuestionBtn.style.display = "inline-block";
         questionActive = false;
@@ -218,6 +230,7 @@
             questionActive = false;
         }
     });
+    
 });
   </script>
 </body>

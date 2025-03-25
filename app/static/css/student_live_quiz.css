@@ -90,6 +90,10 @@ body {
     opacity: 1 !important;
   }
 
+  *:disabled {
+    background-color: green;
+  }
+
   /* Correct answer (green border) */
   .correct {
     border: 3px solid #28a745 !important;
@@ -103,6 +107,52 @@ body {
     color: white !important;
     border-color: #c0392b !important;
   }
+
+.stats-popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 30px; /* Increased padding for more height */
+  box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
+  border-radius: 10px;
+  text-align: center; /* Center text horizontally */
+  z-index: 1000;
+  min-width: 300px;
+  height: 250px; /* Increased height */
+  border: 5px solid black; /* Black border */
+}
+
+.correct-answer-line {
+  font-size: 1.5em; /* Larger font size */
+  color: green; /* Green color */
+  display: inline-block; /* Ensure text aligns horizontally */
+}
+
+.stats-popup p {
+  margin: 10px 0; /* Spacing between paragraphs */
+  text-align: center; /* Center the paragraph text */
+}
+
+.score-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #3498db;
+  color: white;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px;
+}
+
+#user-score-value {
+  font-weight: bold;
+}
+
 
 
     @keyframes spin {
