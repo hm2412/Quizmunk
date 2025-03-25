@@ -1,9 +1,7 @@
 from django import forms
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-
 from app.forms import PasswordResetForm
-
 
 class PasswordResetFormTestCase(TestCase):
     def setUp(self):
@@ -66,10 +64,9 @@ class PasswordResetFormTestCase(TestCase):
         form = PasswordResetForm(data=self.form_input, user=self.user)
         self.assertFalse(form.is_valid())
 
-#This test fails right now, the validator being used in the form does not work (also tested on the site and you can submit a weakpass)
+    #This test fails right now, the validator being used in the form does not work (also tested on the site and you can submit a weakpass)
     def test_new_password_fails_strong_validation(self):
         self.form_input['new_password'] = 'weakpass'
         self.form_input['confirm_password'] = 'weakpass'
         form = PasswordResetForm(data=self.form_input, user=self.user)
         self.assertFalse(form.is_valid())
-

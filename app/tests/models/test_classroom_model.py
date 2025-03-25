@@ -1,10 +1,8 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
-
 from app.models.user import User
 from app.models.classroom import Classroom, ClassroomStudent
-
 
 class ClassroomTestCase(TestCase):
     def setUp(self):
@@ -18,7 +16,6 @@ class ClassroomTestCase(TestCase):
         except ValidationError:
             self.fail("Default test classroom should be deemed valid")
 
-
     def test_classroom_name_max_length(self):
         with self.assertRaises(ValidationError):
             invalid_classroom = Classroom(
@@ -27,7 +24,6 @@ class ClassroomTestCase(TestCase):
                 description="Invalid classroom"
             )
             invalid_classroom.full_clean()
-
 
     def test_classroom_description_max_length(self):
         with self.assertRaises(ValidationError):
@@ -47,7 +43,6 @@ class ClassroomTestCase(TestCase):
         self.assertIsNotNone(classroom_student.id)
         self.assertEqual(classroom_student.classroom, self.classroom)
         self.assertEqual(classroom_student.student, self.test_student)
-
     
     def test_tutor_role_constraint(self):
         non_tutor_user = User.objects.create_user(
@@ -64,7 +59,6 @@ class ClassroomTestCase(TestCase):
                 description="Should not work"
             )
             invalid_classroom.full_clean()
-
     
     def test_multiple_students_in_classroom(self):
         additional_student1 = User.objects.create_user(

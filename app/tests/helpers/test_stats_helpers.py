@@ -6,7 +6,6 @@ from app.models import User, TrueFalseQuestion, IntegerInputQuestion, NumericalR
     Room, NumericalRangeResponse, Stats, IntegerInputResponse
 from app.models.stats import QuestionStats
 
-
 class TestStatsHelpers(TestCase):
     def setUp(self):
         # Creating a test user (a tutor)

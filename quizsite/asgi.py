@@ -27,11 +27,6 @@ application = ProtocolTypeRouter({
     )
 })
 
-
-
-
-
-
 # HTTP + WebSocket handling
 #application = ProtocolTypeRouter({
 #    "http": get_asgi_application(),  

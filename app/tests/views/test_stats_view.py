@@ -246,6 +246,7 @@ class StatsViewTests(TestCase):
         self.assertEqual(response.context['correct_count'], 1)
         self.assertEqual(response.context['incorrect_count'], 1)
         self.assertIn("Guest (guest123)", response.context['player'])
+
     def test_question_responses_view(self):
         """Test question_responses."""
         # Attach the question to the room
@@ -343,4 +344,3 @@ class StatsViewTests(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 404)
-

@@ -5,7 +5,6 @@ from django.db.models.aggregates import Avg
 from django.db.models.expressions import result
 from app.models import Room, RoomParticipant, Response, Quiz, Question, IntegerInputResponse, TrueFalseResponse, TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, NumericalRangeResponse, SortingResponse, User
 
-
 class Stats(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
@@ -13,7 +12,6 @@ class Stats(models.Model):
     num_participants = models.IntegerField()
     mean_score = models.DecimalField(max_digits=5, decimal_places=2)
     median_score = models.DecimalField(max_digits=5, decimal_places=2)
-
 
     def calculate_median(self):
         scores = RoomParticipant.objects.filter(room=self.room).exclude(user__role__iexact="tutor").values_list('score', flat=True).order_by('score')
@@ -38,7 +36,6 @@ class Stats(models.Model):
 
     def __str__(self):
         return f"Stats for Room {self.room} and Quiz {self.quiz} on {self.date_played.strftime('%Y-%m-%d %H:%M:%S')}"
-
 
 class QuestionStats(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)

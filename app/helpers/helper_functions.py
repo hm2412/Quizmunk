@@ -7,7 +7,6 @@ from app.models import Quiz, IntegerInputQuestion, Response, TrueFalseQuestion, 
     SortingResponse, User, Room
 from app.models.stats import QuestionStats
 
-
 def getAllQuestions(quiz):
     if isinstance(quiz, Quiz):
         questions_int = list(IntegerInputQuestion.objects.filter(quiz=quiz))

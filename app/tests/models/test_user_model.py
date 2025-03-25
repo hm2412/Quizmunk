@@ -81,7 +81,6 @@ class UserTestCase(TestCase):
         )
         self.assertEqual(new_user.role, User.STUDENT)
 
-
     def test_default_user_is_valid(self):
         try:
             self.test_user.full_clean()
@@ -194,4 +193,3 @@ class UserTestCase(TestCase):
     def test_required_fields(self):
         self.assertEqual(User.REQUIRED_FIELDS, ['first_name', 'last_name'])
         self.assertEqual(User.USERNAME_FIELD, 'email_address')
-

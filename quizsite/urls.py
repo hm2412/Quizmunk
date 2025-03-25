@@ -93,6 +93,7 @@ urlpatterns = [
     path('public-quizzes/<int:quiz_id>', save_public_quiz_view, name="save_public_quiz"),
     path('preview-modal/<int:quiz_id>', quiz_preview_modal_view, name="quiz_preview_modal"),
 ]
+
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

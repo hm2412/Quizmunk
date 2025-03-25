@@ -180,8 +180,6 @@ class ViewTests(TestCase):
         messages = [m.message for m in get_messages(response.wsgi_request)]
         self.assertIn("This student is already in your classroom", messages)
         self.assertRedirects(response, f'/tutor-classrooms/{self.classroom_one.id}/#create-invite-modal')
-        
-
 
     def test_cannot_invite_nonexistent_student(self):
         self.client.login(email_address="tutor@example.com", password="password123")
@@ -246,7 +244,6 @@ class ViewTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-
     def test_tutor_can_edit_description(self):
         self.client.login(email_address="tutor@example.com", password="password123")
         new_description = "Updated description"
@@ -295,5 +292,3 @@ class ViewTests(TestCase):
         classroomInvite.refresh_from_db()
         self.assertEqual(classroomInvite.status, "declined")
         self.assertRedirects(response, reverse("student_classroom_view"))
-
-    

@@ -19,7 +19,6 @@ class QuizTestCase(TestCase):
             is_public=False,
             tutor=self.test_tutor
         )
-        
 
     def test_valid_quiz_is_valid(self):
         self.assertEqual(self.quiz.name, "Test Quiz")
@@ -153,8 +152,6 @@ class QuestionTestCase(TestCase):
         except ValidationError:
             self.fail("Unexpected validation error for valid input")
     
-    
-
     def test_question_mark_choices(self):
         try:
             TrueFalseQuestion.objects.create(

@@ -1,4 +1,3 @@
-
 from django import forms
 from app.models.quiz import SortingQuestion
 from django.utils.safestring import mark_safe

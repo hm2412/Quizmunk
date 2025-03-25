@@ -3,7 +3,6 @@ from app.models import Quiz
 from app.forms import QuizForm
 from app.models.user import User
 
-
 class QuizFormTestCase(TestCase): #The last 3 of these fail, not sure what's up with the type field or why it won't save
     def setUp(self):
         self.form_input = {
@@ -45,7 +44,6 @@ class QuizFormTestCase(TestCase): #The last 3 of these fail, not sure what's up 
         self.assertFalse(form.is_valid())
         self.assertIn('difficulty', form.errors)
         self.assertEqual(form.errors['difficulty'][0], "Difficulty cannot be empty.")
-
 
     def test_form_save_creates_quiz(self):
         before_count = Quiz.objects.count()

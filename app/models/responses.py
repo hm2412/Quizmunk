@@ -1,12 +1,10 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-
 from app.models import TrueFalseQuestion, IntegerInputQuestion, Room
 from app.models.quiz import TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion, \
     SortingQuestion
 from app.models.user import User
 from app.models.guest import GuestAccess
-
 
 class Response(models.Model):
     player = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -28,7 +26,6 @@ class TrueFalseResponse(Response):
         else:
             actor = f"Guest ({self.guest_access.session_id[:8]})"
         return f"True/False Answer by {actor} for question {self.question}: {self.answer}"
-
 
 class IntegerInputResponse(Response):
     question = models.ForeignKey(IntegerInputQuestion, on_delete=models.CASCADE)
@@ -79,7 +76,6 @@ class MultipleChoiceResponse(Response):
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
-
 
 class NumericalRangeResponse(Response):
     question = models.ForeignKey(NumericalRangeQuestion, on_delete=models.CASCADE)

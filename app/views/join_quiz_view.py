@@ -3,7 +3,7 @@ from app.helpers.decorators import is_student, redirect_unauthenticated_to_homep
 from django.contrib import messages
 from app.models import Room
 
-def join_quiz(request):    #i.e to enter the codes
+def join_quiz(request): #to enter the codes
     if request.method == 'POST':
         join_code = request.POST.get('join_code')  
         
@@ -13,4 +13,4 @@ def join_quiz(request):    #i.e to enter the codes
         except Room.DoesNotExist:
             messages.error(request, 'Invalid code. Please try again.')  
 
-    return render(request, 'join.html')  
+    return render(request, 'join.html')

@@ -4,7 +4,6 @@ from django.core.files.storage import default_storage
 from django.core.exceptions import ObjectDoesNotExist
 from itertools import chain
 
-
 class Quiz(models.Model):
     DIFFICULTIES = [
         ("E", "Easy"),
@@ -53,7 +52,6 @@ class Quiz(models.Model):
 
         # Sort by position
         return sorted(all_questions, key=lambda q: q.position if q.position is not None else float('inf'))
-
 
     def __str__(self):
         return (f"Quiz: {self.id}, {self.name} - made by tutor {self.tutor}")
@@ -107,7 +105,6 @@ class IntegerInputQuestion(Question):
         related_name="integer_questions", 
         on_delete=models.CASCADE,
     )
-
 
     def __str__(self):
         return f"IntegerInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
@@ -196,4 +193,3 @@ class SortingQuestion(Question):
     def get_items(self):
         
         return self.options
-

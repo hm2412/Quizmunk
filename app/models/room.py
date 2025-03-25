@@ -8,7 +8,6 @@ from app.models.classroom import Classroom
 import random
 import string
 
-
 def generate_join_code():
     from django.apps import apps
     Room = apps.get_model('app', 'Room')  # Dynamically load the Room model
@@ -121,4 +120,3 @@ class RoomParticipant(models.Model):
         if self.user:
             return f"User: {self.user.email_address}"
         return f"Guest: {self.guest_access.session_id[:8]}"
-

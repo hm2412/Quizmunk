@@ -1,11 +1,8 @@
 from decimal import Decimal
-
 from django.test import TestCase
-
 from app.helpers.helper_functions import isCorrectAnswer
 from app.models import User, TrueFalseQuestion, IntegerInputQuestion, NumericalRangeQuestion, TrueFalseResponse, Quiz, \
     Room, NumericalRangeResponse
-
 
 class TestIsCorrectHelper(TestCase):
     def setUp(self):
