@@ -88,10 +88,10 @@ urlpatterns = [
     path('student/<int:student_id>/stats/', student_stats, name='student_stats'),
     
     path('load-partial/<str:partial_name>/', load_partial, name='load_partial'),
-,
+
     path('public-quizzes/', public_quizzes_view ,name="public_quizzes"),
     path('public-quizzes/<int:quiz_id>', save_public_quiz_view, name="save_public_quiz"),
-    path('preview-modal/<int:quiz_id>', quiz_preview_modal_view, name="quiz_preview_modal")
+    path('preview-modal/<int:quiz_id>', quiz_preview_modal_view, name="quiz_preview_modal"),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 if settings.DEBUG:

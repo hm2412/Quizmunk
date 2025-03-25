@@ -1,6 +1,5 @@
 from itertools import chain
 from typing import Any
-
 from django.contrib.contenttypes.models import ContentType
 from app.models import Quiz, IntegerInputQuestion, Response, TrueFalseQuestion, NumericalRangeResponse, RoomParticipant, \
     TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion, SortingQuestion, quiz, \
@@ -26,7 +25,6 @@ def getAllQuestions(quiz):
 
         return all_questions
     return None
-
 
 def isCorrectAnswer(response):
     if isinstance(response, NumericalRangeResponse):
@@ -76,7 +74,6 @@ def get_responses(user, room):
         key=lambda r: r.timestamp  # Order by timestamp
     )
     return responses
-
 
 def calculate_user_base_score(user,room):
     if not user or not room:
@@ -177,7 +174,6 @@ def get_response_model_class(question_type):
         raise ValueError("Unknown Response model")
     return response_model
 
-
 def get_all_responses_question(room, question):
     question_type=ContentType.objects.get_for_model(question)
     responses = get_response_model_class(question_type).objects.filter(room=room, question=question)
@@ -243,7 +239,6 @@ def find_best_and_worst_scores(quiz_history):
 
     return best_score, worst_score
 
-
 def count_answers_for_question(room, question):
     if isinstance(question, TrueFalseQuestion):
         responses = TrueFalseResponse.objects.filter(room=room, question=question)
@@ -264,7 +259,6 @@ def count_answers_for_question(room, question):
     unique_players = set(r.player_id for r in responses)
     return len(unique_players)
 
-
 def get_guest_responses(guest_access, room):
     tf_responses = list(TrueFalseResponse.objects.filter(guest_access=guest_access, room=room))
     int_responses = list(IntegerInputResponse.objects.filter(guest_access=guest_access, room=room))
@@ -277,7 +271,6 @@ def get_guest_responses(guest_access, room):
     for response in all_responses:
         isCorrectAnswer(response)
     return sorted(all_responses, key=lambda r: r.timestamp)
-
 
 def calculate_guest_score(guest_access, room):
     if not guest_access or not room:

@@ -13,9 +13,15 @@ def password_reset(request):
         if form.is_valid():
             request.user.set_password(form.cleaned_data["new_password"])
             request.user.save()
-            update_session_auth_hash(request, request.user)  # Prevents logout
+            update_session_auth_hash(request, request.user)
             messages.success(request, "Your password has been successfully changed.")
-            return redirect("homepage")
+
+            if request.user.role == "student":
+                return redirect("student_dashboard")
+            elif request.user.role == "tutor":
+                return redirect("tutor_dashboard")
+            else:
+                return redirect("homepage")
     else:
         form = PasswordResetForm(user=request.user)
 
