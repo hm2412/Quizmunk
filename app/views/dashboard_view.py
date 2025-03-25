@@ -10,7 +10,7 @@ from app.helpers.helper_functions import get_student_quiz_history
 def student_dashboard(request):
     student = request.user
     student_results = get_student_quiz_history(student)
-    # Fetch available quizzes from classrooms the student is in
+    
     # 1. Get all classrooms the student is a part of
     classroom_ids = ClassroomStudent.objects.filter(student=student).values_list('classroom_id', flat=True)
 
