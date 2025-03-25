@@ -57,8 +57,15 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_participants(self, room):
-        return list(room.participants.exclude(user__role__iexact="tutor").values_list('user__email_address', flat=True))
-    
+        participants = room.participants.exclude(user__role__iexact="tutor")
+        result = []
+        for participant in participants:
+            if participant.guest_access:
+                result.append(f"Guest ({participant.guest_access.session_id[:8]})")
+            else:
+                result.append(participant.user.email_address)
+        return result
+
 
     async def connect(self):
         self.join_code = self.scope['url_route']['kwargs']['join_code']

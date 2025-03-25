@@ -1,16 +1,12 @@
-# Original implementation by Kyran and Areeb
-#refactored by Tameem 14/3/2025
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-
-from app.models import RoomParticipant, GuestAccess
+from app.models import RoomParticipant, GuestAccess, Room
 
 
 class StudentQuizConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.join_code = self.scope['url_route']['kwargs']['join_code']
-        from app.models import Room
         self.room = await database_sync_to_async(Room.objects.get)(join_code=self.join_code)
         self.room_group_name = f"student_{self.join_code}"
         self.answered_questions = set()
@@ -18,9 +14,23 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
         await self.accept()
         self.user = self.scope.get("user")
         self.session = self.scope["session"]
-        participants = await database_sync_to_async(list)(
-            self.room.participants.exclude(user__role__iexact="tutor").values_list('user__email_address', flat=True)
-        )
+
+        if self.user and self.user.is_authenticated and self.user.role.lower() != "tutor":
+            await database_sync_to_async(RoomParticipant.objects.get_or_create)(
+                room=self.room, user=self.user
+            )
+        else:
+            guest_session = self.session.session_key
+            if not guest_session:
+                self.scope["session"].save()
+                guest_session = self.scope["session"].session_key
+            guest_access, _ = await database_sync_to_async(GuestAccess.objects.get_or_create)(
+                session_id=guest_session
+            )
+            await database_sync_to_async(RoomParticipant.objects.get_or_create)(
+                room=self.room, guest_access=guest_access
+            )
+        participants = await self.get_participants(self.room)
         participant_number = len(participants)
         update_message = {
             "type": "participants_update",
@@ -33,22 +43,24 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-        from app.models import Room
+        from app.models import Room, RoomParticipant, GuestAccess
         room = await database_sync_to_async(Room.objects.get)(join_code=self.join_code)
-
-        if self.user and self.user.is_authenticated:
-            # When user is logged in
-            participant = await database_sync_to_async(RoomParticipant.objects.get)(user_id=self.user.id)
-        else:
-            # When user is a guest
-            guest = await database_sync_to_async(GuestAccess.objects.get)(session_id=self.session.session_key)
-            participant = await database_sync_to_async(RoomParticipant.objects.get)(guest_access=guest)
-
-        await database_sync_to_async(lambda: RoomParticipant.objects.filter(id=participant.id).delete())() # Removing the user from the participants
-
-        participants = await database_sync_to_async(list)(
-            room.participants.exclude(user__role__iexact="tutor").values_list('user__email_address', flat=True)
-        )
+        try:
+            if self.user and self.user.is_authenticated:
+                participant = await database_sync_to_async(RoomParticipant.objects.get)(
+                    room=room, user_id=self.user.id
+                )
+            else:
+                guest = await database_sync_to_async(GuestAccess.objects.get)(
+                    session_id=self.session.session_key
+                )
+                participant = await database_sync_to_async(RoomParticipant.objects.get)(
+                    room=room, guest_access=guest
+                )
+            await database_sync_to_async(lambda: RoomParticipant.objects.filter(id=participant.id).delete())()
+        except RoomParticipant.DoesNotExist:
+            pass
+        participants = await self.get_participants(room)
         participant_number = len(participants)
         update_message = {
             "type": "participants_update",
@@ -173,9 +185,43 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
         }))
 
 
+    @database_sync_to_async
+    def get_participants(self, room):
+        participants = room.participants.exclude(user__role__iexact="tutor")
+        result = []
+        for participant in participants:
+            if participant.guest_access:
+                result.append(f"Guest ({participant.guest_access.session_id[:8]})")
+            else:
+                result.append(participant.user.email_address)
+        return result
+
+
     async def participants_update(self, event):
         await self.send(text_data=json.dumps({
             "action": "update_participants",
             "participant_number": event.get("participant_number"),
             "participants": event.get("participants")
         }))
+
+
+    async def quiz_ended(self, event):
+        try:
+            await self.send(text_data=json.dumps({
+                "type": "quiz_ended",
+                "message": event.get("message")
+            }))
+        except Exception:
+            pass
+
+
+    async def leaderboard_update(self, event):
+        response = {
+            "type": "leaderboard_update",
+            "leaderboard": event.get("leaderboard")
+        }
+        if "answered_count" in event:
+            response["answered_count"] = event["answered_count"]
+        if "participant_number" in event:
+            response["participant_number"] = event["participant_number"]
+        await self.send(text_data=json.dumps(response))
