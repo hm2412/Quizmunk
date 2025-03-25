@@ -37,7 +37,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             guest = await sync_to_async(GuestAccess.objects.get)(session_id=self.session.session_key)
             participant = await sync_to_async(RoomParticipant.objects.get)(guest_access=guest)
 
-        await sync_to_async(lambda: RoomParticipant.objects.filter(id=participant.id).delete())() # Removing the user from the participants
+        #await sync_to_async(lambda: RoomParticipant.objects.filter(id=participant.id).delete())() # Removing the user from the participants
 
         await self.send_updated_participants()
 
