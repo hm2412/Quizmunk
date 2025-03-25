@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST
 from django.core.files.storage import default_storage
 from app.question_registry import QUESTION_FORMS, QUESTION_MODELS
 from app.helpers.helper_functions import getAllQuestions
-from django.contrib import messages
+
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
@@ -35,6 +35,7 @@ def create_quiz_view(request):
             return render(request, 'tutor/create_quiz_form.html', {'form': form}, status=400)
     
     return render(request, 'tutor/create_quiz_form.html', {'form': form})
+
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
@@ -121,6 +122,7 @@ def edit_quiz_view(request, quiz_id):
         'question_forms': question_forms,
     })
 
+
 @redirect_unauthenticated_to_homepage
 @is_tutor
 def delete_question_view(request, question_type, question_id):
@@ -134,6 +136,7 @@ def delete_question_view(request, question_type, question_id):
         return JsonResponse({"error": "Question not found"}, status=404)
     question.delete()
     return JsonResponse({"status": "success"})
+
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
@@ -155,6 +158,7 @@ def delete_question_image_view(request, question_id):
         question.image = None
         question.save()
     return JsonResponse({"status": "success"})
+
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
@@ -187,6 +191,7 @@ def update_question_order(request):
         return JsonResponse({"status": "success"})
     except Exception as e:
         return JsonResponse({"status": "error", "message": str(e)}, status=400)
+
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
@@ -236,6 +241,7 @@ def get_question_view(request, quiz_id):
 def your_quizzes_view(request):
     drafts = Quiz.objects.filter(tutor=request.user).order_by("-id")
     return render(request, 'tutor/your_quizzes.html', {'drafts': drafts})
+
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
