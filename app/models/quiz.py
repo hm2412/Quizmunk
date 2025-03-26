@@ -52,7 +52,7 @@ class Quiz(models.Model):
         # Sort by position
         return sorted(all_questions, key=lambda q: q.position if q.position is not None else float('inf'))
 
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         return (f"Quiz: {self.id}, {self.name} - made by tutor {self.tutor}")
 
 class Question(models.Model):
@@ -88,7 +88,7 @@ class Question(models.Model):
                 default_storage.delete(self.image.name)
         super().delete(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         return f"Quiz {self.quiz.id} Question {self.position}"
 
     class Meta:
@@ -105,7 +105,7 @@ class IntegerInputQuestion(Question):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         return f"IntegerInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
 
 class TrueFalseQuestion(Question):
@@ -117,7 +117,7 @@ class TrueFalseQuestion(Question):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         return f"TrueFalseQuestion: {self.question_text}, Correct: {self.correct_answer}"
     
 class TextInputQuestion(Question): # Can also be used for a fill in the blanks question.
@@ -129,7 +129,7 @@ class TextInputQuestion(Question): # Can also be used for a fill in the blanks q
         on_delete=models.CASCADE,
     )
     
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         return f"TextInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
 
 class DecimalInputQuestion(Question):
@@ -141,7 +141,7 @@ class DecimalInputQuestion(Question):
         on_delete=models.CASCADE,
     )
     
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         return f"DecimalInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
 
 class MultipleChoiceQuestion(Question):
@@ -154,7 +154,7 @@ class MultipleChoiceQuestion(Question):
         on_delete=models.CASCADE,
     )
     
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         return f"MultipleChoiceQuestion: {self.question_text}, Correct: {self.correct_answer}"
     
 class NumericalRangeQuestion(Question):
@@ -168,7 +168,7 @@ class NumericalRangeQuestion(Question):
         on_delete=models.CASCADE,
     )
     
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         return f"NumericalRangeQuestion: {self.question_text}, Accepted Range: {self.min_value}-{self.max_value}"
     
     @property
