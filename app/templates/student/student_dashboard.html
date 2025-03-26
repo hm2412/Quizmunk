@@ -32,7 +32,7 @@
                 <h2>Available Quizzes</h2>
                 <div class="quiz-list">
                     {% for quiz in available_quizzes %}
-                        {% include 'partials/quiz_card.html' with quiz_img=quiz.quiz_img quiz_title=quiz.name quiz_description=quiz.quiz_description %}
+                        {% include 'partials/quiz_card.html' with quiz_img=quiz.quiz_img quiz_name=quiz.name %}
                     {% empty %}
                         <p class="text-muted">No available quizzes at the moment.</p>
                     {% endfor %}
