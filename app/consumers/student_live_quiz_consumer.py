@@ -212,3 +212,8 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
              "correct_responses": event.get("correct_responses", -2),
          }
          await self.send(text_data=json.dumps(stats_data))
+
+    async def hide_stats_popup(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "hide_stats_popup"
+        }))
