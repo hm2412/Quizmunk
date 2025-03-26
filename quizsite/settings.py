@@ -31,6 +31,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://teamchipmunk.pythonanywhere.com',  # Add the domain you are deploying to
     'https://127.0.0.1',  # Localhost for development
     'https://localhost',  # Localhost for development
+    'https://138.68.136.99'
 
 ]
 
@@ -136,7 +137,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, "app", "media")
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'app', 'static'),
