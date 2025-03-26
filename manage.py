@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# pragma: no cover
 """Django's command-line utility for administrative tasks."""
 import os
 import sys

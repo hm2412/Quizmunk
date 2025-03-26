@@ -33,7 +33,6 @@ from app.views.password_reset_view import password_reset
 from app.views.classroom_view import tutor_classroom_view, tutor_classroom_detail_view, student_classroom_view, accept_classroom_invite, decline_classroom_invite, student_classroom_detail_view
 from app.views.stats_view import stats_view, stats_details, player_responses,classroom_stats_view, student_stats, question_responses, csv_download_player, csv_download_question
 from app.views.public_quizzes_view import public_quizzes_view, save_public_quiz_view, quiz_preview_modal_view
-# pragma: no cover
 
 urlpatterns = [
     path('admin/', admin.site.urls),
