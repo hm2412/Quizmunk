@@ -71,6 +71,7 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def get_question_stats(self, question, room):
+        from app.helpers.helper_functions import get_all_responses_question, isCorrectAnswer
         responses = get_all_responses_question(room, question)
      
         responses_received = responses.count()
