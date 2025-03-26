@@ -92,7 +92,6 @@
     flex-grow: 1;
     width: 100%;
     height: 100%;
-    padding: 20px;
 }
 
 /* Ensures dashboard content fills space */
@@ -119,7 +118,7 @@
     height: auto;
     text-align: center;
     background-color: #2a7a8c;
-    padding: 50px;
+    padding: 35px;
     border-radius: 10px;
     gap: 20px;
     flex-wrap: wrap;
@@ -144,7 +143,7 @@
 
 /* Ensure quiz list and sections expand fully */
 .quiz-section {
-    padding-top: 50px;
+    padding-top: 30px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start !important;
@@ -155,7 +154,7 @@
 }
 
 .quiz-list {
-    padding-top: 20px;
+    padding-top: 5px;
     display: flex;
     gap: 20px;
     width: 100%;
@@ -232,3 +231,16 @@
     max-height: 100%;
 }
 
+@media (max-width: 768px) {
+    .quiz-list {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .results-list {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+}

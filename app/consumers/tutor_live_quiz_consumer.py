@@ -190,7 +190,7 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         else:
             from app.helpers.helper_functions import create_quiz_stats
             await database_sync_to_async(create_quiz_stats)(room)
-            message = "No more questions!"
+            message = "Thanks for playing!"
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {"type": "quiz_ended", "message": message}
@@ -207,10 +207,14 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         from app.helpers.helper_functions import create_quiz_stats
         await database_sync_to_async(create_quiz_stats)(room)
         await database_sync_to_async(room.save)()
-        await self.send_quiz_ended("Quiz ended! Redirecting...")
+        await self.send_quiz_ended("Thanks for playing!")
+        await self.channel_layer.group_send(
+                f"student_{self.join_code}",
+                {"type": "hide_stats_popup"}
+            )
         await self.channel_layer.group_send(
             f"student_{self.join_code}",
-            {"type": "quiz_ended", "message": "Quiz ended! Redirecting..."}
+            {"type": "quiz_ended", "message": "Thanks for playing!"}
         )
     
     async def send_quiz_ended(self, message):
