@@ -3,7 +3,6 @@ from app.forms.decimal_input_question_form import DecimalInputQuestionForm
 from decimal import Decimal
 
 class DecimalInputQuestionFormTestCase(TestCase):
-
     def test_valid_decimal_input_form(self):
         data = {
             'time': 15,
@@ -70,4 +69,3 @@ class DecimalInputQuestionFormTestCase(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('time', form.errors)
         self.assertEqual(form.errors['time'][0], "Time must be an integer.")
-       

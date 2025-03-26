@@ -6,7 +6,6 @@ from app.models import User, TrueFalseQuestion, IntegerInputQuestion, NumericalR
     Room, NumericalRangeResponse, Stats, IntegerInputResponse
 from app.models.stats import QuestionStats
 
-
 class TestStatsHelpers(TestCase):
     def setUp(self):
         # Creating a test user (a tutor)
@@ -106,3 +105,4 @@ class TestStatsHelpers(TestCase):
         self.assertIn(self.num_range_response, responses)
 
         self.assertEqual(len(responses), 2)
+        self.assertEqual(len(get_responses_by_player_in_room(self.quiz, self.room)), 0)

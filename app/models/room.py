@@ -8,7 +8,6 @@ from app.models.classroom import Classroom
 import random
 import string
 
-
 def generate_join_code():
     from django.apps import apps
     Room = apps.get_model('app', 'Room')  # Dynamically load the Room model
@@ -47,7 +46,6 @@ class Room(models.Model):
             'multiple_choice_questions',
             'decimal_questions',
             'numerical_range_questions',
-            'sorting_questions'
         ]
 
         for q_type in question_types:
@@ -66,29 +64,9 @@ class Room(models.Model):
         self.save()
         return self.get_current_question()
 
-    classroom = models.ForeignKey(
-         Classroom,
-         related_name="locked_rooms",
-         on_delete=models.CASCADE,
-         null=True,
-         blank=True,
-         help_text="The Classroom associated with this room"
-    )    
     quiz_started = models.BooleanField(default=False)
     current_question_index = models.PositiveIntegerField(default=0)
     is_quiz_active = models.BooleanField(default=False)
- 
- 
-    def get_current_question(self):
-         questions = self.get_questions()
-         if 0 <= self.current_question_index < len(questions):
-             return questions[self.current_question_index]
-         return None
-     
-    def next_question(self):
-         self.current_question_index += 1
-         self.save()
-         return self.get_current_question()
     
     def __str__(self):
         return f"Room: {self.name} (Code: {self.join_code})"
@@ -141,4 +119,3 @@ class RoomParticipant(models.Model):
         if self.user:
             return f"User: {self.user.email_address}"
         return f"Guest: {self.guest_access.session_id[:8]}"
-

@@ -66,7 +66,6 @@ class ResponseTestCase(TestCase):
             mark=5
         )
 
-
     def test_valid_true_false_question_response(self):
         response = TrueFalseResponse.objects.create(
             player=self.test_player,
@@ -153,3 +152,13 @@ class ResponseTestCase(TestCase):
                 answer="5",
                 room=self.room
             )
+
+    def test_str_integer_input_response(self):
+        response = IntegerInputResponse.objects.create(
+            player=self.test_player,
+            room=self.room,
+            question=self.integer_input_question,
+            answer=4,
+        )
+        self.assertEqual(str(response),
+                         f"Integer Input Answer by {self.test_player.email_address} for question {self.integer_input_question}: {response.answer}")

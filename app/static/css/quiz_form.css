@@ -17,11 +17,16 @@
     overflow-y: auto; 
     box-sizing: border-box;
 }
+.modal-content{
+    text-align: center;
+    z-index: 1000;
+}
 .modal-content h2{
     margin: 0;
     font-size: 20px;
     font-weight: bold;
     color: #333;
+    
 }
 .close {
     position: absolute;
@@ -62,4 +67,129 @@ button[type="submit"]:hover {
 button[type="submit"]:active {
     transform: translateY(0);
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+form > div {
+    margin-bottom: 15px;
+}
+
+form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: #444;
+}
+
+form input[type="text"],
+form input[type="file"],
+form select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+}
+
+
+.form-group label {
+    margin: 0;
+    font-weight: normal;
+}
+
+.form-text.text-muted {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: #666;
+}
+.alert.alert-danger {
+    margin-top: 20px;
+    background-color: #ffe6e6;
+    color: #cc0000;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #ffcccc;
+    font-size: 14px;
+}
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modal-content form > div,
+.modal-content .form-group {
+    width: 100%;
+    text-align: center;
+}
+
+.form-error-container {
+    background-color: #ffe6e6;
+    border: 1px solid #ffcccc;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 5px;
+    
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.form-error-header {
+    color: #cc0000;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.form-error-list {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: disc;
+    color: #a30000;
+    font-size: 14px;
+}
+.toast {
+    background-color: #dc3545; /* Bootstrap red */
+    color: white;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    animation: slideIn 0.4s ease-in-out;
+}
+
+.toast .btn-close {
+    filter: invert(1);
+    opacity: 0.8;
+    font-size: 0.7rem;
+}
+
+.toast-body {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(50%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }

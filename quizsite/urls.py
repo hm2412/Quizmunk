@@ -27,11 +27,13 @@ from app.views.join_quiz_view import join_quiz
 from app.views.lobby_view import lobby, setup_quiz, setup_classroom_quiz
 from app.views.dashboard_view import student_dashboard, tutor_dashboard
 from app.views.profile_view import student_profile, tutor_profile
-from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_view, get_question_view, your_quizzes_view, delete_quiz_view, delete_question_image_view
+from app.views.quiz_view import create_quiz_view,edit_quiz_view,delete_question_view, get_question_view, your_quizzes_view, delete_quiz_view, delete_question_image_view, update_question_order
 from app.views.live_quiz_view import tutor_live_quiz, start_quiz, next_question, end_quiz, student_live_quiz, load_partial
 from app.views.password_reset_view import password_reset
 from app.views.classroom_view import tutor_classroom_view, tutor_classroom_detail_view, student_classroom_view, accept_classroom_invite, decline_classroom_invite, student_classroom_detail_view
 from app.views.stats_view import stats_view, stats_details, player_responses,classroom_stats_view, student_stats, question_responses, csv_download_player, csv_download_question
+from app.views.public_quizzes_view import public_quizzes_view, save_public_quiz_view, quiz_preview_modal_view
+# pragma: no cover
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -50,9 +52,10 @@ urlpatterns = [
 
     path('create-quiz/', create_quiz_view, name='create_quiz'),
     path('edit-quiz/<int:quiz_id>/', edit_quiz_view, name='edit_quiz'),
-    path('delete-question/<int:question_id>/', delete_question_view, name='delete_question'),
+    path('delete-question/<str:question_type>/<int:question_id>/', delete_question_view, name='delete_question'),
     path('delete-question-image/<int:question_id>/', delete_question_image_view, name='delete_question_image'),
     path('get_question/<int:quiz_id>/', get_question_view, name='get_question'),
+    path('update-question-order/', update_question_order, name='update-question-order'),
 
     path('join-quiz/', join_quiz, name='join_quiz'),
     path('setup_quiz/<int:quiz_id>/', setup_quiz, name='setup_quiz'),
@@ -84,7 +87,14 @@ urlpatterns = [
     path('question-responses/<int:room_id>/<int:question_id>/', question_responses, name='question_responses'),
     path('classroom/<int:classroom_id>/stats/', classroom_stats_view, name='classroom_stats_view'),
     path('student/<int:student_id>/stats/', student_stats, name='student_stats'),
+    
+    path('load-partial/<str:partial_name>/', load_partial, name='load_partial'),
+
+    path('public-quizzes/', public_quizzes_view ,name="public_quizzes"),
+    path('public-quizzes/<int:quiz_id>', save_public_quiz_view, name="save_public_quiz"),
+    path('preview-modal/<int:quiz_id>', quiz_preview_modal_view, name="quiz_preview_modal"),
 ]
+
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

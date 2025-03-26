@@ -11,7 +11,6 @@ from django.http import Http404
 def get_room(join_code):
     return get_object_or_404(Room, join_code=join_code)
 
-
 @is_tutor
 def tutor_live_quiz(request, quiz_id, join_code):
     
@@ -43,8 +42,6 @@ def tutor_live_quiz(request, quiz_id, join_code):
     )
     return render(request, 'tutor/live_quiz.html', context)
 
-
-
 def student_live_quiz(request, room_code):
     room = get_object_or_404(Room, join_code=room_code)
     if request.user.is_authenticated and request.user.role.lower() != "tutor":
@@ -65,7 +62,6 @@ def student_live_quiz(request, room_code):
     }
     return render(request, 'student/student_live_quiz.html', context)
 
-
 def load_partial(request, partial_name):
     allowed_partials = [
         "integer_input",
@@ -78,7 +74,6 @@ def load_partial(request, partial_name):
     if partial_name not in allowed_partials:
         raise Http404("Partial not found")
     return render(request, f"partials/{partial_name}.html")
-
 
 def start_quiz(request, join_code):
     room = get_object_or_404(Room, join_code=join_code)
@@ -102,8 +97,6 @@ def start_quiz(request, join_code):
         })
     
     return JsonResponse({"error": "Invalid request"}, status=400)    
-
-
 
 @csrf_exempt
 def next_question(request, join_code):
@@ -142,7 +135,6 @@ def next_question(request, join_code):
         })
     else:
         return JsonResponse({"message": "No more questions!"})
-
 
 @csrf_exempt
 def end_quiz(request, join_code):

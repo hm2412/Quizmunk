@@ -1,11 +1,11 @@
 from itertools import chain
+from typing import Any
 from django.contrib.contenttypes.models import ContentType
 from app.models import Quiz, IntegerInputQuestion, Response, TrueFalseQuestion, NumericalRangeResponse, RoomParticipant, \
-    TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion, SortingQuestion, quiz, \
+    TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion, quiz, \
     Stats, IntegerInputResponse, TrueFalseResponse, TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, \
-    SortingResponse, User, Room
+    User, Room
 from app.models.stats import QuestionStats
-
 
 def getAllQuestions(quiz):
     if isinstance(quiz, Quiz):
@@ -15,16 +15,14 @@ def getAllQuestions(quiz):
         questions_decimal = list(DecimalInputQuestion.objects.filter(quiz=quiz))
         questions_mcq = list(MultipleChoiceQuestion.objects.filter(quiz=quiz))
         questions_num_range = list(NumericalRangeQuestion.objects.filter(quiz=quiz))
-        questions_sorting = list(SortingQuestion.objects.filter(quiz=quiz))
 
         all_questions = (
             questions_int + questions_tf + questions_text +
-            questions_decimal + questions_mcq + questions_num_range + questions_sorting
+            questions_decimal + questions_mcq + questions_num_range
         )
 
         return all_questions
     return None
-
 
 def isCorrectAnswer(response):
     if isinstance(response, NumericalRangeResponse):
@@ -68,13 +66,11 @@ def get_responses(user, room):
     decimal_responses = DecimalInputResponse.objects.filter(player=user, room=room)
     mc_responses = MultipleChoiceResponse.objects.filter(player=user, room=room)
     range_responses = NumericalRangeResponse.objects.filter(player=user, room=room)
-    sorting_responses = SortingResponse.objects.filter(player=user, room=room)
     responses = sorted(
-        chain(tf_responses, int_responses, text_responses, decimal_responses, mc_responses, range_responses, sorting_responses),
+        chain(tf_responses, int_responses, text_responses, decimal_responses, mc_responses, range_responses),
         key=lambda r: r.timestamp  # Order by timestamp
     )
     return responses
-
 
 def calculate_user_base_score(user,room):
     if not user or not room:
@@ -119,7 +115,7 @@ def calculate_user_score(user,room):
         else: #incorrect answer resets streak
             streak_count=0
     #update the participant's score in the database ie without the added bonuses in order to use for stats page later
-    #RoomParticipant.objects.filter(user=user, room=room).update(score=base_score)
+    RoomParticipant.objects.filter(user=user, room=room).update(score=base_score)
     return total_score
 
 def get_leaderboard(room):
@@ -168,20 +164,18 @@ def get_response_model_class(question_type):
         'decimalinputquestion': DecimalInputResponse,
         'multiplechoicequestion': MultipleChoiceResponse,
         'numericalrangequestion': NumericalRangeResponse,
-        'sortingquestion': SortingResponse,
     }
     response_model = response_model_mapping.get(question_type.model)
     if not response_model:
         raise ValueError("Unknown Response model")
     return response_model
 
-
 def get_all_responses_question(room, question):
     question_type=ContentType.objects.get_for_model(question)
     responses = get_response_model_class(question_type).objects.filter(room=room, question=question)
     return responses
 
-def get_responses_by_player_in_room(player, room):
+def get_responses_by_player_in_room(player: object, room: object) -> list[Any] | None:
     if isinstance(player, User) and isinstance(room, Room):
         responses_tf = list(TrueFalseResponse.objects.filter(player=player, room=room))
         responses_int = list(IntegerInputResponse.objects.filter(player=player, room=room))
@@ -189,11 +183,10 @@ def get_responses_by_player_in_room(player, room):
         responses_decimal = list(DecimalInputResponse.objects.filter(player=player, room=room))
         responses_mcq = list(MultipleChoiceResponse.objects.filter(player=player, room=room))
         responses_num_range = list(NumericalRangeResponse.objects.filter(player=player, room=room))
-        responses_sorting = list(SortingResponse.objects.filter(player=player, room=room))
 
         all_responses = (
             responses_tf + responses_int + responses_text +
-            responses_decimal + responses_mcq + responses_num_range + responses_sorting
+            responses_decimal + responses_mcq + responses_num_range
         )
 
         for response in all_responses:
@@ -241,7 +234,6 @@ def find_best_and_worst_scores(quiz_history):
 
     return best_score, worst_score
 
-
 def count_answers_for_question(room, question):
     if isinstance(question, TrueFalseQuestion):
         responses = TrueFalseResponse.objects.filter(room=room, question=question)
@@ -255,13 +247,10 @@ def count_answers_for_question(room, question):
         responses = MultipleChoiceResponse.objects.filter(room=room, question=question)
     elif isinstance(question, NumericalRangeQuestion):
         responses = NumericalRangeResponse.objects.filter(room=room, question=question)
-    elif isinstance(question, SortingQuestion):
-        responses = SortingResponse.objects.filter(room=room, question=question)
     else:
         responses = []
     unique_players = set(r.player_id for r in responses)
     return len(unique_players)
-
 
 def get_guest_responses(guest_access, room):
     tf_responses = list(TrueFalseResponse.objects.filter(guest_access=guest_access, room=room))
@@ -270,12 +259,10 @@ def get_guest_responses(guest_access, room):
     decimal_responses = list(DecimalInputResponse.objects.filter(guest_access=guest_access, room=room))
     mc_responses = list(MultipleChoiceResponse.objects.filter(guest_access=guest_access, room=room))
     range_responses = list(NumericalRangeResponse.objects.filter(guest_access=guest_access, room=room))
-    sorting_responses = list(SortingResponse.objects.filter(guest_access=guest_access, room=room))
-    all_responses = (tf_responses + int_responses + text_responses + decimal_responses + mc_responses + range_responses + sorting_responses)
+    all_responses = (tf_responses + int_responses + text_responses + decimal_responses + mc_responses + range_responses)
     for response in all_responses:
         isCorrectAnswer(response)
     return sorted(all_responses, key=lambda r: r.timestamp)
-
 
 def calculate_guest_score(guest_access, room):
     if not guest_access or not room:

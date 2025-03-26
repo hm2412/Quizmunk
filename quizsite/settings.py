@@ -9,13 +9,13 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+# pragma: no cover
 
 from pathlib import Path
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -32,9 +32,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://teamchipmunk.pythonanywhere.com',  # Add the domain you are deploying to
     'https://127.0.0.1',  # Localhost for development
     'https://localhost',  # Localhost for development
+    'https://138.68.136.99'
 
 ]
-
 
 # Application definition
 
@@ -80,20 +80,15 @@ TEMPLATES = [
     },
 ]
 
-
 ASGI_APPLICATION = 'quizsite.asgi.application'
 
-
 WSGI_APPLICATION = 'quizsite.wsgi.application'
-
-
 
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
-
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -108,7 +103,6 @@ DATABASES = {
 }
 
 APPEND_SLASH = True
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -128,7 +122,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -140,13 +133,12 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, "app", "media") 
+MEDIA_ROOT = os.path.join(BASE_DIR, "app", "media")
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'app', 'static'),

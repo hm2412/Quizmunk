@@ -247,8 +247,8 @@ class Command(BaseCommand):
             time=30,
             quiz=quiz,
             mark=1,
-            options={"A": "input()", "B": "scan()", "C": "get()", "D": "readline()"},
-            correct_answer="A"
+            options=["input()", "scan()", "get()", "readline()"],
+            correct_answer="input()"
         )
 
         TextInputQuestion.objects.create(
@@ -342,8 +342,8 @@ class Command(BaseCommand):
             time=15,
             quiz=quiz,
             mark=1,
-            options={"A": "Newton", "B": "Joule", "C": "Watt", "D": "Pascal"},
-            correct_answer="A"
+            options=["Newton", "Joule", "Watt", "Pascal"],
+            correct_answer="Newton"
         )
 
         TrueFalseQuestion.objects.create(
@@ -371,8 +371,8 @@ class Command(BaseCommand):
             time=15,
             quiz=quiz,
             mark=1,
-            options={"A": "Kinetic Energy", "B": "Thermal Energy", "C": "Gravitational Energy", "D": "Light Energy"},
-            correct_answer="C"
+            options=["Kinetic Energy", "Thermal Energy", "Gravitational Energy", "Light Energy"],
+            correct_answer="Gravitational Energy"
         )
 
         TextInputQuestion.objects.create(
@@ -445,7 +445,7 @@ class Command(BaseCommand):
             player=user,
             room=room,
             question=question,
-            answer=random.choice(list(question.options.keys()))
+            answer=random.choice(question.options)
         )
     
     def generate_true_false_response(self, user, room, question):

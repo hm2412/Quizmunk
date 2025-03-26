@@ -4,7 +4,6 @@ from django.core.files.storage import default_storage
 from django.core.exceptions import ObjectDoesNotExist
 from itertools import chain
 
-
 class Quiz(models.Model):
     DIFFICULTIES = [
         ("E", "Easy"),
@@ -46,14 +45,12 @@ class Quiz(models.Model):
         decimal_qs = self.decimal_questions.all()
         multiple_choice_qs = self.multiple_choice_questions.all()
         numerical_range_qs = self.numerical_range_questions.all()
-        sorting_qs = self.sorting_questions.all()
 
         # Combine all queries
-        all_questions = list(chain(integer_qs, true_false_qs, text_qs, decimal_qs, multiple_choice_qs, numerical_range_qs, sorting_qs))
+        all_questions = list(chain(integer_qs, true_false_qs, text_qs, decimal_qs, multiple_choice_qs, numerical_range_qs))
 
         # Sort by position
         return sorted(all_questions, key=lambda q: q.position if q.position is not None else float('inf'))
-
 
     def __str__(self):
         return (f"Quiz: {self.id}, {self.name} - made by tutor {self.tutor}")
@@ -69,7 +66,7 @@ class Question(models.Model):
         verbose_name="Related quiz",  # Keyword argument
         help_text="The quiz this question belongs to."
     )
-    mark = models.IntegerField()
+    mark = models.PositiveIntegerField()
     image = models.ImageField(null=True, blank=True, upload_to='questions_images/')
 
     def save(self, *args, **kwargs):
@@ -107,7 +104,6 @@ class IntegerInputQuestion(Question):
         related_name="integer_questions", 
         on_delete=models.CASCADE,
     )
-
 
     def __str__(self):
         return f"IntegerInputQuestion: {self.question_text}, Answer: {self.correct_answer}"
@@ -174,27 +170,8 @@ class NumericalRangeQuestion(Question):
     
     def __str__(self):
         return f"NumericalRangeQuestion: {self.question_text}, Accepted Range: {self.min_value}-{self.max_value}"
-
-class SortingQuestion(Question):
-
-    items = models.TextField()
-   
-    correct_answer = models.CharField(max_length=200)
-
-    quiz = models.ForeignKey(
-        Quiz,
-        related_name="sorting_questions",
-        on_delete=models.CASCADE,
-    )
-
-    def __str__(self):
-        return f"SortingQuestion: {self.question_text}"
-
-    def get_items(self):
-        
-        return self.items.split(',')
-
-    def get_correct_order(self):
-        
-        return [int(x) for x in self.correct_answer.split(',')]
-
+    
+    @property
+    def correct_answer(self):
+        # Return the accepted range as a string.
+        return f"{self.min_value} - {self.max_value}"

@@ -101,7 +101,6 @@ class RoomTestCase(TestCase):
         current_question = self.room.get_current_question()
         self.assertEqual(current_question, questions[self.room.current_question_index])
 
-
     def test_get_current_question_negative_index(self):
         original_index = self.room.current_question_index
         self.room.current_question_index = -1

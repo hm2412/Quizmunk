@@ -6,16 +6,16 @@ from app.helpers.decorators import is_tutor
 from app.models.stats import QuestionStats
 import csv
 import datetime
-from app.helpers.helper_functions import get_responses_by_player_in_room, get_all_responses_question, get_student_quiz_history, calculate_average_score, find_best_and_worst_scores, get_guest_responses, isCorrectAnswer
+from app.helpers.helper_functions import get_responses_by_player_in_room, get_all_responses_question, \
+    get_student_quiz_history, calculate_average_score, find_best_and_worst_scores, get_guest_responses, isCorrectAnswer, \
+    get_responses
 import json
-
 
 @is_tutor
 def stats_view(request):
     """show the list of the quizzes started by the tutor"""
     stats_list = Stats.objects.filter(quiz__tutor=request.user).order_by('-date_played')
     return render(request, "tutor/stats.html", {"stats_list": stats_list})
-
 
 @is_tutor
 def stats_details(request, stats_id):
@@ -29,7 +29,6 @@ def stats_details(request, stats_id):
         "questions_stats": questions_stats,
     }
     return render(request, "tutor/stats_detail.html", context)
-
 
 @is_tutor
 def csv_download_player(request, stats_id):
@@ -53,7 +52,6 @@ def csv_download_player(request, stats_id):
         ])
     return response
 
-
 @is_tutor
 def csv_download_question(request, stats_id):
     stats_obj = get_object_or_404(Stats, id=stats_id, quiz__tutor=request.user)
@@ -72,13 +70,12 @@ def csv_download_question(request, stats_id):
         writer.writerow([question_text, total, correct, incorrect, f"{percentage:.2f}%"])
     return response
 
-
 def player_responses(request, room_id, player_id):
     player = get_object_or_404(RoomParticipant, id = player_id)
     room = get_object_or_404(Room, id=room_id)
     stats = Stats.objects.filter(room=room).first()
     if player.user:
-        responses = get_responses_by_player_in_room(player.user, room)
+        responses = get_responses(player.user, room)
         identifier = player.user.email_address
     else:
         responses = get_guest_responses(player.guest_access, room)
@@ -95,7 +92,6 @@ def player_responses(request, room_id, player_id):
     }
 
     return render(request, 'tutor/player_responses.html',context)
-
 
 def question_responses(request, room_id, question_id):
     room = get_object_or_404(Room, id=room_id)
@@ -119,7 +115,6 @@ def question_responses(request, room_id, question_id):
     }
     return render(request, 'tutor/question_responses.html',context)
 
-
 @is_tutor
 def classroom_stats_view(request, classroom_id):
     """show the list of the quizzes started by the tutor for a classroom"""
@@ -134,7 +129,6 @@ def classroom_stats_view(request, classroom_id):
         "scores": json.dumps(scores),
     }
     return render(request, "tutor/classroom_stats.html", context)
-
 
 def student_stats(request,student_id):
 

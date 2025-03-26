@@ -19,18 +19,24 @@
        </div>
        <form method="post" hx-post="{% url 'create_quiz' %}" hx-target="#quiz-form-container" hx-swap="innerHTML" enctype="multipart/form-data">
            {% csrf_token %}
-           {{ form.name.label_tag }}
-           {{ form.name }}
+           <div>
+                {{ form.name.label_tag }}
+                {{ form.name }}
+           </div>
+           <div>
+                {{ form.subject.label_tag }}
+                {{ form.subject }} 
+           </div>
            
-           {{ form.subject.label_tag }}
-           {{ form.subject }}
-           
-           {{ form.difficulty.label_tag }}
-           {{ form.difficulty }}
-           
-           {{ form.quiz_img.label_tag }}
-           {{ form.quiz_img }}
-           
+           <div>
+                {{ form.difficulty.label_tag }}
+                {{ form.difficulty }}
+                
+            </div>
+            <div>
+                {{ form.quiz_img.label_tag }}
+                {{ form.quiz_img }}
+            </div>
            <div class="form-group">
                <label for="{{ form.is_public.id_for_label }}">Make Quiz Public:</label>
                {{ form.is_public }}
@@ -41,16 +47,36 @@
        </form>
    </div>
 </div>
-{% if form.errors %}
-   <div class="alert alert-danger">
-       <strong>Form submission failed:</strong>
-       <ul>
-           {% for field, errors in form.errors.items %}
-               <li>{{ field }}: {{ errors|join:", " }}</li>
-           {% endfor %}
-       </ul>
-   </div>
-{% endif %}
+<div class="toast-container position-fixed top-0 start-50 translate-middle-x mt-3" id="toast-container" style="z-index: 1055;"></div>
+
+<script>
+  function showToast(message) {
+      const toastId = "toast-" + Date.now();
+      const toastHtml = `
+      <div id="${toastId}" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="d-flex justify-content-between align-items-center toast-body">
+              <span>${message}</span>
+          </div>
+      </div>`;
+      
+      const container = document.getElementById("toast-container");
+      container.insertAdjacentHTML("beforeend", toastHtml);
+      const toastEl = document.getElementById(toastId);
+      const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+      toast.show();
+  }
+
+  {% if form.errors %}
+    window.addEventListener("DOMContentLoaded", () => {
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+                showToast("{{ field|capfirst }}: {{ error|escapejs }}");
+            {% endfor %}
+        {% endfor %}
+    });
+  {% endif %}
+</script>
+
 <script>
    document.body.addEventListener('htmx:configRequest', (event) => {
        event.detail.headers['X-CSRFToken'] = document.querySelector('[name=csrfmiddlewaretoken]').value;

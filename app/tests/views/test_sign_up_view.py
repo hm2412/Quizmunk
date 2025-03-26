@@ -35,7 +35,6 @@ class ViewTests(TestCase):
         response = self.client.get(reverse("sign_up"))
         self.assertRedirects(response, reverse("tutor_dashboard"))
 
-
 class SignUpViewTest(TestCase):
     def setUp(self):
         self.signup_url = reverse('sign_up')

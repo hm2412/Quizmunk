@@ -3,18 +3,23 @@ from app.models.quiz import TrueFalseQuestion
 
 class TrueFalseQuestionForm(forms.ModelForm):
     time = forms.IntegerField(
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the time'}),
+        min_value=0,
+        widget=forms.NumberInput(attrs={'min': '0', 'class': 'form-control', 'placeholder': 'Enter the time'}),
         error_messages={'invalid': "Time must be an integer."}
     )
 
     mark = forms.IntegerField(
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter the mark'}),
+        min_value=0,
+        widget=forms.NumberInput(attrs={'min': '0', 'class': 'form-control', 'placeholder': 'Enter the mark'}),
         error_messages={'invalid': "Mark must be an integer."}
     )
-
-    correct_answer = forms.BooleanField(
-        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        required=False  # Optional, prevents errors if not checked
+    
+    correct_answer = forms.TypedChoiceField(
+        choices=((True, 'True'), (False, 'False')),
+        coerce=lambda x: x == 'True',
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
+        required=True,
+        label='Correct Answer'
     )
 
     class Meta:

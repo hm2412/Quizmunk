@@ -7,7 +7,6 @@ from app.models.stats import QuestionStats
 
 
 class StatsModelTests(TestCase):
-
     def setUp(self): #setUp assisted with generative AI
         self.tutor = User.objects.create_user(
             email_address="tutor@example.com",
@@ -58,7 +57,6 @@ class StatsModelTests(TestCase):
             correct_answer="Paris"
         )
 
-
         # Create a room instance with the quiz attached
         self.room = Room.objects.create(name="Test Room", quiz=self.quiz)
 
@@ -106,7 +104,6 @@ class StatsModelTests(TestCase):
             correct=False
         )
 
-
     def test_valid_stats(self):
         self.participant1 = RoomParticipant.objects.create(room=self.room, user=self.user1, score=80)
         self.participant2 = RoomParticipant.objects.create(room=self.room, user=self.user2, score=90)
@@ -141,5 +138,13 @@ class StatsModelTests(TestCase):
             self.fail("Question stats creation failed")
         self.assertEqual(self.intStats.responses_received,3)
         self.assertEqual(self.intStats.correct_responses,2)
+        self.assertEqual(self.intStats.wrong_responses,1)
         self.assertEqual(self.intStats.percentage_correct, (2/3)*100)
+        self.assertEqual(self.intStats.avg_score, (2/3)*100)
 
+    def test_str_stats(self):
+        self.stats = Stats.objects.create(
+            room=self.room,
+            quiz=self.quiz
+        )
+        print(self.stats.__str__())

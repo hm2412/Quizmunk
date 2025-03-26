@@ -34,12 +34,10 @@ class UserManager(BaseUserManager):
 
         return self.create_user(email_address, first_name, last_name, password, **extra_fields)
 
-
     # retrieves user by email address
     # this function seems unnecessary?
     def get_by_natural_key(self, email_address):
         return self.get(email_address=email_address)
-
 
 class User(AbstractBaseUser, PermissionsMixin):
     STUDENT = 'student'

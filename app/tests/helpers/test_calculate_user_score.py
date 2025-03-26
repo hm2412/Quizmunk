@@ -1,8 +1,6 @@
 from django.test import TestCase
-
 from app.helpers.helper_functions import isCorrectAnswer,get_streak_bonus,get_speed_bonus,calculate_user_score, calculate_user_base_score
 from app.models import User, TrueFalseQuestion, IntegerInputQuestion, NumericalRangeQuestion, TrueFalseResponse, Quiz, RoomParticipant, Response, Room, IntegerInputResponse, NumericalRangeResponse
-
 
 class TestCalculateUserScore(TestCase):
     def setUp(self):
@@ -140,7 +138,6 @@ class TestCalculateUserScore(TestCase):
         self.assertEqual(score1, expected_score1)  # Player1 should have 15 points
         self.assertEqual(score2, expected_score2)  # Player2 should have 5 points
 
-    
     def test_streak_and_speed_bonus(self):
         """Test that streak and speed bonuses are applied correctly together."""
         
@@ -163,4 +160,5 @@ class TestCalculateUserScore(TestCase):
         self.assertEqual(score1, expected_score1)  # Player1 should have 20 points
         self.assertEqual(score2, expected_score2)  # Player2 should have 7 points
 
-    
+    def test_null_calculate_user_score(self):
+        self.assertIsNone(calculate_user_base_score(None, None))
