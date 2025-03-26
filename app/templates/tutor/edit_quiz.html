@@ -18,6 +18,29 @@
 
 <body>
   <div class="container-fluid">
+    <div class="quiz-settings mb-4">
+        <h4>Quiz Settings</h4>
+        <form method="POST" class="settings-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_settings">
+            <div class="form-group">
+                <label for="quiz_name">Quiz Name:</label>
+                <input type="text" id="quiz_name" name="name" value="{{ quiz.name }}" class="form-control">
+            </div>
+            <div clasns="form-group">
+                <label for="quiz_subject">Subject:</label>
+                <input type="text" id="quiz_subject" name="subject" value="{{ quiz.subject }}" class="form-control">
+            </div>
+            <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input" id="is_public" name="is_public" {% if quiz.is_public %}checked{% endif %}>
+                <label class="form-check-label" for="is_public">Make Quiz Public</label>
+                <small class="form-text text-muted">Public quizzes can be viewed by other tutors</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+        </form>
+    </div>
+  </div>
+  <div class="container-fluid">
     <div class="row">
 
       <!-- Questions List -->
