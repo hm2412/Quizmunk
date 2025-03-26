@@ -204,24 +204,11 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
             "participants": event.get("participants")
         }))
 
-
-    async def quiz_ended(self, event):
-        try:
-            await self.send(text_data=json.dumps({
-                "type": "quiz_ended",
-                "message": event.get("message")
-            }))
-        except Exception:
-            pass
-
-
-    async def leaderboard_update(self, event):
-        response = {
-            "type": "leaderboard_update",
-            "leaderboard": event.get("leaderboard")
-        }
-        if "answered_count" in event:
-            response["answered_count"] = event["answered_count"]
-        if "participant_number" in event:
-            response["participant_number"] = event["participant_number"]
-        await self.send(text_data=json.dumps(response))
+    async def show_stats(self, event):
+         stats_data = {
+             "type": "show_stats",
+             "correct_answer": event.get("correct_answer", ""),
+             "responses_received": event.get("responses_received", -2),
+             "correct_responses": event.get("correct_responses", -2),
+         }
+         await self.send(text_data=json.dumps(stats_data))
