@@ -71,6 +71,7 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def get_question_stats(self, question, room):
+        from app.helpers.helper_functions import get_all_responses_question, isCorrectAnswer
         responses = get_all_responses_question(room, question)
      
         responses_received = responses.count()
@@ -175,14 +176,21 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
     async def handle_next_question(self):
         room = await self.get_room(self.join_code)
         next_q = await database_sync_to_async(room.next_question)()
+
+        await self.channel_layer.group_send(
+                f"student_{self.join_code}",
+                {"type": "hide_stats_popup"}
+            )
+
         if next_q:
             question_data = await self.get_question_data(next_q, room, reveal_answer=False)
+
             await self.send_question_update(question_data)
             await self.send_student_question(question_data)
         else:
             from app.helpers.helper_functions import create_quiz_stats
             await database_sync_to_async(create_quiz_stats)(room)
-            message = "No more questions!"
+            message = "Thanks for playing!"
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {"type": "quiz_ended", "message": message}
@@ -199,10 +207,14 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         from app.helpers.helper_functions import create_quiz_stats
         await database_sync_to_async(create_quiz_stats)(room)
         await database_sync_to_async(room.save)()
-        await self.send_quiz_ended("Quiz ended! Redirecting...")
+        await self.send_quiz_ended("Thanks for playing!")
+        await self.channel_layer.group_send(
+                f"student_{self.join_code}",
+                {"type": "hide_stats_popup"}
+            )
         await self.channel_layer.group_send(
             f"student_{self.join_code}",
-            {"type": "quiz_ended", "message": "Quiz ended! Redirecting..."}
+            {"type": "quiz_ended", "message": "Thanks for playing!"}
         )
     
     async def send_quiz_ended(self, message):

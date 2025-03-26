@@ -1,11 +1,12 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from app.models import RoomParticipant, GuestAccess, Room
+# from app.models import RoomParticipant, GuestAccess, Room
 
 
 class StudentQuizConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        from app.models import Room, RoomParticipant, GuestAccess
         self.join_code = self.scope['url_route']['kwargs']['join_code']
         self.room = await database_sync_to_async(Room.objects.get)(join_code=self.join_code)
         self.room_group_name = f"student_{self.join_code}"
@@ -212,3 +213,8 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
              "correct_responses": event.get("correct_responses", -2),
          }
          await self.send(text_data=json.dumps(stats_data))
+
+    async def hide_stats_popup(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "hide_stats_popup"
+        }))
