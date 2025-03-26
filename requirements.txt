@@ -9,3 +9,4 @@ pytest==8.3.4
 daphne>=4.0.0
 faker==37.0.0
 whitenoise==6.9.0
+uvicorn==0.34.0
