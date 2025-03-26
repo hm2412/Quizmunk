@@ -183,6 +183,9 @@
               }
           });
          }
+        else if (data.type === "hide_stats_popup") {
+          $("#stats-popup").hide();
+        }
       };
 
       // Timer function
@@ -265,7 +268,7 @@
        $("#stats-popup").fadeIn();
        setTimeout(() => {
         $("#stats-popup").fadeOut();
-       }, 5000);
+       }, 30000);
      }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -176,6 +176,12 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
     async def handle_next_question(self):
         room = await self.get_room(self.join_code)
         next_q = await database_sync_to_async(room.next_question)()
+
+        await self.channel_layer.group_send(
+            f"student_{self.join_code}",
+            {"type": "hide_stats_popup"}
+        )
+
         if next_q:
             question_data = await self.get_question_data(next_q, room, reveal_answer=False)
             await self.send_question_update(question_data)
