@@ -46,26 +46,48 @@ class LobbyConsumerTests(TransactionTestCase):
 
         await communicator.disconnect()
 
-    # async def test_quiz_started(self):
-    #     communicator = WebsocketCommunicator(LobbyConsumer.as_asgi(), "/ws/lobby/ABCD1234/")
-    #     communicator.scope['url_route'] = {'kwargs': {'join_code': 'ABCD1234'}}
-    #     communicator.scope['user'] = self.teacher
-    #     session = await sync_to_async(lambda: dict(self.client.session))()
-    #     communicator.scope['session'] = session
-    #     await communicator.connect()
-    #
-    #     await communicator.send_json_to({
-    #         "action": "quiz_started",
-    #         "student_quiz_url": "student_quiz_url",
-    #         "tutor_quiz_url": "tutor_quiz_url"
-    #     })
-    #
-    #     response = await communicator.receive_json_from()
-    #
-    #     self.assertEqual(response, {
-    #         "action": "quiz_started",
-    #         "student_quiz_url": "student_quiz_url",
-    #         "tutor_quiz_url": "tutor_quiz_url"
-    #     })
-    #
-    #     await communicator.disconnect()
+    async def test_valid_receive(self):
+        communicator = WebsocketCommunicator(LobbyConsumer.as_asgi(), "/ws/lobby/ABCD1234/")
+        communicator.scope['url_route'] = {'kwargs': {'join_code': 'ABCD1234'}}
+        communicator.scope['user'] = self.teacher
+        session = await sync_to_async(lambda: dict(self.client.session))()
+        communicator.scope['session'] = session
+        await communicator.connect()
+
+        await communicator.send_json_to({
+            "action": "quiz_started",
+            "student_quiz_url": "/student/live-quiz/ABCD1234/",
+            "tutor_quiz_url": "/live-quiz/1/ABCD1234/"
+        })
+
+        response = None
+        while True:
+            response = await communicator.receive_json_from()
+            if response.get("type") == "quiz_started":
+                break
+
+        self.assertEqual(response["type"], "quiz_started")
+
+        await communicator.disconnect()
+
+    async def test_invalid_receive(self):
+        communicator = WebsocketCommunicator(LobbyConsumer.as_asgi(), "/ws/lobby/ABCD1234/")
+        communicator.scope['url_route'] = {'kwargs': {'join_code': 'ABCD1234'}}
+        communicator.scope['user'] = self.teacher
+        session = await sync_to_async(lambda: dict(self.client.session))()
+        communicator.scope['session'] = session
+        await communicator.connect()
+
+        await communicator.send_json_to({
+            "action": "Invalid action"
+        })
+
+        response = None
+        while True:
+            response = await communicator.receive_json_from()
+            if response.get("error") == "Unknown action in lobby":
+                break
+
+        self.assertEqual(response, {"error": "Unknown action in lobby"})
+
+        await communicator.disconnect()

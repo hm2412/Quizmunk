@@ -42,6 +42,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
+                    "type": "quiz_started",
                     "action": "quiz_started",
                     "student_quiz_url": data.get("student_quiz_url"),
                     "tutor_quiz_url": data.get("tutor_quiz_url"),
@@ -81,6 +82,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
 
     async def participants_update(self, event):
         await self.send(text_data=json.dumps({
+            "type": "update_participants",
             "action": "update_participants",
             "participants": event["participants"]
         }))
@@ -88,6 +90,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
 
     async def quiz_started(self, event):
         await self.send(text_data=json.dumps({
+            "type": "quiz_started",
             "action": "quiz_started",
             "student_quiz_url": event["student_quiz_url"],
             "tutor_quiz_url": event["tutor_quiz_url"],
