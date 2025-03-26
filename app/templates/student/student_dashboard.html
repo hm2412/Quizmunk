@@ -43,7 +43,7 @@
                 <h2>Your Results</h2>
                 <div class="results-list">
                     {% for result in student_results %}
-                        {% include 'partials/quiz_card.html' with quiz_title=result.quiz_title score=result.score %}
+                        {% include 'partials/quiz_card.html' with quiz_name=result.quiz_name score=result.score %}
                     {% empty %}
                         <p class="text-muted">No results available yet.</p>
                     {% endfor %}

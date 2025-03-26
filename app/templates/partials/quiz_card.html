@@ -5,6 +5,8 @@
   </div>
   <div class="card-body">
     <h5 class="card-title">{{ quiz_name|default:"No name available" }}</h5>
-    <a href="{% url 'setup_quiz' quiz.id %}" class="btn">Start!</a>
+    {% if user.role == "tutor" %}
+      <a href="{% url 'setup_quiz' quiz.id %}" class="btn">Start!</a>
+    {% endif %}
   </div>
 </div>
