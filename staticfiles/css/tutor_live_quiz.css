@@ -14,13 +14,20 @@ html, body {
   height: 100%;
   background-color: #398AA2;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
   color: white;
   z-index: 10;  /* Ensure it's above the content but below the sidebar */
   font-size: 6rem;
   font-weight: 800;
+  margin: auto;
 }
+
+.start-message p {
+  text-align: center;  /* Ensure text is centered within the p element */
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+}
+
 
 .main-area {
   padding-top: 20px;  /* Adjust this value to control the offset */
@@ -54,7 +61,7 @@ html, body {
 }
 
 .question {
-  font-size: 35px;
+  font-size: 30px;
   color: #398AA2;
   background-color: white;
   border-radius: 5px;
@@ -74,16 +81,16 @@ html, body {
 }
 
 .answer {
-  padding-top: 10px;
-  font-size: 2rem;
+  padding-top: 12px;
+  font-size: 1.5rem;
 }
 
 /* Leaderboard styling */
 .leaderboard-container {
   text-align: center;
-  flex-grow: 0;  /* Prevent it from taking too much space */
-  max-width: 800px;  /* Adjust width */
-  width: 80%;  /* Make sure it doesn't exceed max-width */
+  flex-grow: 0;  
+  max-width: 800px;  
+  width: 80%;  
   margin-left: auto;
   margin-right: auto; /* Centers the leaderboard */
   overflow-y: auto;
@@ -126,12 +133,12 @@ html, body {
 }
 
 .time-text {
-  color: black;  /* Change to any color */
+  color: black;  
   font-weight: italic;
 }
 
 .seconds-text {
-  color: black;  /* Change to any color */
+  color: black;  
   font-style: italic;
 }
 
@@ -164,7 +171,7 @@ html, body {
 }
 
 #question-image-container {
-  margin-top: 20px;
+  margin-top: 15px;
   text-align: center;
   max-height: 250px; /* Limits the height of the container */
   overflow: hidden; /* Prevents overflow if the image is too large */
@@ -173,7 +180,7 @@ html, body {
 .question-image {
   width: auto; /* Ensures aspect ratio is maintained */
   max-width: 100%; /* Ensures the image doesn't exceed container width */
-  height: 250px; /* Forces the image to fit the container height */
+  height: 150px; /* Forces the image to fit the container height */
   object-fit: contain; /* Ensures the entire image is visible without distortion */
   display: block;
   margin: 0 auto;

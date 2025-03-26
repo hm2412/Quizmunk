@@ -19,7 +19,7 @@ class TrueFalseResponse(Response):
     question = models.ForeignKey(TrueFalseQuestion, on_delete=models.CASCADE)
     answer = models.BooleanField()
 
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         if self.player:
             actor = self.player.email_address
         else:
@@ -40,7 +40,7 @@ class IntegerInputResponse(Response):
         self.clean()
         super().save(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         if self.player:
             actor = self.player.email_address
         else:
@@ -51,7 +51,7 @@ class TextInputResponse(Response):
     question = models.ForeignKey(TextInputQuestion, on_delete=models.CASCADE)
     answer = models.CharField(max_length=255)
 
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         if self.player:
             actor = self.player.email_address
         else:
@@ -80,7 +80,7 @@ class NumericalRangeResponse(Response):
     question = models.ForeignKey(NumericalRangeQuestion, on_delete=models.CASCADE)
     answer = models.FloatField()
 
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         if self.player:
             actor = self.player.email_address
         else:

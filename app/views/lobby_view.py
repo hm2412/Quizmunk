@@ -40,7 +40,7 @@ def lobby(request, join_code):
             participant, created = RoomParticipant.objects.get_or_create(room=room, guest_access=guest_access)
 
     participants = RoomParticipant.objects.filter(room=room).exclude(user__role="tutor")
-    qr_code_path = "app/static/images/qr_code.png"
+    qr_code_path = "app/media/qr_codes/qr_code.png"
 
     try:
         os.makedirs(os.path.dirname(qr_code_path), exist_ok=True)
@@ -66,7 +66,7 @@ def lobby(request, join_code):
         'participants': participants,  
         'code': f"Room Code: {room.join_code}",
         'name': f"{room.name}",
-        'qr_code_path': "/static/images/qr_code.png" if qr_code_path else None,
+        'qr_code_path': "/media/qr_codes/qr_code.png" if qr_code_path else None,
         'in_classroom': in_classroom,
     }
 

@@ -3,7 +3,8 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async, aclose_old_connections
-
+from app.helpers.helper_functions import get_all_responses_question, isCorrectAnswer
+from asyncio import sleep
 
 class TutorQuizConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
@@ -66,6 +67,31 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
                 result.append(participant.user.email_address)
         return result
 
+        #return list(room.participants.exclude(user__role__iexact="tutor").values_list('user__email_address', flat=True))
+    
+    @database_sync_to_async
+    def get_question_stats(self, question, room):
+        from app.helpers.helper_functions import get_all_responses_question, isCorrectAnswer
+        responses = get_all_responses_question(room, question)
+     
+        responses_received = responses.count()
+        correct_responses = 0
+        for response in responses:
+            if isCorrectAnswer(response):
+                correct_responses += 1
+ 
+        if responses_received:
+            return {
+                "question_id": question.id,
+                "responses_received": responses_received,
+                "correct_responses": correct_responses
+            }
+        else:
+            return {
+                "question_id": question.id,
+                "responses_received": 0,
+                "correct_responses": 0
+            }
 
     async def connect(self):
         self.join_code = self.scope['url_route']['kwargs']['join_code']
@@ -97,6 +123,8 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
             await self.handle_next_question()
         elif action == "end_quiz":
             await self.handle_end_quiz()
+        elif action == "show_stats":
+            await self.show_stats(data)
         else:
             await self.send(text_data=json.dumps({"error": "Unknown action"}))
     
@@ -118,23 +146,52 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         question = await self.get_current_question(room)
         if question:
             question_data = await self.get_question_data(question, room, reveal_answer=True)
+ 
+            stats = await self.get_question_stats(question, room)
+            responses_received = stats.get("responses_received", -1)
+            correct_responses = stats.get("correct_responses", -1)
+ 
+            await self.channel_layer.group_send(
+                f"student_{self.join_code}",
+                {
+                    "type": "show_stats",
+                    "correct_answer": question_data.get("answer", ""),
+                    "responses_received": responses_received,
+                    "correct_responses": correct_responses
+                }
+            )
+
             await self.send_question_update(question_data)
             await self.send_student_question(question_data)
         else:
             await self.send(text_data=json.dumps({"error": "No question to end"}))
     
+    async def show_stats(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "show_stats",
+            "correct_answer": event.get("correct_answer", ""),
+            "responses_received": event.get("responses_received", -2),
+            "correct_responses": event.get("correct_responses", -2),
+        }))
 
     async def handle_next_question(self):
         room = await self.get_room(self.join_code)
         next_q = await database_sync_to_async(room.next_question)()
+
+        await self.channel_layer.group_send(
+                f"student_{self.join_code}",
+                {"type": "hide_stats_popup"}
+            )
+
         if next_q:
             question_data = await self.get_question_data(next_q, room, reveal_answer=False)
+
             await self.send_question_update(question_data)
             await self.send_student_question(question_data)
         else:
             from app.helpers.helper_functions import create_quiz_stats
             await database_sync_to_async(create_quiz_stats)(room)
-            message = "No more questions!"
+            message = "Thanks for playing!"
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {"type": "quiz_ended", "message": message}
@@ -150,10 +207,15 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         await self.update_quiz_state(room, current_question_index=-1, quiz_started=False)
         from app.helpers.helper_functions import create_quiz_stats
         await database_sync_to_async(create_quiz_stats)(room)
-        await self.send_quiz_ended("Quiz ended! Redirecting...")
+        await database_sync_to_async(room.save)()
+        await self.send_quiz_ended("Thanks for playing!")
+        await self.channel_layer.group_send(
+                f"student_{self.join_code}",
+                {"type": "hide_stats_popup"}
+            )
         await self.channel_layer.group_send(
             f"student_{self.join_code}",
-            {"type": "quiz_ended", "message": "Quiz ended! Redirecting..."}
+            {"type": "quiz_ended", "message": "Thanks for playing!"}
         )
     
     async def send_quiz_ended(self, message):
