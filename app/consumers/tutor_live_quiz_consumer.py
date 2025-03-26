@@ -97,7 +97,6 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         self.room_group_name = f"live_quiz_{self.join_code}"
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
-        #await self.send_updated_participants()
     
 
     async def disconnect(self, close_code):
@@ -291,46 +290,6 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
             "participant_number": participant_number,
             "answered_count": answered_count
         }))
-
-
-    async def answer_received(self, event):
-        room = await self.get_room(self.join_code)
-        leaderboard = await self.get_leaderboard(room)
-        current_question = await self.get_current_question(room)
-        answered_count = 0
-        if current_question:
-            from app.helpers.helper_functions import count_answers_for_question
-            answered_count = await database_sync_to_async(count_answers_for_question)(room, current_question)
-        update_payload = {
-            "type": "leaderboard_update",
-            "leaderboard": leaderboard,
-            "answered_count": answered_count
-        }
-        await self.channel_layer.group_send(f"live_quiz_{self.join_code}", update_payload)
-        await self.channel_layer.group_send(f"student_{self.join_code}", update_payload)
-    
-
-    async def send_updated_participants(self):
-        try:
-            from app.models import Room
-            room = await database_sync_to_async(Room.objects.get)(join_code=self.join_code)
-            participants = await self.get_participants(room)
-            participant_number = len(participants)
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {"type": "participants_update", "participants": participants, "participant_number": participant_number}
-            )
-        except Exception as e:
-            print("[UPDATE PARTICIPANTS] Error:", e)
-    
-
-    async def participants_update(self, event):
-        await self.send(text_data=json.dumps({
-            "action": "update_participants",
-            "participants": event["participants"],
-            "participant_number": event["participant_number"]
-        }))
-    
 
     async def quiz_ended(self, event):
         try:
