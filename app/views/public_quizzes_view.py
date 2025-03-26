@@ -9,9 +9,41 @@ from app.question_registry import QUESTION_MODELS
 @redirect_unauthenticated_to_homepage
 @is_tutor
 def public_quizzes_view(request):
-    quizzes = Quiz.objects.filter(is_public=True).exclude(tutor=request.user).order_by("-id")
-    return render(request, 'tutor/public_quizzes.html', {'quizzes':quizzes})
-
+    # Get search parameters
+    name_query = request.GET.get('name_search', '')
+    subject_query = request.GET.get('subject_search', '')
+    difficulty = request.GET.get('difficulty', '')
+    
+    # Start with all public quizzes excluding user's own
+    quizzes = Quiz.objects.filter(is_public=True).exclude(tutor=request.user)
+    
+    # Apply filters based on search parameters
+    if name_query:
+        quizzes = quizzes.filter(name__icontains=name_query)
+    
+    if subject_query:
+        quizzes = quizzes.filter(subject__icontains=subject_query)
+    
+    if difficulty:
+        quizzes = quizzes.filter(difficulty=difficulty)
+    
+    # Order quizzes by ID (newest first)
+    quizzes = quizzes.order_by("-id")
+    
+    # Get unique subjects for the subject dropdown
+    all_subjects = Quiz.objects.filter(is_public=True).values_list('subject', flat=True).distinct()
+    
+    # Prepare context for template
+    context = {
+        'quizzes': quizzes,
+        'name_query': name_query,
+        'subject_query': subject_query,
+        'difficulty': difficulty,
+        'all_subjects': all_subjects,
+        'difficulties': Quiz.DIFFICULTIES,
+    }
+    
+    return render(request, 'tutor/public_quizzes.html', context)
 @redirect_unauthenticated_to_homepage
 @is_tutor
 def save_public_quiz_view(request, quiz_id):
