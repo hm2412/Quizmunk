@@ -69,8 +69,7 @@ class Command(BaseCommand):
                 if not User.objects.filter(email_address = data['email']).exists():
                     User.objects.create_user(data['email'], data['first_name'], data['last_name'], Command.PASSWORD)
             except Exception as e:
-                print(f"Error creating user {data['email']}: {e}")
-        print("User fixtures seeded")
+                pass
 
     def create_tutor_fixtures(self):
         for data in tutor_fixtures:
@@ -80,8 +79,7 @@ class Command(BaseCommand):
                     tutor.role = User.TUTOR
                     tutor.save()
             except Exception as e:
-                print(f"Error creating tutor {data['email']}: {e}")
-        print("Tutor fixtures seeded")
+                pass
 
     def create_admin_fixtures(self):
         for data in admin_fixtures:
@@ -89,8 +87,7 @@ class Command(BaseCommand):
                 if not User.objects.filter(email_address = data['email']).exists():
                     User.objects.create_superuser(data['email'], data['first_name'], data['last_name'], Command.PASSWORD)
             except Exception as e:
-                print(f"Error creating admin {data['email']}: {e}")
-        print("Admin fixtures seeded")
+                pass
     
     def generate_user(self):
         first_name = self.faker.first_name()
@@ -100,25 +97,22 @@ class Command(BaseCommand):
             if not User.objects.filter(email_address = email).exists():
                 User.objects.create_user(email, first_name, last_name, Command.PASSWORD)
         except Exception as e:
-            print(f"Error creating user {email}: {e}")
+            pass
 
     def generate_users(self):
         user_count = User.objects.count()
         while user_count < Command.USER_COUNT:
-            print(f"Seeding user {user_count}", end = "\r")
             try:
                 self.generate_user()
             except:
                 continue
             user_count += User.objects.count()
-        print("Random users seeded")
 
     "Room generating functions"
 
     def generate_rooms(self):
         room_count = Room.objects.count()
         while room_count < Command.ROOM_COUNT:
-            print(f"Seeding room {room_count + 1} / {Command.ROOM_COUNT}", end = "\r")
             try:
                 self.generate_room()
             except:
@@ -129,10 +123,9 @@ class Command(BaseCommand):
         room_name = f"Room {Room.objects.count() + 1}"
         try:
             room = Room.objects.create(name = room_name)
-            print(f"Created {room.name} (Code: {room.join_code})")
             self.create_quiz(room)
         except Exception as e:
-            print(f"Error creating room {room_name}: {e}")
+            pass
 
     def create_quiz(self, room):
         sample_quiz = Quiz.objects.create(
@@ -175,7 +168,6 @@ class Command(BaseCommand):
             tutor = bob,
             description = "Hi, I'm Bob. I don't know any of you except John and Jane!"
         )
-        print(f"Created {classroom.name}", end = '\r')
 
         ClassroomStudent.objects.create(classroom=classroom, student=john)
 
@@ -188,14 +180,9 @@ class Command(BaseCommand):
 
                 if not ClassroomStudent.objects.filter(classroom=classroom, student=student).exists():    
                     ClassroomStudent.objects.create(classroom = classroom, student = student)
-                    print(f"Added {student.email_address} to {classroom.name}")
                     classroom_count += 1
             else:
-                print("Students are less than required!")
                 break
-
-        #There's a bug here where it will type "Classroom seeding complete.org to Bob's Classroomsroom" without all those spaces
-        print("Classroom seeding complete")
     
     def generate_classroom_invite(self):
         bob = User.objects.filter(email_address="Bob.Tutor@example.org").first()
@@ -203,7 +190,6 @@ class Command(BaseCommand):
         classroom = Classroom.objects.filter(tutor=bob).first() 
 
         ClassroomInvitation.objects.create(classroom=classroom, student=jane, status="pending")
-        print(f"Invitation created for {jane.email_address} to {bob.first_name}'s Classroom")
     
     def generate_quizzes(self):
         bob = User.objects.filter(email_address="Bob.Tutor@example.org").first()
@@ -261,9 +247,6 @@ class Command(BaseCommand):
             mark=1,
             correct_answer="class"
         )
-
-        print(f"Seeded {quiz.name} Quiz with 4 Questions")
-
 
     def generate_quiz_2(self, tutor):
         quiz = Quiz.objects.create(
@@ -328,8 +311,6 @@ class Command(BaseCommand):
             correct_answer=9
         )
 
-        print(f"Seeded {quiz.name} Quiz with 6 Questions")
-
     def generate_quiz_3(self, tutor):
         quiz = Quiz.objects.create(
             name="Physics Basics",
@@ -387,8 +368,6 @@ class Command(BaseCommand):
             mark=1,
             correct_answer = "current"
         )
-
-        print(f"Seeded {quiz.name} Quiz with 5 Questions")
     
     def generate_quiz_responses(self):
         self.generate_quiz_1_responses()
