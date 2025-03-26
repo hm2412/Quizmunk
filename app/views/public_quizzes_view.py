@@ -9,15 +9,14 @@ from app.question_registry import QUESTION_MODELS
 @redirect_unauthenticated_to_homepage
 @is_tutor
 def public_quizzes_view(request):
-    # Get search parameters
+
     name_query = request.GET.get('name_search', '')
     subject_query = request.GET.get('subject_search', '')
     difficulty = request.GET.get('difficulty', '')
     
-    # Start with all public quizzes excluding user's own
-    quizzes = Quiz.objects.filter(is_public=True).exclude(tutor=request.user)
     
-    # Apply filters based on search parameters
+    quizzes = Quiz.objects.filter(is_public=True).exclude(tutor=request.user)
+
     if name_query:
         quizzes = quizzes.filter(name__icontains=name_query)
     
@@ -27,13 +26,11 @@ def public_quizzes_view(request):
     if difficulty:
         quizzes = quizzes.filter(difficulty=difficulty)
     
-    # Order quizzes by ID (newest first)
     quizzes = quizzes.order_by("-id")
     
-    # Get unique subjects for the subject dropdown
     all_subjects = Quiz.objects.filter(is_public=True).values_list('subject', flat=True).distinct()
     
-    # Prepare context for template
+   
     context = {
         'quizzes': quizzes,
         'name_query': name_query,
