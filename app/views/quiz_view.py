@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST
 from django.core.files.storage import default_storage
 from app.question_registry import QUESTION_FORMS, QUESTION_MODELS
 from app.helpers.helper_functions import getAllQuestions
-
+from django.contrib import messages
 
 @redirect_unauthenticated_to_homepage
 @is_tutor
@@ -47,6 +47,15 @@ def edit_quiz_view(request, quiz_id):
     form = None
 
     if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'update_settings':
+            # Handle quiz settings update
+            quiz.name = request.POST.get('name', quiz.name)
+            quiz.subject = request.POST.get('subject', quiz.subject)
+            quiz.is_public = request.POST.get('is_public') == 'on'
+            quiz.save()
+            messages.success(request, 'Quiz settings updated successfully')
+            return redirect('your_quizzes')
         hx_request = request.headers.get('HX-Request')
         for key in QUESTION_FORMS:
             if key in request.POST:
