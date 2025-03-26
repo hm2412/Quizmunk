@@ -1,126 +1,52 @@
 <!DOCTYPE html>
 {% extends "base.html" %}
 {% load static %}
-
 {% block title %}Public Quizzes{% endblock %}
-
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/public_quizzes.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/htmx.org@1.9.2"></script>
 {% endblock %}
-
 {% block content %}
 <h2 class="public-quizzes">Public Quizzes</h2>
-
-
-<div class="search-container mb-4">
-    <form method="GET" action="{% url 'public_quizzes' %}" class="search-form">
-        <div class="row g-3 mb-3">
-            <div class="col-md-4">
-                <label for="name_search" class="form-label">Quiz Name</label>
-                <input type="text" name="name_search" id="name_search" class="form-control" placeholder="Search by quiz name..." value="{{ name_query }}">
-            </div>
-            
-            <div class="col-md-4">
-                <label for="subject_search" class="form-label">Subject</label>
-                <input type="text" name="subject_search" id="subject_search" class="form-control" placeholder="Search by subject..." value="{{ subject_query }}">
-            </div>
-            
-            <div class="col-md-4">
-                <label for="difficulty" class="form-label">Difficulty</label>
-                <select name="difficulty" id="difficulty" class="form-select">
-                    <option value="">All Difficulties</option>
-                    {% for diff_code, diff_name in difficulties %}
-                        <option value="{{ diff_code }}" {% if difficulty == diff_code %}selected{% endif %}>{{ diff_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-        
-        <div class="d-flex">
-            <button type="submit" class="btn btn-primary me-2">Search</button>
-            {% if name_query or subject_query or difficulty %}
-                <a href="{% url 'public_quizzes' %}" class="btn btn-outline-secondary">Clear Filters</a>
-            {% endif %}
-        </div>
-    </form>
-</div>
-
-
-{% if name_query or subject_query or difficulty %}
-    <div class="alert alert-info">
-        <p class="mb-0">
-            <strong>Filters applied:</strong>
-            {% if name_query %}<span class="badge bg-primary me-2">Name: {{ name_query }}</span>{% endif %}
-            {% if subject_query %}<span class="badge bg-primary me-2">Subject: {{ subject_query }}</span>{% endif %}
-            {% if difficulty %}
-                <span class="badge bg-primary me-2">
-                    Difficulty: 
-                    {% for diff_code, diff_name in difficulties %}
-                        {% if difficulty == diff_code %}{{ diff_name }}{% endif %}
-                    {% endfor %}
-                </span>
-            {% endif %}
-        </p>
-    </div>
-{% endif %}
-
-
 {% if quizzes %}
     <ul class="list-group">
         {% for quiz in quizzes %}
             <li class="list-group-item d-flex align-items-center" id="quiz-{{ quiz.id }}">
-                <div class="quiz-info">
-                    <strong>{{ quiz.name }}</strong>
-                    <div>
-                        <span class="badge bg-secondary me-2">{{ quiz.subject }}</span>
-                        <span class="badge {% if quiz.difficulty == 'E' %}bg-success{% elif quiz.difficulty == 'M' %}bg-warning{% elif quiz.difficulty == 'H' %}bg-danger{% endif %}">
-                            {% for diff_code, diff_name in difficulties %}
-                                {% if quiz.difficulty == diff_code %}{{ diff_name }}{% endif %}
-                            {% endfor %}
-                        </span>
-                        <span class="badge bg-info">
-                            {% if quiz.is_public %}Public{% endif %}
-                        </span>
-                    </div>
-                </div>
+                <span>
+                    <strong>{{ quiz.name }}</strong> ({{ quiz.subject }})
+                    <span class="badge {% if quiz.is_public %}bg-success{% else %}bg-secondary{% endif %}">
+                        {% if quiz.is_public %}Public{% endif %}
+                    </span>
+                </span>
                 <div class="quiz-buttons">
                     <button data-quiz-id="{{ quiz.id }}" class="btn btn-info open-preview-modal">Preview Quiz</button>
-                    <a href="{% url 'save_public_quiz' quiz.id %}" class="save-quiz btn">Save copy to Library</a>
+                  <a href="{% url 'save_public_quiz' quiz.id %}" class="save-quiz btn">Save copy to Library</a>
                 </div>
             </li>
         {% endfor %}
     </ul>
 {% else %}
-    <div class="alert alert-info">
-        {% if name_query or subject_query or difficulty %}
-            <p>No public quizzes found matching your search criteria.</p>
-        {% else %}
-            <p>There are no public quizzes.</p>
-        {% endif %}
-    </div>
+    <p class="alert alert-info">There are no public quizzes.</p>
 {% endif %}
-
-
 <div class="modal fade" id="previewModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-        </div>
+      <div class="modal-content">
+        
+      </div>
     </div>
 </div>
-
 <script>
     $(document).on('click', '.open-preview-modal', function(e) {
         e.preventDefault();
         var quizId = $(this).data('quiz-id');
-        
+    
         $.ajax({
             url: '/preview-modal/' + quizId,
             success: function(data) {
                 $('#previewModal .modal-content').html(data);
-                
+    
                 // Bootstrap 5 Modal API
                 var myModal = new bootstrap.Modal(document.getElementById('previewModal'));
                 myModal.show();
@@ -129,3 +55,4 @@
     });
 </script>
 {% endblock %}
+

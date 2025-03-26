@@ -2,6 +2,3 @@
 omit =
     */tests/*
     */migrations/*
-    manage.py
-    */settings.py
-    */urls.py

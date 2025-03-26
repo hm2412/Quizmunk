@@ -1,6 +1,6 @@
  body {
     background-color: #398AA2;
-    margin: 10px;
+    margin: 0;
     padding: 20px;
     font-family: 'Poppins', sans-serif;
     color: #333;
@@ -20,7 +20,6 @@
     max-width: 1200px;
     margin: auto;
     transition: transform 0.3s ease;
-    margin-top: 5%;
   }
   .container-fluid:hover {
     transform: scale(1.01);
@@ -163,46 +162,4 @@
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
-  }
-
-  .quiz-settings {
-    background: #ffffff;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
-  }
-
-  .settings-form .form-group {
-    margin-bottom: 20px;
-  }
-
-  .settings-form label {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 8px;
-  }
-
-  .settings-form .form-control {
-    border-radius: 8px;
-    border: 1px solid #ced4da;
-    padding: 10px;
-  }
-
-  .settings-form .form-check {
-    margin: 15px 0;
-  }
-
-  .settings-form .form-check-input {
-    margin-right: 8px;
-  }
-
-  .settings-form .form-text {
-    color: #6c757d;
-    font-size: 0.875rem;
-    margin-top: 4px;
-  }
-
-  .form-check .form-check-input{
-    float: none;
   }

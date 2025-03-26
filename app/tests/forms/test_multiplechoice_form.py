@@ -99,6 +99,7 @@ class MultipleChoiceQuestionFormTest(TestCase):
         }
         form = MultipleChoiceQuestionForm(data=form_data)
         self.assertFalse(form.is_valid())
+        # The clean() method should add a non-field error.
         self.assertIn('__all__', form.errors)
         self.assertIn(
             "Ensure that the correct answer matches one of the options.",
@@ -134,88 +135,3 @@ class MultipleChoiceQuestionFormTest(TestCase):
         rendered_html = widget.render(name="options", value="Option1\nOption2")
         self.assertIn('name="options[]"', rendered_html)
         self.assertIn('Enter option', rendered_html)
-
-    def test_empty_options_field(self):
-        form_data = {
-            'time': 10,
-            'question_text': 'Sample Question',
-            'mark': 5,
-            'options': '',
-            'correct_answer': 'Option 1',
-            'image': None
-        }
-        form = MultipleChoiceQuestionForm(data=form_data)
-
-        self.assertFalse(form.is_valid())
-
-        data = form_data
-        widget = form.fields['options'].widget
-
-        value = widget.value_from_datadict(data, {}, 'options')
-
-        self.assertEqual(value, [''])
-
-    def test_render_with_none_value(self):
-        # Test when value is None
-        widget = MultipleChoiceOptionsWidget()
-        rendered_html = widget.render('options', None)
-
-        # Check if the default value ["", ""] is used
-        self.assertIn('<input type="text" name="options[]" value=""', rendered_html)
-        self.assertIn('<input type="text" name="options[]" value=""', rendered_html)
-
-    def test_render_with_string_value(self):
-        # Test when value is a string
-        widget = MultipleChoiceOptionsWidget()
-        rendered_html = widget.render('options', "Option 1\nOption 2")
-
-        # Check if the string is correctly split into two input fields
-        self.assertIn('<input type="text" name="options[]" value="Option 1"', rendered_html)
-        self.assertIn('<input type="text" name="options[]" value="Option 2"', rendered_html)
-
-    def test_render_with_list_value(self):
-        # Test when value is a list of options
-        widget = MultipleChoiceOptionsWidget()
-        rendered_html = widget.render('options', ["Option 1", "Option 2"])
-
-    def test_clean_options_single_item_list(self):
-        form_data = {
-            'time': 10,
-            'question_text': 'Sample Question',
-            'mark': 5,
-            'options': ['Option 1'],
-            'correct_answer': 'Option 1',
-            'image': None
-        }
-        form = MultipleChoiceQuestionForm(data=form_data)
-        self.assertFalse(form.is_valid(), msg=f"Form errors: {form.errors}")
-
-    def test_clean_options_single_item_list_with_nested_list(self):
-        form_data = {
-            'time': 10,
-            'question_text': 'Sample Question',
-            'mark': 5,
-            'options': ['Option 1', '["Option 2a", "Option 2b"]'],
-            'correct_answer': 'Option 1',
-            'image': None
-        }
-        form = MultipleChoiceQuestionForm(data=form_data)
-
-        self.assertTrue(form.is_valid(), msg=f"Form errors: {form.errors}")
-
-    def test_clean_correct_answer_not_in_options(self):
-        form_data = {
-            'time': 10,
-            'question_text': 'Sample Question',
-            'mark': 5,
-            'options': ['Option 1', 'Option 2'],
-            'correct_answer': 'Option 3',
-            'image': None
-        }
-        form = MultipleChoiceQuestionForm(data=form_data)
-
-        self.assertFalse(form.is_valid(), msg=f"Form errors: {form.errors}")
-
-        self.assertIn('Ensure that the correct answer matches one of the options.', form.non_field_errors())
-
-

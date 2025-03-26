@@ -31,7 +31,7 @@
                 <h2>My Quizzes</h2>
                 <div class="quiz-list">
                     {% for quiz in quizzes %}
-                        {% include 'partials/quiz_card.html' with quiz_img=quiz.quiz_img quiz_name=quiz.name %}
+                        {% include 'partials/quiz_card.html' with quiz_img=quiz.quiz_img quiz_name=quiz.name quiz_description=quiz.quiz_description %}
                     {% empty %}
                         <p class="text-muted">No quizzes created yet.</p>
                     {% endfor %}
