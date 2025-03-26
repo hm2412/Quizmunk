@@ -63,3 +63,7 @@ button[type="submit"]:active {
     transform: translateY(0);
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
+
+form {
+    margin-top: 40px; /* Adjust this value if needed */
+}

@@ -7,7 +7,6 @@ from app.forms.text_input_question_form import TextInputQuestionForm
 from app.forms.multiple_choice_question_form import MultipleChoiceQuestionForm
 from app.forms.numerical_range_question_form import NumericalRangeQuestionForm
 from app.forms.decimal_input_question_form import DecimalInputQuestionForm
-from app.forms.sorting_question_form import SortingQuestionForm
 from app.models.quiz import (
     #add more models here
     IntegerInputQuestion, 
@@ -15,8 +14,7 @@ from app.models.quiz import (
     TextInputQuestion, 
     DecimalInputQuestion, 
     MultipleChoiceQuestion, 
-    NumericalRangeQuestion, 
-    SortingQuestion
+    NumericalRangeQuestion
 )
 
 QUESTION_FORMS = {
@@ -26,8 +24,7 @@ QUESTION_FORMS = {
     'text': TextInputQuestionForm,
     'multiple_choice': MultipleChoiceQuestionForm,
     'numerical_range': NumericalRangeQuestionForm,
-    'decimal': DecimalInputQuestionForm,
-    'sorting': SortingQuestionForm
+    'decimal': DecimalInputQuestionForm
 }
 
 QUESTION_MODELS = {
@@ -37,6 +34,5 @@ QUESTION_MODELS = {
     'text': TextInputQuestion,
     'multiple_choice': MultipleChoiceQuestion,
     'numerical_range': NumericalRangeQuestion,
-    'decimal': DecimalInputQuestion,
-    'sorting': SortingQuestion
+    'decimal': DecimalInputQuestion
 }

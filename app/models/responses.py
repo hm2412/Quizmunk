@@ -1,8 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from app.models import TrueFalseQuestion, IntegerInputQuestion, Room
-from app.models.quiz import TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion, \
-    SortingQuestion
+from app.models.quiz import TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion
 from app.models.user import User
 from app.models.guest import GuestAccess
 
@@ -87,14 +86,3 @@ class NumericalRangeResponse(Response):
         else:
             actor = f"Guest ({self.guest_access.session_id[:8]})"
         return f"Numerical Range Answer by {actor} for question {self.question}"
-
-class SortingResponse(Response):
-    question = models.ForeignKey(SortingQuestion, on_delete=models.CASCADE)
-    answer = models.CharField(max_length=255)
-
-    def __str__(self):
-        if self.player:
-            actor = self.player.email_address
-        else:
-            actor = f"Guest ({self.guest_access.session_id[:8]})"
-        return f"Sorting Answer by {actor} for question {self.question}"

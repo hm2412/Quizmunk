@@ -45,10 +45,9 @@ class Quiz(models.Model):
         decimal_qs = self.decimal_questions.all()
         multiple_choice_qs = self.multiple_choice_questions.all()
         numerical_range_qs = self.numerical_range_questions.all()
-        sorting_qs = self.sorting_questions.all()
 
         # Combine all queries
-        all_questions = list(chain(integer_qs, true_false_qs, text_qs, decimal_qs, multiple_choice_qs, numerical_range_qs, sorting_qs))
+        all_questions = list(chain(integer_qs, true_false_qs, text_qs, decimal_qs, multiple_choice_qs, numerical_range_qs))
 
         # Sort by position
         return sorted(all_questions, key=lambda q: q.position if q.position is not None else float('inf'))
@@ -176,20 +175,3 @@ class NumericalRangeQuestion(Question):
     def correct_answer(self):
         # Return the accepted range as a string.
         return f"{self.min_value} - {self.max_value}"
-
-class SortingQuestion(Question):
-
-    options = models.JSONField()
-
-    quiz = models.ForeignKey(
-        Quiz,
-        related_name="sorting_questions",
-        on_delete=models.CASCADE,
-    )
-
-    def __str__(self):
-        return f"SortingQuestion: {self.question_text}"
-
-    def get_items(self):
-        
-        return self.options
