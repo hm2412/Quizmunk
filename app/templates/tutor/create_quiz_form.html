@@ -47,19 +47,37 @@
        </form>
    </div>
 </div>
-{% if form.errors %}
-    <div class="form-error-container">
-        <div class="form-error-header">
-            <strong>Oops! Something went wrong:</strong>
-            <p>Please correct the following fields:</p>
-        </div>
-        <ul class="form-error-list">
-            {% for field, errors in form.errors.items %}
-                <li><strong>{{ field|capfirst }}</strong>: {{ errors|join:", " }}</li>
+<div class="toast-container position-fixed top-0 start-50 translate-middle-x mt-3" id="toast-container" style="z-index: 1055;"></div>
+
+<script>
+  function showToast(message) {
+      const toastId = "toast-" + Date.now();
+      const toastHtml = `
+      <div id="${toastId}" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="d-flex justify-content-between align-items-center toast-body">
+              <span>${message}</span>
+              <button type="button" class="btn-close btn-close-white ms-2 mb-1" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+      </div>`;
+      
+      const container = document.getElementById("toast-container");
+      container.insertAdjacentHTML("beforeend", toastHtml);
+      const toastEl = document.getElementById(toastId);
+      const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+      toast.show();
+  }
+
+  {% if form.errors %}
+    window.addEventListener("DOMContentLoaded", () => {
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+                showToast("{{ field|capfirst }}: {{ error|escapejs }}");
             {% endfor %}
-        </ul>
-    </div>
-{% endif %}
+        {% endfor %}
+    });
+  {% endif %}
+</script>
+
 <script>
    document.body.addEventListener('htmx:configRequest', (event) => {
        event.detail.headers['X-CSRFToken'] = document.querySelector('[name=csrfmiddlewaretoken]').value;
