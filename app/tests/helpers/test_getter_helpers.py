@@ -5,7 +5,7 @@ from app.helpers.helper_functions import get_responses, get_responses_by_player_
     get_leaderboard, create_quiz_stats, get_student_quiz_history, calculate_average_score, find_best_and_worst_scores, \
     getAllQuestions
 from app.models import User, IntegerInputQuestion, Quiz, TrueFalseQuestion, TextInputQuestion, DecimalInputQuestion, \
-    MultipleChoiceQuestion, NumericalRangeQuestion, SortingQuestion, Room, IntegerInputResponse, TrueFalseResponse, \
+    MultipleChoiceQuestion, NumericalRangeQuestion, Room, IntegerInputResponse, TrueFalseResponse, \
     RoomParticipant
 
 class TestGetterHelpers(TestCase):
@@ -104,17 +104,6 @@ class TestGetterHelpers(TestCase):
             max_value=10
         )
 
-        # Sorting Question
-        self.sorting_question = SortingQuestion.objects.create(
-            question_text="Sort the following numbers in ascending order",
-            position=7,
-            time=30,
-            quiz=self.quiz,
-            mark=1,
-            items="5,2,8,1,3",
-            correct_answer="1,2,3,5,8"
-        )
-
         self.room = Room.objects.create(
             name="Room",
             quiz=self.quiz,
@@ -160,15 +149,6 @@ class TestGetterHelpers(TestCase):
 
         create_quiz_stats(self.room)
 
-    # def test_get_responses_by_player_in_room(self):
-    #     responses = get_responses(self.student1, self.room)
-    #     self.assertEqual(len(responses), 2)
-    #
-    #
-    # def test_get_responses_by_question(self):
-    #     responses = get_all_responses_question(self.room, self.integer_question)
-    #     self.assertEqual(len(responses), 2)
-
     def test_count_responses(self):
         self.assertEqual(count_answers_for_question(self.room, self.integer_question), 2)
         self.assertEqual(count_answers_for_question(self.room, self.true_false_question), 2)
@@ -176,7 +156,9 @@ class TestGetterHelpers(TestCase):
         self.assertEqual(count_answers_for_question(self.room, self.text_input_question), 0)
         self.assertEqual(count_answers_for_question(self.room, self.mc_question), 0)
         self.assertEqual(count_answers_for_question(self.room, self.num_range_question), 0)
-        self.assertEqual(count_answers_for_question(self.room, self.sorting_question), 0)
+
+    def test_count_responses_invalid_question(self):
+        self.assertEqual(count_answers_for_question(self.room, self.quiz), 0)
 
     def test_get_streak_bonus(self):
         self.assertEqual(get_streak_bonus(5, 10), 10)
@@ -212,3 +194,6 @@ class TestGetterHelpers(TestCase):
 
     def test_null_get_all_questions(self):
         self.assertIsNone(getAllQuestions(None))
+
+    def test_invalid_calculate_average_score(self):
+        self.assertEqual(calculate_average_score(None), 0)

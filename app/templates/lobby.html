@@ -36,7 +36,7 @@
                     {% endif %}
                 {% else %}
                     <p class="room-code">Room Code: <strong>{{ join_code }}</strong></p>
-                    <img class="qr-code" src="{% static 'images/qr_code.png' %}" alt="Room QR Code">
+                    <img class="qr-code" src="/media/qr_codes/qr_code.png" alt="Room QR Code">
 
                     <div id="participants-list" class="participants-grid">
                         {% for participant in participants %}
