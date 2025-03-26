@@ -75,7 +75,6 @@ class TestStatsHelpers(TestCase):
         self.assertEqual(stats.quiz, self.quiz)
 
         question_stats = QuestionStats.objects.filter(room=self.room)
-        print(question_stats)
 
     def test_get_response_model_class(self):
         tf_content_type = ContentType.objects.get_for_model(self.tf_question)

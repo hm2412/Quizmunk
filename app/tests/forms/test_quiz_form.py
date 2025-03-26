@@ -47,7 +47,6 @@ class QuizFormTestCase(TestCase): #The last 3 of these fail, not sure what's up 
 
     def test_form_save_creates_quiz(self):
         before_count = Quiz.objects.count()
-        print(f'Before count: {before_count}')
         form = QuizForm(data=self.form_input)
         quiz = form.save(commit=False)
         tutor = User.objects.create_user(

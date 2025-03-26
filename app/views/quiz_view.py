@@ -257,12 +257,8 @@ def your_quizzes_view(request):
 @require_POST
 def delete_quiz_view(request, quiz_id):
     """deletes a quiz that belongs to the tutor"""
-    print(f"Delete request received for quiz ID: {quiz_id}") 
     quiz = get_object_or_404(Quiz, id=quiz_id, tutor=request.user)
-    print(f"Deleting quiz: {quiz}") 
     quiz.delete()
     if request.headers.get('HX-Request'):
-            print("HTMX request detected. Returning 204 No Content.")
             return HttpResponse(status=204)
-    print("Standard request. Redirecting to 'your_quizzes'.")
     return redirect('your_quizzes')
