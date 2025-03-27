@@ -1,7 +1,6 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-# from app.models import RoomParticipant, GuestAccess, Room
 
 
 class StudentQuizConsumer(AsyncWebsocketConsumer):
@@ -58,7 +57,7 @@ class StudentQuizConsumer(AsyncWebsocketConsumer):
                 participant = await database_sync_to_async(RoomParticipant.objects.get)(
                     room=room, guest_access=guest
                 )
-            #await database_sync_to_async(lambda: RoomParticipant.objects.filter(id=participant.id).delete())()
+
         except RoomParticipant.DoesNotExist:
             pass
         participants = await self.get_participants(room)

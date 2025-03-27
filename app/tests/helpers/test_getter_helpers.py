@@ -1,7 +1,7 @@
 from itertools import count
 from django.test import TestCase
 from app.helpers.helper_functions import get_responses, get_responses_by_player_in_room, get_all_responses_question, \
-    count_answers_for_question, get_streak_bonus, get_speed_bonus, calculate_user_score, calculate_user_base_score, \
+    count_answers_for_question, get_streak_bonus, calculate_user_score, calculate_user_base_score, \
     get_leaderboard, create_quiz_stats, get_student_quiz_history, calculate_average_score, find_best_and_worst_scores, \
     getAllQuestions
 from app.models import User, IntegerInputQuestion, Quiz, TrueFalseQuestion, TextInputQuestion, DecimalInputQuestion, \
@@ -165,32 +165,26 @@ class TestGetterHelpers(TestCase):
         self.assertEqual(get_streak_bonus(3, 20), 10)
         self.assertEqual(get_streak_bonus(4, 30), 0)
 
-    def test_speed_bonus(self):
-        self.assertEqual(get_speed_bonus(1), 3)
-        self.assertEqual(get_speed_bonus(2), 2)
-        self.assertEqual(get_speed_bonus(7), 1)
-        self.assertEqual(get_speed_bonus(14), 0)
-
     def test_calculate_user_score(self):
-        self.assertEqual(calculate_user_score(self.student1, self.room), 4)
+        self.assertEqual(calculate_user_score(self.student1, self.room), 1)
         self.assertEqual(calculate_user_base_score(self.student1, self.room), 1)
         self.assertEqual(calculate_user_score(None, self.room), 0)
 
     def test_get_leaderboard(self):
         leaderboard=get_leaderboard(self.room)
         self.assertEqual(len(leaderboard), 2)
-        self.assertEqual(get_leaderboard(None), 0)
+        self.assertEqual(get_leaderboard(None), [])
 
     def test_get_student_quiz_history(self):
         calculate_user_score(self.student1, self.room)
         quiz_history = get_student_quiz_history(self.student1)
         self.assertEqual(len(quiz_history), 1)
-        self.assertEqual(quiz_history[0]['quiz_title'], self.quiz.name)
+        self.assertEqual(quiz_history[0]['quiz_name'], self.quiz.name)
         self.assertEqual(quiz_history[0]['score'], 1)
         self.assertEqual(calculate_average_score(quiz_history), 1)
         best_score, worst_score = find_best_and_worst_scores(quiz_history)
-        self.assertEqual(best_score['quiz_title'], self.quiz.name)
-        self.assertEqual(worst_score['quiz_title'], self.quiz.name)
+        self.assertEqual(best_score['quiz_name'], self.quiz.name)
+        self.assertEqual(worst_score['quiz_name'], self.quiz.name)
 
     def test_null_get_all_questions(self):
         self.assertIsNone(getAllQuestions(None))

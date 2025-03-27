@@ -1,5 +1,7 @@
+import time
+
 from django.test import TestCase
-from app.helpers.helper_functions import isCorrectAnswer,get_streak_bonus,get_speed_bonus,calculate_user_score, calculate_user_base_score
+from app.helpers.helper_functions import isCorrectAnswer,get_streak_bonus,calculate_user_score, calculate_user_base_score
 from app.models import User, TrueFalseQuestion, IntegerInputQuestion, NumericalRangeQuestion, TrueFalseResponse, Quiz, RoomParticipant, Response, Room, IntegerInputResponse, NumericalRangeResponse
 
 class TestCalculateUserScore(TestCase):
@@ -84,22 +86,7 @@ class TestCalculateUserScore(TestCase):
         #calculate the score
         score = calculate_user_base_score(self.player1, self.room)
         #check the players score update
-        self.assertEqual(score,5) # speed bonus +3 is applied
-
-    def test_correct_answer_updates_score_with_speed(self):
-        #player1 answers correctly
-        response = TrueFalseResponse.objects.create(
-            player=self.player1,
-            room=self.room,
-            question=self.tf_question,
-            answer=True #correct answer
-        )
-        #ensure isCorrectAnswer() works
-        self.assertTrue(isCorrectAnswer(response))
-        #calculate the score
-        score = calculate_user_score(self.player1, self.room)
-        #check the players score update
-        self.assertEqual(score,8) # speed bonus +3 is applied
+        self.assertEqual(score,5)
 
     def test_incorrect_answer_does_not_add_score(self):
         #player2 answers incorrectly
@@ -138,7 +125,7 @@ class TestCalculateUserScore(TestCase):
         self.assertEqual(score1, expected_score1)  # Player1 should have 15 points
         self.assertEqual(score2, expected_score2)  # Player2 should have 5 points
 
-    def test_streak_and_speed_bonus(self):
+    def test_streak_bonus(self):
         """Test that streak and speed bonuses are applied correctly together."""
         
         # Player1 answers three correct questions in a row (streak bonus applies)
@@ -154,11 +141,11 @@ class TestCalculateUserScore(TestCase):
         score2 = calculate_user_score(self.player2, self.room)
 
         # Base Score: 5+5+5 = 15, Streak Bonus (3rd answer): 0.5 * 5 = 2, Speed Bonus (first answer): 3,Speed Bonus (second answer): 3,Speed Bonus (third answer): 3
-        expected_score1 = 15 + 2 + 3 + 3 + 3 # 26
-        expected_score2 = 5 + 2  # 7 (speed bonus for second responder)
+        expected_score1 = 15 + 2
+        expected_score2 = 5
 
-        self.assertEqual(score1, expected_score1)  # Player1 should have 20 points
-        self.assertEqual(score2, expected_score2)  # Player2 should have 7 points
+        self.assertEqual(score1, expected_score1)
+        self.assertEqual(score2, expected_score2)
 
     def test_null_calculate_user_score(self):
         self.assertEqual(calculate_user_base_score(None, None), 0)

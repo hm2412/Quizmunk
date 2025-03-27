@@ -1,6 +1,5 @@
 from itertools import chain
 from typing import Any
-#from django.contrib.contenttypes.models import ContentType
 from app.models import Quiz, IntegerInputQuestion, Response, TrueFalseQuestion, NumericalRangeResponse, RoomParticipant, \
     TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion, quiz, \
     Stats, IntegerInputResponse, TrueFalseResponse, TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, \
@@ -52,16 +51,6 @@ def get_streak_bonus(streak_count, base_points):
         return int(0.5*base_points)
     return 0
 
-def get_speed_bonus(position):
-    """Calculate the bonus based on the response position."""
-    if position==1:
-        return 3
-    elif 2<=position<=5:
-        return 2
-    elif 6<=position<=10:
-        return 1
-    return 0
-
 def get_responses(user, room):
     #get all the responses for the specific user for a particular room ordered by time
     tf_responses = TrueFalseResponse.objects.filter(player=user, room=room)
@@ -108,12 +97,6 @@ def calculate_user_score(user,room):
             if question_id not in question_position:
                 question_position[question_id] = 0  # Ensure tracking starts at zero
             question_position[question_id] += 1 # Increment for every response
-
-            position = question_position[question_id]  # Get the updated position
-            #apply speed bonuses
-            speed_bonus=get_speed_bonus(position)
-            total_score+=speed_bonus
-            #question_position[question_id] = position
         else: #incorrect answer resets streak
             streak_count=0
     #update the participant's score in the database ie without the added bonuses in order to use for stats page later
@@ -286,9 +269,6 @@ def calculate_guest_score(guest_access, room):
             if question_id not in question_position:
                 question_position[question_id] = 0
             question_position[question_id] += 1
-            position = question_position[question_id]
-            speed_bonus = get_speed_bonus(position)
-            total_score += speed_bonus
         else:
             streak_count = 0
     return total_score
