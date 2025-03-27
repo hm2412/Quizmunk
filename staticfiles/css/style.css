@@ -76,20 +76,18 @@ h2 { font-weight: 600; }
     color: #e0e0e0;
 }
 
+
 .main-content {
-    padding: 30px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    width: calc(100% - 220px);
-    min-height: calc(100vh - 50px); /* Ensure it accounts for the footer */
-    justify-content: center;
-    align-items: center;
+    width: calc(100% - 220px); /* Sidebar width offset */
+    min-height: 100vh;
+    justify-content: center; /* Center items vertically */
+    align-items: center; /* Center items horizontally */
     text-align: center;
-    overflow: hidden; /* Prevent extra scrolling */
-    margin-left: 220px;
+    overflow: hidden; /* Prevent scrolling */
 }
-
 
 
 footer {
@@ -125,10 +123,10 @@ button:hover {
 
 /* Button Container */
 .button-group {
-    padding-top: 20px;
     display: flex;
     gap: 20px;
     justify-content: center;
+    margin-top: 20px;
 }
 
 /* Buttons */
@@ -176,78 +174,4 @@ button:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.hamburger {
-    display: none; /* Hide by default */
-}
-
-@media (max-width: 768px) {
-    /* Hide sidebar by default and show a hamburger menu */
-    .sidebar {
-        z-index: 1000;
-        width: 100%;
-        height: auto;
-        position: fixed;
-        top: 0;
-        left: 0;
-        background-color: #2a7a8c;
-        text-align: center;
-        padding: 10px 0;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
-        display: none; /* Hide by default */
-    }
-
-    .sidebar.active {
-        display: block; /* Show when toggled */
-    }
-
-    .sidebar ul {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .sidebar ul li {
-        padding: 10px;
-    }
-
-    /* Hamburger Menu */
-    .hamburger {
-        display: block;
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        z-index: 1000;
-        font-size: 24px;
-        cursor: pointer;
-        color: white;
-        background: #2a7a8c;
-        border: none;
-    }
-
-    /* Main Content */
-    .main-content {
-        width: 100%; /* Full width */
-        margin-left: 0; /* No sidebar offset */
-        padding: 15px;
-        text-align: center;
-        margin-bottom: 50px;
-    }
-
-    /* Footer */
-    footer {
-        width: 100%;
-        margin-left: 0; /* No sidebar offset */
-    }
-
-    /* Text Scaling */
-    h1 { font-size: 1.8rem; }
-    h2 { font-size: 1.5rem; }
-    p { font-size: 1rem; }
-
-    /* Button Adjustments */
-    .btn, .inverse-btn {
-        font-size: 1rem;
-        padding: 10px 16px;
-    }
 }

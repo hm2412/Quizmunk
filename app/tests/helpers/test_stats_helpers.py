@@ -75,7 +75,6 @@ class TestStatsHelpers(TestCase):
         self.assertEqual(stats.quiz, self.quiz)
 
         question_stats = QuestionStats.objects.filter(room=self.room)
-        print(question_stats)
 
     def test_get_response_model_class(self):
         tf_content_type = ContentType.objects.get_for_model(self.tf_question)
@@ -105,4 +104,4 @@ class TestStatsHelpers(TestCase):
         self.assertIn(self.num_range_response, responses)
 
         self.assertEqual(len(responses), 2)
-        self.assertEqual(len(get_responses_by_player_in_room(self.quiz, self.room)), 0)
+        self.assertEqual(len(get_responses_by_player_in_room(self.player, self.room)), 2)

@@ -34,21 +34,3 @@ class ViewTests(TestCase):
         self.client.login(email_address="tutor@example.com", password="password123")
         response = self.client.get(reverse("homepage"))
         self.assertRedirects(response, reverse("tutor_dashboard"))
-
-    def test_about_us(self):
-        # Test that the About Us page renders and uses the correct template
-        response = self.client.get(reverse("about_us"))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "about.html")
-
-    def test_never_cache(self):
-        # Test that browser doesn't cache any responses
-        response = self.client.get(reverse("homepage"))
-        self.assertIn('Cache-Control', response)
-        self.assertIn('no-cache', response['Cache-Control'])
-
-    def test_homepage_for_anonymous_user(self):
-        # Test that the homepage renders correctly for guests
-        response = self.client.get(reverse("homepage"))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "home.html")

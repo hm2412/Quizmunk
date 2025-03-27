@@ -90,7 +90,6 @@ def calculate_user_score(user,room):
     total_score=0 #score including bonuses
     streak_count=0 # streak tracker
     question_position={} # stores counters for each question
-    print(f"\n--- Debugging Score Calculation for {user.email_address} ---")
     for response in responses:
         question_id = response.question.id
         if isCorrectAnswer(response):
@@ -111,7 +110,6 @@ def calculate_user_score(user,room):
             speed_bonus=get_speed_bonus(position)
             total_score+=speed_bonus
             #question_position[question_id] = position
-            print(f"✅ Correct Answer | Base: {base_points} | Streak Bonus: {streak_bonus} | Speed Bonus: {speed_bonus} | Total: {total_score}")
         else: #incorrect answer resets streak
             streak_count=0
     #update the participant's score in the database ie without the added bonuses in order to use for stats page later

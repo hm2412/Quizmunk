@@ -231,16 +231,3 @@
     max-height: 100%;
 }
 
-@media (max-width: 768px) {
-    .quiz-list {
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-    }
-    
-    .results-list {
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-    }
-}

@@ -147,4 +147,3 @@ class StatsModelTests(TestCase):
             room=self.room,
             quiz=self.quiz
         )
-        print(self.stats.__str__())
