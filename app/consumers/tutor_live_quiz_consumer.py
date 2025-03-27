@@ -327,7 +327,7 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
                 {"type": "participants_update", "participants": participants, "participant_number": participant_number}
             )
         except Exception as e:
-            print("[UPDATE PARTICIPANTS] Error:", e)
+            pass
 
 
     async def participants_update(self, event):
