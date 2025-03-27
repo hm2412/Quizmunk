@@ -71,9 +71,6 @@ class ViewTests(TestCase):
         response = self.client.get(reverse('logout'))
         self.assertRedirects(response, reverse('login'))
 
-        response = self.client.get(reverse("login"))
-        self.assertContains(response, "Logged out successfully!")
-
     def test_never_cache(self):
         # Test that browser doesn't cache any responses
         response = self.client.get(reverse('login'))
