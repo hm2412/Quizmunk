@@ -1,11 +1,15 @@
 from itertools import chain
 from typing import Any
-from django.contrib.contenttypes.models import ContentType
+#from django.contrib.contenttypes.models import ContentType
 from app.models import Quiz, IntegerInputQuestion, Response, TrueFalseQuestion, NumericalRangeResponse, RoomParticipant, \
     TextInputQuestion, DecimalInputQuestion, MultipleChoiceQuestion, NumericalRangeQuestion, quiz, \
     Stats, IntegerInputResponse, TrueFalseResponse, TextInputResponse, DecimalInputResponse, MultipleChoiceResponse, \
     User, Room
 from app.models.stats import QuestionStats
+
+def get_content_type():
+    from django.contrib.contenttypes.models import ContentType
+    return ContentType
 
 def getAllQuestions(quiz):
     if isinstance(quiz, Quiz):
@@ -150,7 +154,7 @@ def create_quiz_stats(room):
     for question in questions:
          QuestionStats.objects.create(
             room=room,
-            question_type=ContentType.objects.get_for_model(question),
+            question_type=get_content_type().objects.get_for_model(question),
             question_id=question.id,
         )
 
@@ -169,7 +173,7 @@ def get_response_model_class(question_type):
     return response_model
 
 def get_all_responses_question(room, question):
-    question_type=ContentType.objects.get_for_model(question)
+    question_type=get_content_type().objects.get_for_model(question)
     responses = get_response_model_class(question_type).objects.filter(room=room, question=question)
     return responses
 
