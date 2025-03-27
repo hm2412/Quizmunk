@@ -161,4 +161,4 @@ class TestCalculateUserScore(TestCase):
         self.assertEqual(score2, expected_score2)  # Player2 should have 7 points
 
     def test_null_calculate_user_score(self):
-        self.assertIsNone(calculate_user_base_score(None, None))
+        self.assertEqual(calculate_user_base_score(None, None), 0)
