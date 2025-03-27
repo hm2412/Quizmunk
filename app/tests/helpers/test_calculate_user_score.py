@@ -157,8 +157,8 @@ class TestCalculateUserScore(TestCase):
         expected_score1 = 15 + 2 + 3 + 3 + 3 # 26
         expected_score2 = 5 + 2  # 7 (speed bonus for second responder)
 
-        self.assertEqual(score1, expected_score1)  # Player1 should have 20 points
-        self.assertEqual(score2, expected_score2)  # Player2 should have 7 points
+        self.assertEqual(score1, expected_score1)
+        self.assertEqual(score2, expected_score2)
 
     def test_null_calculate_user_score(self):
         self.assertEqual(calculate_user_base_score(None, None), 0)
