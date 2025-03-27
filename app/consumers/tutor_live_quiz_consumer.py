@@ -66,8 +66,6 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
             else:
                 result.append(participant.user.email_address)
         return result
-
-        #return list(room.participants.exclude(user__role__iexact="tutor").values_list('user__email_address', flat=True))
     
     @database_sync_to_async
     def get_question_stats(self, question, room):
@@ -98,7 +96,6 @@ class TutorQuizConsumer(AsyncWebsocketConsumer):
         self.room_group_name = f"live_quiz_{self.join_code}"
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
-        #await self.send_updated_participants()
     
 
     async def disconnect(self, close_code):

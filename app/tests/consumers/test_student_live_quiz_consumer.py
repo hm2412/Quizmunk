@@ -71,15 +71,6 @@ class StudentQuizConsumerTests(TransactionTestCase):
         
 
         self.consumer = StudentQuizConsumer()
-    
-        # # Set up the scope correctly
-        # self.consumer.scope = {
-        #     "session": MagicMock(session_key="fake-session-id"),
-        #     "user": self.guest  # Ensures `user` is always set
-        # }
-        
-        # Set up room reference
-        #self.consumer.room = self.room 
 
     def test_guest_saves_numerical_range_response(self):
         """Test that a guest can save a numerical range response"""
@@ -292,16 +283,9 @@ class StudentQuizConsumerTests(TransactionTestCase):
             question=decimal_question,
         ).exists)()
 
-        # self.assertTrue(true_false_response)
-        # self.assertTrue(multiple_choice_response)
-        # self.assertTrue(decimal_response)
-
         self.assertIsNotNone(true_false_response)
         self.assertIsNotNone(multiple_choice_response)
         self.assertIsNotNone(decimal_response)
-
-        # self.assertTrue(TrueFalseResponse.objects.filter(player=self.user, question=self.true_false_question).exists())
-        # self.assertTrue(MultipleChoiceResponse.objects.filter(player=self.user, question=self.integer_question).exists())
 
 
 
@@ -410,11 +394,6 @@ class StudentQuizConsumerTests(TransactionTestCase):
             correct_answer=4,
             mark=1
         )
-        
-        # Create consumer with guest scope
-        #session = SessionStore()
-        #await database_sync_to_async(session.create)()  
-        #session_key = session.session_key
 
         consumer = StudentQuizConsumer(scope={
             'room': self.room,
@@ -423,9 +402,6 @@ class StudentQuizConsumerTests(TransactionTestCase):
         })
 
         consumer.room = self.room
-        
-        # Create guest access
-        #guest_access = GuestAccess.objects.create(session_id=session.session_key)
         
         # Call save_response method
         response = await consumer.save_response(
@@ -478,22 +454,12 @@ class StudentQuizConsumerTests(TransactionTestCase):
             correct_answer=3.14,
             mark=1
         )
-        
-        # Create consumer with guest scope
-        #session = SessionStore()
-        #await database_sync_to_async(session.create)()  
-    
-        #session_key = session.session_key
         consumer = StudentQuizConsumer(scope={
             'room': self.room,
-            #'session': session,
             'user': None
         })
 
         consumer.room = self.room
-        
-        # Create guest access
-        #GuestAccess.objects.create(session_id=session.session_key)
         
         # Call save_response method
         response = await consumer.save_response(
