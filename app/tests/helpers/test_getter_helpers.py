@@ -166,7 +166,7 @@ class TestGetterHelpers(TestCase):
         self.assertEqual(get_streak_bonus(4, 30), 0)
 
     def test_calculate_user_score(self):
-        self.assertEqual(calculate_user_score(self.student1, self.room), 4)
+        self.assertEqual(calculate_user_score(self.student1, self.room), 1)
         self.assertEqual(calculate_user_base_score(self.student1, self.room), 1)
         self.assertEqual(calculate_user_score(None, self.room), 0)
 

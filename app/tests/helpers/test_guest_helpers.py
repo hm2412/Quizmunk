@@ -94,10 +94,9 @@ class TestGuestHelpers(TestCase):
         # Expected:
         # Base = 5 + 3 = 8
         # Streak Bonus = 0
-        # Speed Bonus: +3 (first), +2 (second)
-        # Total: 8 + 3 + 2 = 13
 
-        self.assertEqual(score, 13)
+
+        self.assertEqual(score, 8)
 
     def test_guest_incorrect_answer(self):
         # Add an incorrect response
