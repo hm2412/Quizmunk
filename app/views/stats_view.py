@@ -19,10 +19,20 @@ def stats_view(request):
 
 @is_tutor
 def stats_details(request, stats_id):
-    """show the stats for the live quiz"""
+    """Show the stats for the live quiz, with questions ordered as in the quiz."""
     stats_obj = get_object_or_404(Stats, id=stats_id, quiz__tutor=request.user)
     participants = RoomParticipant.objects.filter(room=stats_obj.room).exclude(user__role__iexact="tutor")
-    questions_stats = QuestionStats.objects.filter(room=stats_obj.room)
+
+    ordered_questions = stats_obj.quiz.get_all_questions()
+    ordered_ids = [(q.id, q._meta.model_name) for q in ordered_questions]
+
+    questions_stats = list(QuestionStats.objects.filter(room=stats_obj.room))
+    questions_stats.sort(key=lambda questions: next(
+        (i for i, q in enumerate(ordered_questions) if q.id == questions.question_id and q._meta.model_name == questions.question_type.model),
+        float('inf')
+        )
+    )
+
     context = {
         "stats": stats_obj,
         "participants": participants,
