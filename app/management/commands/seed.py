@@ -27,7 +27,6 @@ creates a classroom for BOB tutor where only John is a part of it, along with ot
 
 admin_fixtures = [
     {'email': 'Primary.Admin@example.org', 'first_name': 'Primary', 'last_name': 'Admin'},
-    {'email': 'Secondary.Admin@example.org', 'first_name': 'Secondary', 'last_name': 'Admin'}
 ]
 
 tutor_fixtures = [
@@ -87,7 +86,9 @@ class Command(BaseCommand):
         for data in admin_fixtures:
             try:
                 if not User.objects.filter(email_address = data['email']).exists():
-                    User.objects.create_superuser(data['email'], data['first_name'], data['last_name'], Command.PASSWORD)
+                    admin = User.objects.create_superuser(data['email'], data['first_name'], data['last_name'], Command.PASSWORD)
+                    admin.role = User.TUTOR
+                    admin.save()
             except Exception as e:
                 print(f"Error creating admin {data['email']}: {e}")
         print("Admin fixtures seeded")
@@ -110,7 +111,7 @@ class Command(BaseCommand):
                 self.generate_user()
             except:
                 continue
-            user_count += User.objects.count()
+            user_count += 1
         print("Random users seeded")
 
     "Room generating functions"
@@ -390,42 +391,55 @@ class Command(BaseCommand):
         print(f"Seeded {quiz.name} Quiz with 5 Questions")
     
     def generate_quiz_responses(self):
+        print("Responses Seeded")
         self.generate_quiz_1_responses()
         self.generate_quiz_2_responses()
         self.generate_quiz_3_responses()
 
     def generate_quiz_1_responses(self):
+        from app.helpers.helper_functions import create_quiz_stats, calculate_user_score
         students = list(User.objects.filter(role=User.STUDENT))
         quiz = Quiz.objects.filter(name="Python Basics").first()
         room = Room.objects.create(name="Python Quiz Room", quiz=quiz)
         for student in students:
+            participant = RoomParticipant.objects.create(room=room, user=student)
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=1))
             self.generate_true_false_response(student, room, TrueFalseQuestion.objects.get(quiz=quiz, position=2))
             self.generate_multiple_choice_response(student, room, MultipleChoiceQuestion.objects.get(quiz=quiz, position=3))
             self.generate_text_input_response(student, room, TextInputQuestion.objects.get(quiz=quiz, position=4))
+            participant.score = calculate_user_score(student,room)
+        create_quiz_stats(room)
         
     def generate_quiz_2_responses(self):
+        from app.helpers.helper_functions import create_quiz_stats, calculate_user_score
         students = list(User.objects.filter(role=User.STUDENT))
         quiz = Quiz.objects.filter(name="Arithmetic Test").first()
         room = Room.objects.create(name="Arithmetic Test Room", quiz=quiz)
         for student in students:
+            participant = RoomParticipant.objects.create(room=room, user=student)
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=1))
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=2))
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=3))
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=4))
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=5))
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=6))
+            participant.score = calculate_user_score(student,room)
+        create_quiz_stats(room)
 
     def generate_quiz_3_responses(self):
+        from app.helpers.helper_functions import create_quiz_stats, calculate_user_score
         students = list(User.objects.filter(role=User.STUDENT))
         quiz = Quiz.objects.filter(name="Physics Basics").first()
         room = Room.objects.create(name="Physics Test Room", quiz=quiz)
         for student in students:
+            participant = RoomParticipant.objects.create(room=room, user=student)
             self.generate_multiple_choice_response(student, room, MultipleChoiceQuestion.objects.get(quiz=quiz, position=1))
             self.generate_true_false_response(student, room, TrueFalseQuestion.objects.get(quiz=quiz, position=2))
             self.generate_integer_input_response(student, room, IntegerInputQuestion.objects.get(quiz=quiz, position=3))
             self.generate_multiple_choice_response(student, room, MultipleChoiceQuestion.objects.get(quiz=quiz, position=4))
             self.generate_text_input_response(student, room, TextInputQuestion.objects.get(quiz=quiz, position=5))
+            participant.score = calculate_user_score(student,room)
+        create_quiz_stats(room)
      
     def generate_integer_input_response(self, user, room, question):
         IntegerInputResponse.objects.create(

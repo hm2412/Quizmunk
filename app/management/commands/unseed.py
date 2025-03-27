@@ -12,6 +12,10 @@ from app.models import (
     Room,
     RoomParticipant,
     User,
+    IntegerInputResponse,
+    TextInputResponse,
+    MultipleChoiceResponse,
+    TrueFalseResponse
 )
 
 class Command(BaseCommand):
@@ -31,3 +35,8 @@ class Command(BaseCommand):
         TextInputQuestion.objects.all().delete(),
         Room.objects.all().delete()
         RoomParticipant.objects.all().delete()
+        IntegerInputResponse.objects.all().delete(),
+        TextInputResponse.objects.all().delete(),
+        MultipleChoiceResponse.objects.all().delete(),
+        TrueFalseResponse.objects.all().delete()
+
