@@ -44,8 +44,6 @@ class ViewTests(TestCase):
             quiz=self.quiz,
         )
 
-        
-
     def test_tutor_can_access_create_quiz(self):
         """Tutors should be able to access the create quiz page"""
         self.client.login(email_address="tutor@example.com", password="password123")
@@ -70,8 +68,6 @@ class ViewTests(TestCase):
     #     response = self.client.get(reverse("get_question", args=[self.quiz.id]),  {'question_id': self.question.id})
     #     self.assertEqual(response.status_code, 200)
     #     self.assertTemplateUsed("tutor/create_quiz.html")
-
-    
 
     def test_student_cannot_access_get_question(self):
         """Students should not be able to access the create quiz page"""
@@ -150,14 +146,10 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.quiz.name)
 
-    
-
     def test_student_cannot_delete_question(self):
         self.client.login(email_address="student@example.com", password="password123")
         response = self.client.post(reverse("delete_question", args=["integer", self.integer_question.id]))
         self.assertEqual(response.status_code, 403)
-
-    
     
     def test_student_cannot_delete_quiz(self):
         self.client.login(email_address="student@example.com", password="password123")
@@ -169,7 +161,7 @@ class ViewTests(TestCase):
         self.integer_question.save()
 
         self.client.login(email_address="tutor@example.com", password="password123")
-        response = self.client.post(reverse("delete_question_image", args=["integer", self.integer_question.id]))
+        response = self.client.post(reverse("delete_question_image", args=[self.integer_question.id]))
         self.assertEqual(response.status_code, 200)
         self.integer_question.refresh_from_db()
         self.assertFalse(self.integer_question.image)
@@ -188,8 +180,6 @@ class ViewTests(TestCase):
         response = self.client.get(reverse('create_quiz'))
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.context['form'], QuizForm)
-
-    
 
     def test_create_quiz_view_post_invalid(self):
         """Test creating a quiz with invalid data"""
@@ -223,8 +213,6 @@ class ViewTests(TestCase):
     #     # Refresh questions and check their new positions
     #     self.integer_question.refresh_from_db()
     #     self.multiple_choice_question.refresh_from_db()
-
-    
 
     def test_get_question_view_invalid_params(self):
         """Test getting a question with invalid parameters"""
@@ -263,8 +251,6 @@ class ViewTests(TestCase):
         response = self.client.post(reverse('delete_quiz', args=[self.quiz.id]))
         self.assertEqual(response.status_code, 403)
 
-    
-
     def test_unauthenticated_get_question(self):
         """Test unauthenticated user cannot get question"""
         response = self.client.get(
@@ -292,11 +278,9 @@ class ViewTests(TestCase):
             {'question_id': self.integer_question.id, 'question_type': 'integer'}
         )
         
-        
         self.assertEqual(response.status_code, 200, 
             f"Expected 200, got {response.status_code}. Content: {response.content.decode('utf-8')}")
     
-        
         data = json.loads(response.content)
         self.assertEqual(data['question_text'], "What is 2+2?")
         self.assertEqual(data['correct_answer'], 4)
@@ -309,13 +293,9 @@ class ViewTests(TestCase):
             reverse('delete_question', 
             args=['integer', self.integer_question.id])
         )
-
-        
         
         self.assertEqual(response.status_code, 200, 
             f"Expected 200, got {response.status_code}. Content: {response.content.decode('utf-8')}")
-        
-        
         
         # Check question is deleted
         with self.assertRaises(IntegerInputQuestion.DoesNotExist):
@@ -353,7 +333,6 @@ class ViewTests(TestCase):
     #     new_quiz = Quiz.objects.filter(name='New Test Quiz').first()
     #     self.assertIsNotNone(new_quiz)
     #     self.assertEqual(new_quiz.tutor, self.tutor_user)
-
 
     def test_edit_quiz_view_get(self):
         """Test GET request to edit quiz page"""
@@ -434,7 +413,3 @@ class ViewTests(TestCase):
         url = reverse('edit_quiz', kwargs={'quiz_id': self.quiz.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)  # Should raise 404 because they don't own the quiz
-
-
-
-    
