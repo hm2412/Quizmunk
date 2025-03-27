@@ -140,7 +140,8 @@ class Command(BaseCommand):
             subject = "Testing the questions",
             difficulty = "E",
             type = "L",
-            tutor = User.objects.filter(email_address = "Alice.Tutor@example.org").first()
+            tutor = User.objects.filter(email_address = "Alice.Tutor@example.org").first(),
+            is_public=False
         )
         room.quiz = sample_quiz
         room.save()
@@ -221,7 +222,8 @@ class Command(BaseCommand):
             subject="Example Quiz",
             difficulty="E",
             type="L",
-            tutor=tutor
+            tutor=tutor,
+            is_public=True
         )
         IntegerInputQuestion.objects.create(
             question_text="What is the output of `print(2 + 3 * 4)` in Python?",
@@ -269,7 +271,8 @@ class Command(BaseCommand):
             subject="Example Quiz",
             difficulty="E",
             type="L",
-            tutor=tutor
+            tutor=tutor,
+          is_public=True
         )
         IntegerInputQuestion.objects.create(
             question_text="What is 1 + 1?",
@@ -333,7 +336,8 @@ class Command(BaseCommand):
             subject="Example Quiz",
             difficulty="E",
             type="L",
-            tutor=tutor
+            tutor=tutor,
+            is_public=True
         )
 
         MultipleChoiceQuestion.objects.create(

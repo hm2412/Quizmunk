@@ -85,9 +85,8 @@ class TestLogInPage(StaticLiveServerTestCase):
             self.driver.find_element(By.NAME, "correct_answer").send_keys(question_data['correct_answer'])
             self.driver.find_element(By.NAME, "question_text").send_keys(question_data['question_text'])
 
-            submit_button = WebDriverWait(self.driver, 10).until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[type="submit"]'))
-            )
+            question_form = self.driver.find_element(By.ID, f"{question_type}-question-form")
+            submit_button = question_form.find_element(By.CSS_SELECTOR, 'button[type="submit"]')
             submit_button.click()
 
             WebDriverWait(self.driver, 10).until(

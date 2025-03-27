@@ -209,7 +209,7 @@ def get_student_quiz_history(student):
 
         if stats:
             quiz_data = {
-                'quiz_title': stats.quiz.name,
+                'quiz_name': stats.quiz.name,
                 'date_played': stats.date_played,
                 'score': participation.score,
                 'room_id': room.id,

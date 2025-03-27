@@ -31,4 +31,67 @@
     justify-content: flex-start !important;
     align-items: flex-start !important; 
     text-align: left !important; 
-} /* overrides base styling */
+} 
+.search-container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.search-form {
+    width: 100%;
+}
+
+.quiz-info {
+    flex-grow: 1;
+}
+
+.quiz-buttons {
+    margin-left: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.list-group-item {
+    transition: background-color 0.2s;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.badge {
+    font-size: 0.85em;
+}
+
+@media (max-width: 768px) {
+    .list-group-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .quiz-buttons {
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* overrides base styling */
